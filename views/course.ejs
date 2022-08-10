@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <title><%= title %></title>
+</head>
+<body>
+    <main>
+        <section class="lesson">
+            <h3><%= title %></h3>
+            <nav>
+                <button class="lesson__button lesson__button_data">Урок</button>
+                <button class="lesson__button lesson__button_chat">Чат</button>
+            </nav>
+            <div class="lesson__output">
+                <div class="lesson__div lesson__div_data lesson__div_shown">
+                    <h3><%= lessonTitle %></h3>
+                    <p><%= lessonDescription %></p>
+                    <p>Материалы урока</p>
+                    <div>
+                        <% if (lessonImages.length > 0) { %>
+                            <ul>
+                                <% lessonImages.forEach(function(image) { %>
+                                    <li>
+                                        <img src="<%= image %>" alt="">
+                                    </li>
+                                <% }) %>
+                            </ul>
+                        <%} %>
+                        <% if(lessonVideos.length > 0) { %>
+                            <ul>
+                                <% lessonVideos.forEach((video) => { %>
+                                    <li>
+                                        <video src="<%= video %>" type="video/mp4" controls></video>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                        <%} %>
+                    </div>
+                </div>
+                <div class="lesson__div lesson__div_chat">
+                    <!-- <article>Здрасьте</article>
+                    <article>Добрый день!</article> -->
+                </div>
+            </div>
+            <% if(nextLesson) { %>
+                <button class="lesson__button-next">
+                    <a href="<%= nextLesson %>" class="lesson__button-next-anchor">Следующий урок</a>
+                </button>
+            <%} %>
+            <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/IBcUkTXAwbw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+        </section>
+    </main>
+    <template id="lesson__step">
+        <article class="lesson__article">
+            <h3 class="lesson__step-headline"></h3>
+            <p class="lesson__step-para"></p>
+        </article>
+    </template>
+    <script src="/utils.js"></script>
+    <script src="/course.js"></script>
+</body>
+</html>

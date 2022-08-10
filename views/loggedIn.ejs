@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../style.css">
+  <title>Профиль</title>
+</head>
+<body>
+  <main>
+    <section class="content">
+      <button class="content__button-logout">Выйти</button>
+      <h2>Эй, ты, <p class="headline"><%= name %></p>, это твоя панель... управления</h2>
+      <p>Тут можно открыть курс, пройти задания, не пройти задания (шучу), посмотреть свой профиль и так далее</p>
+      <div class="content__courses">
+
+      </div>
+    </section>
+  </main>
+  <section class="popup popup_course-overview">
+    <button class="popup__close">Закрыть</button>
+    <h2 class="popup__headline"></h2>
+    <ul class="popup__list-lessons">
+      
+    </ul>
+  </section>
+  <template id="article">
+    <article class="content__courses-article">
+      <h3 class="content__courses-article-headline"></h3>
+      <p class="content__courses-article-para"></p>
+      <button class="content__courses-article-button">Открыть</button>
+    </article>
+  </template>
+  <template id="lesson-anchor">
+    <li class="popup__list-lessons-element">
+      <a class="popup__list-lessons-element-button"></a>
+    </li>
+  </template>
+  <script src="/utils.js"></script>
+  <script src="/loggedIn.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+[{
+  "_id": {
+    "$oid": "62e7b64dc4ad7c35d02268ec"
+  },
+  "name": "Модуль 1",
+  "description": "Основа дыхания и работы мыщц",
+  "images": [
+    "http://localhost:3000/images/gortan_razrez01.png",
+    "http://localhost:3000/images/gortan_razrez02.png"
+  ]
+},{
+  "_id": {
+    "$oid": "62e7b8cfc4ad7c35d022690b"
+  },
+  "name": "Модуль 2",
+  "description": "Выход на расщепление",
+  "images": [
+    ""
+  ],
+  "videos": [
+    ""
+  ]
+},{
+  "_id": {
+    "$oid": "62e7ba22c4ad7c35d0226913"
+  },
+  "name": "Модуль 3",
+  "description": "Удерживание дисторшна",
+  "images": [
+    ""
+  ],
+  "videos": [
+    ""
+  ]
+},{
+  "_id": {
+    "$oid": "62e7baf1c4ad7c35d022691e"
+  },
+  "name": "Модуль 4",
+  "description": "Работа с песней",
+  "images": [
+    ""
+  ],
+  "videos": [
+    ""
+  ]
+}]

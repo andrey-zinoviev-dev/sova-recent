@@ -1,0 +1,5 @@
+.lesson__div_shown {
+    /* visibility: visible;
+    opacity: 1; */
+    display: block;
+}
