@@ -42,8 +42,15 @@
                     </div>
                 </div>
                 <div class="lesson__div lesson__div_chat">
-                    <!-- <article>Здрасьте</article>
-                    <article>Добрый день!</article> -->
+                    <% if(chatMessages.length > 0) { %>
+                        <ul>
+                            <% chatMessages.forEach(function(message) { %>
+                                <li>
+                                    <%= message.text %>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <%} %>
                 </div>
             </div>
             <% if(nextLesson) { %>

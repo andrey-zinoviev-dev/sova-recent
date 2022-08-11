@@ -30,7 +30,7 @@ const getCourse = (req, res) => {
 const redirectToCourse = (req, res) => {  
   const { id, courseModuleId } = req.params;
   const { _id } = req.user;
-  const coursesToFind = Courses.findById(id).populate('modules')
+  const coursesToFind = Courses.findById(id).populate({path: 'modules'}).populate({path: 'author', populate: {path: 'messages'}})
   .then((doc) => {
     const courseModuleIndex = doc.modules.findIndex((docModule) => {
       return docModule._id.toString() === courseModuleId;
@@ -54,7 +54,7 @@ const redirectToCourse = (req, res) => {
     // });
   });
 
-  const userToFind = User.findById(_id).populate({path: 'messages', populate: {path: 'module'}}).populate({path: 'messages', populate: {path: 'user'}}).select('-password').select('-_id')
+  const userToFind = User.findById(_id).populate({path: 'messages'}).select('-password').select('-_id')
   .then((user) => {
     return user;
   });
@@ -65,8 +65,23 @@ const redirectToCourse = (req, res) => {
     let nextModuleIndex = courseModuleIndex;
     nextModuleIndex += 1; 
 
-    const nextCourseModule = doc.modules[nextModuleIndex] ? doc.modules[nextModuleIndex]._id.toString() : undefined;
+    const nextCourseModule = doc.modules[nextModuleIndex] && doc.modules[nextModuleIndex]._id.toString();
 
+    // console.log(user, doc.author);
+    const authorMessages = doc.author.messages.filter((message) => {
+      return message.module.toString() === courseModule._id.toString();
+    });
+
+    const userMessages = user.messages.filter((message) => {
+      return message.module.toString() === courseModule._id.toString();
+    });
+    let messagesArray = [];
+    userMessages.forEach((message) => {
+      messagesArray.push(message);
+    });
+    authorMessages.forEach((message) => {
+      messagesArray.push(message);
+    })
     res.render('../views/course.ejs', {
       title: doc.name,
       length: doc.length,
@@ -74,7 +89,8 @@ const redirectToCourse = (req, res) => {
       lessonDescription: courseModule.description,
       lessonImages: courseModule.images,
       lessonVideos: courseModule.videos,
-      nextLesson: nextCourseModule ? `http://localhost:3000/courses/${doc._id.toString()}/modules/${nextCourseModule}` : undefined,
+      chatMessages: messagesArray,
+      nextLesson: nextCourseModule && `http://localhost:3000/courses/${doc._id.toString()}/modules/${nextCourseModule}`,
     });
 
   });
