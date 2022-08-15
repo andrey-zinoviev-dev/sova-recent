@@ -12,9 +12,9 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
     },
-    messages: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Message'
-    }],
+    // messages: [{
+    //     type: mongoose.Schema.Types.ObjectId, ref: 'Message'
+    // }],
     // courseTier: {
     //     type: mongoose.Schema.Types.ObjectId, ref: 'plan',
     //     required: true,

@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
 const userModel = require('./userModel');
+
 const moduleSchema = new mongoose.Schema({
   name: String,
   description: String,
   images: [String],
   videos: [String],
+  messages: [{
+    type: mongoose.Schema.Types.ObjectId, ref: 'Message'
+  }],
+  course: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'courses',
+  },
 });
 
 const courseSchema = new mongoose.Schema({

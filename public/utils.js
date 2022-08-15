@@ -16,11 +16,16 @@ const lessonChatDiv = document.querySelector('.lesson__div_chat');
 const lessonDataDiv = document.querySelector('.lesson__div_data');
 const lessonButtonNext = document.querySelector('.lesson__button-next');
 const lessonAnchorNext = document.querySelector('.lesson__button-next-anchor');
+const lessonChatList = document.querySelector('.lesson__div-ul_chat');
+const chatForm = document.querySelector('.lesson__div-form');
+const chatInput = document.querySelector('.lesson__div-form-input');
+const chatMessageSubmitButton = document.querySelector('.lesson__div-form-button');
 
 //templates
 const courseTemplate = document.querySelector('#article');
 const lessonStepTemplate = document.querySelector('#lesson__step');
 const lessonAnchorTemplate = document.querySelector('#lesson-anchor');
+const messageTemplate = document.querySelector('#chat-message');
 
 //functions
 function sendToSever(object, route) {
@@ -76,12 +81,19 @@ function getCourses() {
     })
 }
 
-// function getCourse() {
-//     return fetch(`${window.location.href}/data`)
-//     .then((res) => {
-//         return res.json();
-//     })
-// }
+function sendMessage(message) {
+    return fetch('/messages', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+    })
+    .then((data) => {
+        return data.json();
+    })
+};
 
 function generateFromTemplate(template, selector) {
     return template.content.cloneNode(true).querySelector(selector);

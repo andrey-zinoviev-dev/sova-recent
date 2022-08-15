@@ -43,14 +43,20 @@
                 </div>
                 <div class="lesson__div lesson__div_chat">
                     <% if(chatMessages.length > 0) { %>
-                        <ul>
+                        <ul class="lesson__div-ul lesson__div-ul_chat">
                             <% chatMessages.forEach(function(message) { %>
                                 <li>
-                                    <%= message.text %>
+                                    <p><%= message.text %></p>
                                 </li>
                             <% }); %>
                         </ul>
                     <%} %>
+                    <div>
+                        <form class="lesson__div-form">
+                            <input class="lesson__div-form-input" type="text" name="message">
+                            <button type="submit" class="lesson__div-form-button"><i class="fa-solid fa-comment"></i></button>
+                        </form>
+                    </div>
                 </div>
             </div>
             <% if(nextLesson) { %>
@@ -67,6 +73,12 @@
             <p class="lesson__step-para"></p>
         </article>
     </template>
+    <template id="chat-message">
+        <li class="lesson__div-ul-li">
+            <p class="lesson__div-ul-li-p"></p>
+        </li>
+    </template>
+    <script src="https://kit.fontawesome.com/a116da90a0.js" crossorigin="anonymous"></script>
     <script src="/utils.js"></script>
     <script src="/course.js"></script>
 </body>

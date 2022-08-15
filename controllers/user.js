@@ -72,7 +72,7 @@ const redirectToLoggedInPage = (req, res) => {
     }
     User.findById(_id).populate('messages').select('-password').select('-_id')
     .then((doc) => {
-        console.log(doc);
+        // console.log(doc);
         res.render('../views/loggedIn.ejs', {
             name: doc.name,
         });

@@ -1,5 +1,5 @@
 // const { populate } = require('../models/chatMessage');
-const { Courses } = require('../models/courseModel');
+const { Courses, lessonModules } = require('../models/courseModel');
 const User = require('../models/userModel');
 
 const requestCourses = (req, res) => {
@@ -30,67 +30,64 @@ const getCourse = (req, res) => {
 const redirectToCourse = (req, res) => {  
   const { id, courseModuleId } = req.params;
   const { _id } = req.user;
-  const coursesToFind = Courses.findById(id).populate({path: 'modules'}).populate({path: 'author', populate: {path: 'messages'}})
-  .then((doc) => {
-    const courseModuleIndex = doc.modules.findIndex((docModule) => {
-      return docModule._id.toString() === courseModuleId;
-    });
-    return [courseModuleIndex, doc];
-    // const courseModule = doc.modules[courseModuleIndex];
 
-    // let nextModuleIndex = courseModuleIndex;
-    // nextModuleIndex += 1; 
-
-    // const nextCourseModule = doc.modules[nextModuleIndex] ? doc.modules[nextModuleIndex]._id.toString() : undefined;
-    // // return [courseModule, nextCourseModule];
-    // res.render('../views/course.ejs', {
-    //   title: doc.name,
-    //   length: doc.length,
-    //   lessonTitle: courseModule.name,
-    //   lessonDescription: courseModule.description,
-    //   lessonImages: courseModule.images,
-    //   lessonVideos: courseModule.videos,
-    //   nextLesson: nextCourseModule ? `http://localhost:3000/courses/${doc._id.toString()}/modules/${nextCourseModule}` : undefined,
-    // });
+  const moduleToFind = lessonModules.findById(courseModuleId).populate({path: 'messages'}).populate({path: 'course', populate: {path: 'modules'}}).then((courseModule) => {
+    return courseModule;
   });
 
-  const userToFind = User.findById(_id).populate({path: 'messages'}).select('-password').select('-_id')
+  // const coursesToFind = Courses.findById(id).populate({path: 'modules', populate: {path: 'messages'}}).populate({path: 'author', populate: {path: 'messages'}})
+  // .then((doc) => {
+  //   const courseModuleIndex = doc.modules.findIndex((docModule) => {
+  //     return docModule._id.toString() === courseModuleId;
+  //   });
+  //   return [courseModuleIndex, doc];
+
+  // });
+
+  const userToFind = User.findById(_id).select('-password')
   .then((user) => {
     return user;
   });
 
-  Promise.all([coursesToFind, userToFind]).then((values) => {
-    const [ [courseModuleIndex, doc], user ] = values;
-    const courseModule = doc.modules[courseModuleIndex];
-    let nextModuleIndex = courseModuleIndex;
-    nextModuleIndex += 1; 
+  Promise.all([moduleToFind, userToFind]).then((values) => {
+    const [courseModule, user] = values;
+    const course = courseModule.course;
+    const modules = course.modules;
+    const courseModuleIndex = modules.findIndex((courseModule) => {
+      return courseModule._id.toString() === courseModule._id.toString();
+    });
+    let courseNextModuleIndex = courseModuleIndex;
+    courseNextModuleIndex +=1;
+    const courseNextModule = modules[courseNextModuleIndex] && modules[courseNextModuleIndex]._id.toString();
+    
+    
+    // const [doc, user] = values;
+    // const [ [courseModuleIndex, doc], user ] = values;
+    
+    // const courseModule = doc.modules[courseModuleIndex];
+    // let nextModuleIndex = courseModuleIndex;
+    // nextModuleIndex += 1; 
 
-    const nextCourseModule = doc.modules[nextModuleIndex] && doc.modules[nextModuleIndex]._id.toString();
+    // const nextCourseModule = doc.modules[nextModuleIndex] && doc.modules[nextModuleIndex]._id.toString();
 
-    // console.log(user, doc.author);
-    const authorMessages = doc.author.messages.filter((message) => {
-      return message.module.toString() === courseModule._id.toString();
+    const userMessages = courseModule.messages.filter((message) => {
+      return message.module.toString() === courseModule._id.toString() && message.user.toString() && user._id.toString();
     });
 
-    const userMessages = user.messages.filter((message) => {
-      return message.module.toString() === courseModule._id.toString();
+    const authorMessages = courseModule.messages.filter((message) => {
+      return message.module.toString() === courseModule._id.toString() && message.user.toString() === course.author.toString();
     });
-    let messagesArray = [];
-    userMessages.forEach((message) => {
-      messagesArray.push(message);
-    });
-    authorMessages.forEach((message) => {
-      messagesArray.push(message);
-    })
+    let messagesArray = [...userMessages, ...authorMessages];
+
     res.render('../views/course.ejs', {
-      title: doc.name,
-      length: doc.length,
+      title: course.name,
+      length: course.length,
       lessonTitle: courseModule.name,
       lessonDescription: courseModule.description,
       lessonImages: courseModule.images,
       lessonVideos: courseModule.videos,
-      chatMessages: messagesArray,
-      nextLesson: nextCourseModule && `http://localhost:3000/courses/${doc._id.toString()}/modules/${nextCourseModule}`,
+      chatMessages: messagesArray.length > 0 && messagesArray,
+      nextLesson: courseNextModule && `http://localhost:3000/courses/${courseModule._id.toString()}/modules/${courseNextModule}`,
     });
 
   });
