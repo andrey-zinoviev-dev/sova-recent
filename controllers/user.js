@@ -70,7 +70,7 @@ const redirectToLoggedInPage = (req, res) => {
             message: "Пользователь не найден",
         });
     }
-    User.findById(_id).populate('messages').select('-password').select('-_id')
+    User.findById(_id).select('-password').select('-_id')
     .then((doc) => {
         // console.log(doc);
         res.render('../views/loggedIn.ejs', {

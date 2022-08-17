@@ -6,6 +6,9 @@ const messageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'User'
     },
     text: String,
+    to: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'User',
+    },
     module: {
         type: mongoose.Schema.Types.ObjectId, ref: 'module',
     }

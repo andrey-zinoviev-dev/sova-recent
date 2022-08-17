@@ -1,5 +1,6 @@
 // const { populate } = require('../models/chatMessage');
 const { Courses, lessonModules } = require('../models/courseModel');
+const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
 
 const requestCourses = (req, res) => {
@@ -34,6 +35,7 @@ const redirectToCourse = (req, res) => {
   const moduleToFind = lessonModules.findById(courseModuleId).populate({path: 'messages'}).populate({path: 'course', populate: {path: 'modules'}}).then((courseModule) => {
     return courseModule;
   });
+  const messagesList = getMessagesOfUser();
 
   // const coursesToFind = Courses.findById(id).populate({path: 'modules', populate: {path: 'messages'}}).populate({path: 'author', populate: {path: 'messages'}})
   // .then((doc) => {
@@ -49,36 +51,34 @@ const redirectToCourse = (req, res) => {
     return user;
   });
 
-  Promise.all([moduleToFind, userToFind]).then((values) => {
-    const [courseModule, user] = values;
+  Promise.all([moduleToFind, messagesList, userToFind]).then((values) => {
+    const [courseModule, messages, user] = values;
+    
     const course = courseModule.course;
     const modules = course.modules;
     const courseModuleIndex = modules.findIndex((courseModule) => {
       return courseModule._id.toString() === courseModule._id.toString();
     });
+
     let courseNextModuleIndex = courseModuleIndex;
     courseNextModuleIndex +=1;
     const courseNextModule = modules[courseNextModuleIndex] && modules[courseNextModuleIndex]._id.toString();
+
     
+    // courseModule.messages.forEach((message) => {
+    //   console.log(message.to);
+    // })
+
+    // const senderMessages = messages.filter((message) => {
+    //   return message.module.toString() === courseModule._id.toString() && message.user._id.toString() === user._id.toString();
+    // });
     
-    // const [doc, user] = values;
-    // const [ [courseModuleIndex, doc], user ] = values;
-    
-    // const courseModule = doc.modules[courseModuleIndex];
-    // let nextModuleIndex = courseModuleIndex;
-    // nextModuleIndex += 1; 
-
-    // const nextCourseModule = doc.modules[nextModuleIndex] && doc.modules[nextModuleIndex]._id.toString();
-
-    const userMessages = courseModule.messages.filter((message) => {
-      return message.module.toString() === courseModule._id.toString() && message.user.toString() && user._id.toString();
-    });
-
-    const authorMessages = courseModule.messages.filter((message) => {
-      return message.module.toString() === courseModule._id.toString() && message.user.toString() === course.author.toString();
-    });
-    let messagesArray = [...userMessages, ...authorMessages];
-
+    // const receiverMessages = messages.filter((message) => {
+    //   return message.module.toString() === courseModule._id.toString() && message.user._id.toString() === course.author.toString();
+    // });
+    // console.log(authorMessages);
+    // let messagesArray = [...senderMessages, ...receiverMessages];
+    // console.log(messagesArray);
     res.render('../views/course.ejs', {
       title: course.name,
       length: course.length,
