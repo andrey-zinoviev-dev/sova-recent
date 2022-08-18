@@ -12,6 +12,9 @@ const moduleSchema = new mongoose.Schema({
   course: {
     type: mongoose.Schema.Types.ObjectId, ref: 'courses',
   },
+  students: [
+    {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  ],
 });
 
 const courseSchema = new mongoose.Schema({
@@ -24,7 +27,7 @@ const courseSchema = new mongoose.Schema({
   modules: [{type: mongoose.Schema.Types.ObjectId, ref: 'module'}],
   author: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
-  }
+  },
   // {
   //   // type: [{ name: String, description: String, images: [String], videos: [String], }],
   // },

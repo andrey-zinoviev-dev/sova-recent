@@ -13,7 +13,12 @@
             <h3><%= title %></h3>
             <nav>
                 <button class="lesson__button lesson__button_data">Урок</button>
-                <button class="lesson__button lesson__button_chat">Чат</button>
+                <button class="lesson__button lesson__button_chat"><% if(admin) { %>
+                    Чаты
+                <%} else { %>
+                    Чат
+                <%} %>
+                </button>
             </nav>
             <div class="lesson__output">
                 <div class="lesson__div lesson__div_data lesson__div_shown">
@@ -42,21 +47,30 @@
                     </div>
                 </div>
                 <div class="lesson__div lesson__div_chat">
-                    <% if(chatMessages.length > 0) { %>
-                        <ul class="lesson__div-ul lesson__div-ul_chat">
-                            <% chatMessages.forEach(function(message) { %>
+                    <% if(admin) { %>
+                        <ul>
+                            <% chats.forEach((chat) => { %>
                                 <li>
-                                    <p><%= message.text %> (<%= message.user.name %>)</p>
+                                    <p><%= chat %></p>
+                                    <form class="lesson__div-form">
+                                        <input class="lesson__div-form-input" type="text" name="message">
+                                        <button type="submit" class="lesson__div-form-button"><i class="fa-solid fa-comment"></i></button>
+                                    </form>
                                 </li>
-                            <% }); %>
+                            <%}); %>
                         </ul>
-                    <%} %>
-                    <div>
+                    <%} else { %>
+                        <ul class="lesson__div-ul lesson__div-ul_chat">
+
+                        </ul>
+                        
                         <form class="lesson__div-form">
                             <input class="lesson__div-form-input" type="text" name="message">
                             <button type="submit" class="lesson__div-form-button"><i class="fa-solid fa-comment"></i></button>
                         </form>
-                    </div>
+                    <%} %>
+
+
                 </div>
             </div>
             <% if(nextLesson) { %>
@@ -79,7 +93,10 @@
         </li>
     </template>
     <script src="https://kit.fontawesome.com/a116da90a0.js" crossorigin="anonymous"></script>
+    <!-- <script src="/node_modules/socket.io/wrapper.mjs">
+        const socket = io();
+    </script> -->
     <script src="/utils.js"></script>
-    <script src="/course.js"></script>
+    <script type="module" src="/course.js"></script>
 </body>
 </html>

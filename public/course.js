@@ -8,10 +8,13 @@
 //   });
   
 // })
+
+//socket io initialization
+
 const courseKeyStartIndex = window.location.href.indexOf('courses/');
 const courseKeyEndIndex = window.location.href.indexOf('/modules');
 const courseKey = window.location.href.substring(courseKeyStartIndex, courseKeyEndIndex).replace('courses/', '');
-console.log(courseKey);
+// console.log(courseKey);
 const moduleKeyIndex = window.location.href.lastIndexOf('/') + 1;
 const moduleKey = window.location.href.substring(moduleKeyIndex, window.location.href.length);
 
@@ -19,7 +22,6 @@ lessonDataButton.addEventListener('click', (evt) => {
     // console.log(evt.target);
     lessonDataDiv.classList.add('lesson__div_shown');
     lessonChatDiv.classList.remove('lesson__div_shown');
-
 });
 
 lessonChatButton.addEventListener('click', (evt) => {
