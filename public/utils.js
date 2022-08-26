@@ -16,6 +16,7 @@ const lessonChatDiv = document.querySelector('.lesson__div_chat');
 const lessonDataDiv = document.querySelector('.lesson__div_data');
 const lessonButtonNext = document.querySelector('.lesson__button-next');
 const lessonAnchorNext = document.querySelector('.lesson__button-next-anchor');
+const lessonChatsList = document.querySelector('.lesson__div-ul-chats');
 const lessonChatList = document.querySelector('.lesson__div-ul_chat');
 const chatForm = document.querySelector('.lesson__div-form');
 const chatInput = document.querySelector('.lesson__div-form-input');
@@ -26,7 +27,8 @@ const courseTemplate = document.querySelector('#article');
 const lessonStepTemplate = document.querySelector('#lesson__step');
 const lessonAnchorTemplate = document.querySelector('#lesson-anchor');
 const messageTemplate = document.querySelector('#chat-message');
-
+const chatTemplate = document.querySelector('#chat');
+const listElementTemplate = document.querySelector('#list-element');
 //functions
 function sendToSever(object, route) {
     return fetch(`/${route}`, {
@@ -52,9 +54,6 @@ function getCurrentUser() {
     return fetch('/currentUser')
     .then((res) => {
         return res.json();
-    })
-    .then((data) => {
-        console.log(data);
     })
 }
 

@@ -51,16 +51,16 @@ const register = (req, res) => {
 };
 
 const showCurrentUser = (req, res) => {
-    // const { _id } = req.user;
-    // if(!_id) {
-    //     return res.status(401).send({
-    //         message: "Пользователь не найден",
-    //     });
-    // }
-    // User.findById(_id).select('-password').select('-_id')
-    // .then((doc) => {
-    //     return res.status(200).send(doc);
-    // })
+    const { _id } = req.user;
+    if(!_id) {
+        return res.status(401).send({
+            message: "Пользователь не найден",
+        });
+    }
+    User.findById(_id).select('-password')
+    .then((doc) => {
+        return res.status(200).send(doc);
+    })
 };
 
 const redirectToLoggedInPage = (req, res) => {

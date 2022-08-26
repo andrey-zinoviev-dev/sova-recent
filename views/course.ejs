@@ -48,16 +48,8 @@
                 </div>
                 <div class="lesson__div lesson__div_chat">
                     <% if(admin) { %>
-                        <ul>
-                            <% chats.forEach((chat) => { %>
-                                <li>
-                                    <p><%= chat %></p>
-                                    <form class="lesson__div-form">
-                                        <input class="lesson__div-form-input" type="text" name="message">
-                                        <button type="submit" class="lesson__div-form-button"><i class="fa-solid fa-comment"></i></button>
-                                    </form>
-                                </li>
-                            <%}); %>
+                        <ul class="lesson__div-ul lesson__div-ul-chats">
+                              
                         </ul>
                     <%} else { %>
                         <ul class="lesson__div-ul lesson__div-ul_chat">
@@ -87,15 +79,25 @@
             <p class="lesson__step-para"></p>
         </article>
     </template>
+    <template id="list-element">
+        <li class="lesson__div-ul-li"></li>
+    </template>
+    <template id="chat">
+        <div class="lesson__div-ul-li-chat">
+            <span></span>
+            <form class="lesson__div-form">
+                <input class="lesson__div-form-input" type="text" name="message">
+                <button type="submit" class="lesson__div-form-button"><i class="fa-solid fa-comment"></i></button>
+            </form>
+        </div>
+    </template>
     <template id="chat-message">
         <li class="lesson__div-ul-li">
             <p class="lesson__div-ul-li-p"></p>
         </li>
     </template>
     <script src="https://kit.fontawesome.com/a116da90a0.js" crossorigin="anonymous"></script>
-    <!-- <script src="/node_modules/socket.io/wrapper.mjs">
-        const socket = io();
-    </script> -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
     <script src="/utils.js"></script>
     <script type="module" src="/course.js"></script>
 </body>

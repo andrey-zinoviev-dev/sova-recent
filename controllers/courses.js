@@ -67,7 +67,7 @@ const redirectToCourse = (req, res) => {
 
     const userIsAuthor = user._id.toString() === courseAuthor.toString();
     if(userIsAuthor) {
-      const moduleStudents = courseModule.students;
+      // const moduleStudents = courseModule.students;
       
       return res.render('../views/course.ejs', {
         admin: user.admin,
@@ -77,7 +77,7 @@ const redirectToCourse = (req, res) => {
         lessonDescription: courseModule.description,
         lessonImages: courseModule.images,
         lessonVideos: courseModule.videos,
-        chats: moduleStudents,
+        // chats: moduleStudents,
         nextLesson: courseNextModule && `http://localhost:3000/courses/${courseModule._id.toString()}/modules/${courseNextModule}`,
       });
     };
