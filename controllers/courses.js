@@ -94,7 +94,7 @@ const redirectToCourse = (req, res) => {
     //   return message.module.toString() === courseModule._id.toString() && message.user._id.toString() === course.author.toString();
     // });
     // console.log(authorMessages);
-    let messagesArray = [];
+    // let messagesArray = [];
     // let messagesArray = [...senderMessages, ...receiverMessages];
     // console.log(messagesArray);
 

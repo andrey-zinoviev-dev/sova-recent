@@ -7,7 +7,7 @@ const securedRouter = express();
 securedRouter.get('/currentUser', showCurrentUser);
 securedRouter.get('/courses', redirectToLoggedInPage);
 securedRouter.get('/coursesList', requestCourses);
-
+securedRouter.get('/courses/:id', getCourse);
 securedRouter.get('/courses/:id/modules/:courseModuleId', redirectToCourse);
 // securedRouter.get('/courses/:id/data', getCourse);
 securedRouter.post('/messages', sendMessage);

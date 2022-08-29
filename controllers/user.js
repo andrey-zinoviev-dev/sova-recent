@@ -22,10 +22,13 @@ const login = (req, res) => {
                 });
             }
             const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
-            
-            return res.cookie('token', token, {httpOnly: true}).status(200).send({
-                message: "Успешный вход",
-            });
+            //FOR TEST PURPOSES TOKEN GOES TO LOCALSTORAGE, REVERT TO COOKE LATER
+            res.status(200).send({token});
+
+            //UNCOMMENT LATER FOR COOKIE AUTH, NOT IN LOCALSTORAGE
+            // return res.cookie('token', token, {httpOnly: true}).status(200).send({
+            //     message: "Успешный вход",
+            // });
         })
     });
 };
