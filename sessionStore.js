@@ -8,7 +8,7 @@ class InMemorySessionStore {
   }
 
   saveSession(id, session) {
-    this.sessions.set(id, session);
+    return this.sessions.set(id, session);
   }
 
   findAllSessions() {

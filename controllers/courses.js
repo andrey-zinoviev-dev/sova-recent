@@ -18,7 +18,7 @@ const requestCourses = (req, res) => {
 
 const getCourse = (req, res) => {
   const { id } = req.params;
-  Courses.findById(id)
+  Courses.findById(id).populate('modules')
   .then((doc) => {
     res.status(200).send(doc);
   });
