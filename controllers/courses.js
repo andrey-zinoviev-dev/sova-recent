@@ -18,12 +18,24 @@ const requestCourses = (req, res) => {
 
 const getCourse = (req, res) => {
   const { id } = req.params;
-  Courses.findById(id).populate('modules')
+  Courses.findById(id).populate({path: 'modules', populate: { path: 'students'} }).populate({path: 'author'})
   .then((doc) => {
     res.status(200).send(doc);
   });
 };
 
+const getModule = (req, res) => {
+  const { courseModuleId } = req.params;
+  lessonModules.findById(courseModuleId).populate({path: 'students'})
+  .then((moduleDoc) => {
+    if(!moduleDoc) {
+      return res.status(401).send({
+        message: 'Что-то пошло не так, модуль курса не найден'
+      });
+    }
+    return res.status(200).send(moduleDoc);
+  })
+};
 // const getCourseModule = (req, res) => {
 
 // };
@@ -119,4 +131,5 @@ module.exports = {
   requestCourses,
   redirectToCourse,
   getCourse,
+  getModule,
 }

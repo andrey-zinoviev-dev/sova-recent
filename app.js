@@ -49,94 +49,95 @@ const users = [];
 //     socket.userID = userIDGenerated;
 //     next();
 // });
+
 io.use((socket, next) => {
     const { localsessionID } = socket.handshake.auth;
+    
     if(localsessionID) {
+        // console.log(localsessionID);
         socket.sessionID = localsessionID;
         return next();
     }
+    // console.log('another connection');
     const generatedSessionID = crypto.randomBytes(8).toString('hex');
     socket.sessionID = generatedSessionID;
     return next();
 });
 
 io.on('connection', (socket) => {
-    // const {sessionID, userID} = socket;
-    //get all sesstions connected
-    // console.log(sessionsStore.findAllSessions());
+    
     // save session on socket connection
     socket.on('userConnected', (user) => {
-        // console.log(users);
-        // const { localsessionID } = socket.handshake.auth;
-        // if(localsessionID) {
-        //     console.log(users);
-        // }
+        // console.log(user);
         socket.userID = user._id;
         socket.username = user.name;
-        const foundUser = users.find((userInList) => {
+
+        // console.log(users);
+        
+        const foundUserIndex = users.findIndex((userInList) => {
             return userInList.userID === user._id;
         });
-        if(!foundUser) {
-            users.push({sessionID: socket.sessionID, userID: user._id, username: user.name});
+        
+        if(foundUserIndex < 0) {
+            users.push({ sessionID: socket.sessionID, userID: user._id, username: user.name, online: true });
+        } else {
+            users[foundUserIndex] = { ...users[foundUserIndex], online: true };
         }
-        // const foundUser = users.find((u) => {
-        //     return u._id === user._id;
-        // });
+
+
+        // console.log(users);
         // console.log(socket);
-        // console.log(foundUser);
-        // const generatedSessionID = crypto.randomBytes(8).toString('hex');
-        // // console.log(generatedSessionID);
-        // socket.sessionID = generatedSessionID;
-        // socket.userID = user._id;
-        // socket.username = user.name;
-        // // console.log(socket);
         
         socket.emit('session', {
             sessionID: socket.sessionID,
             userID:  socket.userID,
+            users: users,
+        });
+        socket.join(socket.userID);
+        // if(socket.username ==='Sova') {
+        //     console.log('course author is connected');
+        // }
+        socket.emit('users', users);
+
+        socket.broadcast.emit('user is online', {
+            userID: socket.userID,
+            username: user.name,
+            online: true,
         });
 
-        socket.emit('users', users);
+        socket.on('disconnect', () => {
+            // console.log(socket);
+            const foundUserIndex = users.findIndex((userInList) => {
+                return userInList.userID === user._id;
+            });
+            users[foundUserIndex] = {...users[foundUserIndex], online: false};
+
+            socket.broadcast.emit('user is offline', {
+                userID: socket.userID,
+                username: user.name,
+                // online: false,
+                users: users,
+            });
+        });
+
+        // console.log(socket);
     });
-    // users.push({sessionID: sessionID, userID: userID});
+    // console.log(socket);
+    socket.on('message', ({ text, module, from, to }) => {
+        
+        socket.to(to).emit('private message', {
+            text,
+            module,
+            from: socket.userID,
+            to,
+        });
+    });
 
-    // sessionsStore.saveSession(sessionID, {
-    //     userID: userID,
-    //     connected: true,
-    // });
-    // console.log(users);
 
-    // socket.join(socket.userID);
+    // console.log(socket.userID);
 
-    // //find all users connected
-    
-    // socket.emit('users', {users: sessionsStore.findAllSessions()})
-    // const socketsMap = io.of('/').sockets;
-    // console.log(socketsMap.get(socket.id))
-    // // for(let {sessionID} in io.of('/').sockets) {
-    // //     console.log(sessionID);
-    // // }
-    // socket.on('disconnect', () => {
-    //     const { sessionID, userID } = socket;
-    //     sessionsStore.saveSession(sessionID, {userID, connected: false});
-    // });
-    // const currentUsers = [];
-    // for(let [id, socket] of io.of('/').sockets) {
-    //     console.log(socket);
-    //     // currentUsers.push({id: id, user: socket.user})
-    // };
-    // socket.emit('users', currentUsers);
-    
-    // // console.log(socket);
-    // socket.on('chat message', ({objToSend, to}) => {
-    //     socket.to(to).emit('chat message', {
-    //         content: objToSend,
-    //         from: socket.id,
-    //     });
-    // });
-    // socket.on('connected to course', (user) => {
-    //     // console.log(socket);
-    //     console.log(user);
+    // socket.broadcast.emit('disconnect', () => {
+    //     console.log('user disconnected', socket);
     // })
 });
 
