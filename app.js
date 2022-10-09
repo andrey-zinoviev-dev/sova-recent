@@ -120,18 +120,14 @@ io.on('connection', (socket) => {
             });
         });
 
-        // console.log(socket);
-    });
-    // console.log(socket);
-    socket.on('message', ({ text, module, from, to }) => {
-        
-        socket.to(to).emit('private message', {
-            text,
-            module,
-            from: socket.userID,
-            to,
+        socket.on('message', (data) => {
+            console.log(data);
+            const { to } = data;
+            socket.to(to).emit('private message', data);
         });
     });
+    // console.log(socket);
+
 
 
     // console.log(socket.userID);

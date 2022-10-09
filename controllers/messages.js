@@ -49,9 +49,15 @@ const getMessagesOfUser = ((req, res) => {
 
 const sendMessage = (req, res) => {
   
-  const { message, moduleId } = req.body;
+  const { text, moduleID, user, to } = req.body;
+    
   const { _id } = req.user;
-  console.log(message);
+
+  const foundUser = User.findById(_id).select('-password')
+  .then((doc) => {
+    return doc;
+  });
+  // console.log(message);
   // const moduleToUpdate = lessonModules.findById(moduleId).populate({path: 'course'})
   // .then((courseModule) => {
   //   if(!courseModule) {
@@ -68,13 +74,20 @@ const sendMessage = (req, res) => {
   //   // return courseModule;
   // })
 
-  Message.create({text: message.text, user: _id, module: message.module, to: message.to })
+  const createdMessage = Message.create({text: text, user: _id, module: moduleID, to: to })
   .then((message) => {
-    if(!message) {
+    return message;
+  });
+
+  Promise.all([foundUser, createdMessage])
+  .then(([doc, message]) => {
+
+    if(!message || !doc) {
       return //process error;
     }
-    return res.status(201).send({message: 'Сообщение отправлено!'});
-  })
+    message.user = doc;
+    return res.status(201).send(message);
+  });
 
   // Promise.all([moduleToUpdate, messageToSave])
   // .then((values) => {
