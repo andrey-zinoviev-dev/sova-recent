@@ -51,6 +51,7 @@ const users = [];
 // });
 
 io.use((socket, next) => {
+    
     const { localsessionID } = socket.handshake.auth;
     
     if(localsessionID) {
@@ -68,11 +69,9 @@ io.on('connection', (socket) => {
     
     // save session on socket connection
     socket.on('userConnected', (user) => {
-        // console.log(user);
+        
         socket.userID = user._id;
         socket.username = user.name;
-
-        // console.log(users);
         
         const foundUserIndex = users.findIndex((userInList) => {
             return userInList.userID === user._id;
@@ -85,8 +84,8 @@ io.on('connection', (socket) => {
         }
 
 
-        // console.log(users);
-        // console.log(socket);
+        console.log(users);
+
         
         socket.emit('session', {
             sessionID: socket.sessionID,
