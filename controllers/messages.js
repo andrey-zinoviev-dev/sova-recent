@@ -4,46 +4,53 @@ const Message = require('../models/chatMessage');
 
 const getMessagesOfUser = ((req, res) => {
   //hardcode, remove it futher
-  const courseAuthorId = '62f3bc4e73c05a4c07f9e56a';
+  // const courseAuthorId = '62f3bc4e73c05a4c07f9e56a';
   //hardcore, remoe it futher
 
-
-  const { _id } = req.user;
-  const { courseModuleId } = req.params;
-  // console.log(courseModuleId);
-  // console.log(_id);
-  const user = User.findById(_id)
-  .then((foundUser) => {
-    return foundUser;
-  });
-
-  const foundMessages = Message.find({}).populate('user')
+  Message.find({}).populate('user')
   .then((messages) => {
-    return messages;
-    
-  });
-
-  Promise.all([user, foundMessages])
-  .then(([foundUser, messages]) => {
-    if(foundUser.admin) {
-      const moduleMessages = messages.filter((message) => {
-        return message.module.toString() === courseModuleId && message.user._id.toString() === foundUser._id.toString() ||  message.module.toString() === courseModuleId && message.to._id.toString() === foundUser._id.toString();
-      });
-      return res.status(200).send(moduleMessages);
+    if(!messages) {
+      return;
     }
-
-
-    const moduleMessages = messages.filter((message) => {
-      return message.module.toString() === courseModuleId && message.user._id.toString() === foundUser._id.toString() || message.module.toString() === courseModuleId && message.user._id.toString() === courseAuthorId && message.to._id.toString() === foundUser._id.toString();
-    });
-
-    if(!moduleMessages) {
-      return res.status(400).send({
-        message: 'Сообщений пока нет',
-      });
-    }
-    return res.status(200).send(moduleMessages);
+    return res.status(200).send(messages);
   })
+
+  // const { _id } = req.user;
+  // const { courseModuleId } = req.params;
+  // // console.log(courseModuleId);
+  // // console.log(_id);
+  // const user = User.findById(_id)
+  // .then((foundUser) => {
+  //   return foundUser;
+  // });
+
+  // const foundMessages = Message.find({}).populate('user')
+  // .then((messages) => {
+  //   return messages;
+    
+  // });
+
+  // Promise.all([user, foundMessages])
+  // .then(([foundUser, messages]) => {
+  //   if(foundUser.admin) {
+  //     const moduleMessages = messages.filter((message) => {
+  //       return message.module.toString() === courseModuleId && message.user._id.toString() === foundUser._id.toString() ||  message.module.toString() === courseModuleId && message.to._id.toString() === foundUser._id.toString();
+  //     });
+  //     return res.status(200).send(moduleMessages);
+  //   }
+
+
+  //   const moduleMessages = messages.filter((message) => {
+  //     return message.module.toString() === courseModuleId && message.user._id.toString() === foundUser._id.toString() || message.module.toString() === courseModuleId && message.user._id.toString() === courseAuthorId && message.to._id.toString() === foundUser._id.toString();
+  //   });
+
+  //   if(!moduleMessages) {
+  //     return res.status(400).send({
+  //       message: 'Сообщений пока нет',
+  //     });
+  //   }
+  //   return res.status(200).send(moduleMessages);
+  // })
   // const userToFind = User.findById(_id)
 });
 
