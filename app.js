@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
         }
 
 
-        console.log(users);
+        // console.log(users);
 
         
         socket.emit('session', {
