@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const userModel = require('./userModel');
 const { lessonModules } = require('./courseModel');
-const Conversation = require('./conversations');
+const Conversation = require('./Conversation');
 
 const messageSchema = new mongoose.Schema({
     user: {
