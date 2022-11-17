@@ -7,7 +7,7 @@ const getMessagesOfUser = ((req, res) => {
   // const courseAuthorId = '62f3bc4e73c05a4c07f9e56a';
   //hardcore, remoe it futher
 
-  Message.find({}).populate('user')
+  Message.find({}).populate('user').populate('to').populate('conversation')
   .then((messages) => {
     if(!messages) {
       return;
