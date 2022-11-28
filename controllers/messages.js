@@ -1,13 +1,15 @@
 const User = require('../models/userModel');
 const { lessonModules } = require('../models/courseModel'); 
 const Message = require('../models/chatMessage');
+const Conversation = require('../models/Conversation');
 
 const getMessagesOfUser = ((req, res) => {
   //hardcode, remove it futher
   // const courseAuthorId = '62f3bc4e73c05a4c07f9e56a';
   //hardcore, remoe it futher
 
-  Message.find({}).populate('user').populate('to').populate('conversation')
+  // Message.find({}).populate('user').populate('to').populate('conversation')
+  Message.find({}).populate('conversation')
   .then((messages) => {
     if(!messages) {
       return;
@@ -57,13 +59,42 @@ const getMessagesOfUser = ((req, res) => {
 const sendMessage = (req, res) => {
   
   const { text, moduleID, user, to } = req.body;
-    
-  const { _id } = req.user;
-
-  const foundUser = User.findById(_id).select('-password')
+  
+  Conversation.find({members: {$all: [user, to]}})
   .then((doc) => {
-    return doc;
-  });
+    const foundConvo = doc.pop();
+    if(foundConvo) {
+      // console.log('convo exists');
+      return Message.create({text: text, user: user, to: to, module: moduleID, conversation: foundConvo})
+      .then((message) =>{
+        if(!message) {
+          return; //process error
+        }
+        return res.status(201).send(message);
+      });
+    }
+    console.log('create convo');
+    return Conversation.create({members: [user, to]})
+    .then((convo) => {
+      if(!convo) {
+        return;
+      }
+      // console.log('convo exists');
+      return Message.create({text: text, user: user, to: to, module: moduleID, conversation: convo})
+      .then((message) =>{
+        if(!message) {
+          return; //process error
+        }
+        return res.status(201).send(message);
+      });
+    })
+  })
+  // const { _id } = req.user;
+
+  // const foundUser = User.findById(_id).select('-password')
+  // .then((doc) => {
+  //   return doc;
+  // });
   // console.log(message);
   // const moduleToUpdate = lessonModules.findById(moduleId).populate({path: 'course'})
   // .then((courseModule) => {
@@ -81,20 +112,20 @@ const sendMessage = (req, res) => {
   //   // return courseModule;
   // })
 
-  const createdMessage = Message.create({text: text, user: _id, module: moduleID, to: to })
-  .then((message) => {
-    return message;
-  });
+  // const createdMessage = Message.create({text: text, user: _id, module: moduleID, to: to })
+  // .then((message) => {
+  //   return message;
+  // });
 
-  Promise.all([foundUser, createdMessage])
-  .then(([doc, message]) => {
+  // Promise.all([foundUser, createdMessage])
+  // .then(([doc, message]) => {
 
-    if(!message || !doc) {
-      return //process error;
-    }
-    message.user = doc;
-    return res.status(201).send(message);
-  });
+  //   if(!message || !doc) {
+  //     return //process error;
+  //   }
+  //   message.user = doc;
+  //   return res.status(201).send(message);
+  // });
 
   // Promise.all([moduleToUpdate, messageToSave])
   // .then((values) => {
