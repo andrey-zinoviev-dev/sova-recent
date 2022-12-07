@@ -120,7 +120,8 @@ io.on('connection', (socket) => {
         });
 
         socket.on('message', (data) => {
-            const { to } = data;
+            const { to, file } = data;
+            // console.log(file);
             socket.to(to).emit('private message', data);
         });
     });

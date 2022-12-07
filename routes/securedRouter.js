@@ -1,9 +1,20 @@
 const express = require('express');
+const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage } = require('../controllers/user');
 const { requestCourses, redirectToCourse, getCourse, getModule } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
-const securedRouter = express();
+
+const multer = require('multer');
+const multerStorage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, 'public/uploads/');
+  }, 
+  filename: function (req, file, callback) {
+    callback(null, Date.now() + Math.round(Math.random() * 1E9) + "-" + file.originalname)
+  }
+})
+const upload = multer({storage: multerStorage});
 
 securedRouter.get('/currentUser', showCurrentUser);
 securedRouter.get('/courses', redirectToLoggedInPage);
@@ -13,7 +24,7 @@ securedRouter.get('/courses/:id', getCourse);
 securedRouter.get('/modules/:courseModuleId', getModule)
 securedRouter.get('/modules/:courseModuleId/messages', getMessagesOfUser);
 // securedRouter.get('/courses/:id/data', getCourse);
-securedRouter.post('/messages', sendMessage);
+securedRouter.post('/messages', upload.array("files"), sendMessage);
 securedRouter.get('/convos/:userId', getConversations)
 
 module.exports = {

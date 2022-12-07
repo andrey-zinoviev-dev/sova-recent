@@ -16,7 +16,10 @@ const messageSchema = new mongoose.Schema({
     },
     conversation: {
         type: mongoose.Schema.Types.ObjectId, ref: 'Conversation'
-    }
+    },
+    files: [{
+        type: Object,
+    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Message', messageSchema);
