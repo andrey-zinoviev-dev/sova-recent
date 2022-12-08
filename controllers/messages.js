@@ -59,13 +59,12 @@ const getMessagesOfUser = ((req, res) => {
 const sendMessage = (req, res) => {
   
   const { text, moduleID, user, to } = req.body;
-  console.log(req.files);
+  
 
   Conversation.find({members: {$all: [user, to]}})
   .then((doc) => {
     const foundConvo = doc.pop();
     if(foundConvo) {
-      // console.log('convo exists');
       return Message.create({text: text, user: user, to: to, module: moduleID, conversation: foundConvo, files: req.files})
       .then((message) =>{
         if(!message) {
@@ -74,7 +73,6 @@ const sendMessage = (req, res) => {
         return res.status(201).send(message);
       });
     }
-    console.log('create convo');
     return Conversation.create({members: [user, to]})
     .then((convo) => {
       if(!convo) {
