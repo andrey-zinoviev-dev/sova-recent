@@ -26,7 +26,7 @@ const getCourse = (req, res) => {
 
 const getModule = (req, res) => {
   const { courseModuleId } = req.params;
-  lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "modules"}, populate: {path: "author"}}).populate({path: 'students'})
+  lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "author"}}).populate({path:"course", populate: {path: "modules"}}).populate({path: 'students'})
   .then((moduleDoc) => {
     if(!moduleDoc) {
       return res.status(401).send({
