@@ -38,15 +38,14 @@ const register = (req, res) => {
     return User.findOne({email: email})
     .then((doc) => {
         if(doc) {
-            return res.status(403).send({message: 'Пользователь существует'});
+            return res.status(400).send({message: 'Пользователь существует'});
         }
         return bcrypt.hash(password, 10)
         .then((hash) => {
             return User.create({ email: email, password: hash, name: fullname})
-            .then(() => {
-                return res.status(201).send({
-                    message: 'Пользователь создан!',
-                });
+            .then((doc) => {
+                const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
+                return res.status(201).send({token});
             }); 
         })
 
