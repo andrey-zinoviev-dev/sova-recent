@@ -52,7 +52,7 @@ const users = [];
 // });
 
 io.use((socket, next) => {
-    
+    console.log(socket);
     const { localsessionID } = socket.handshake.auth;
     
     if(localsessionID) {
