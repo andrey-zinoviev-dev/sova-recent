@@ -54,6 +54,7 @@ const register = (req, res) => {
 
 const showCurrentUser = (req, res) => {
     const { _id } = req.user;
+    console.log(_id);
     if(!_id) {
         return res.status(401).send({
             message: "Пользователь не найден",
