@@ -25,18 +25,46 @@ const getCourse = (req, res) => {
 };
 
 const createCourse = (req, res) => {
-  const { module } = req.body;
-  const {text} = module;
-  const mediaArray = text.content.filter((el) => {
-    if(el.type === 'image') {
-      return el;
-    } else {
-      return;
-    }
-  });
-  mediaArray.forEach((mediaEl) => {
-    console.log(mediaEl.attrs.src);
-  })
+  // console.log(req.body);
+  // const { course, module } = req.body;
+  console.log(req.body);
+
+  // Courses.findOne({name: course.name})
+  // .then((doc) => {
+  //   if(doc) {
+  //     return;
+  //   }
+  //   Courses.create({name: course.name, description: course.description})
+  //   .then((createdCourse) => {
+  //     // console.log(createdCourse);
+  //     lessonModules.create({name: "Модуль Алекс", description: "Первый модуль курса для Алексов", course: createdCourse._id})
+  //     .then((createdModule) => {
+  //       createdCourse.modules.push(createdModule);
+  //       createdCourse.save();
+  //     })
+  //   })
+  // })
+
+  // const { module } = req.body;
+  // const {text} = module;
+  // // console.log(text.content);
+  // const mediaArray = text.content.filter((el) => {
+  //   if(el.type === 'image' || el.type === 'video') {
+  //     return el;
+  //   } else {
+  //     return;
+  //   }
+  // });
+
+  // console.log(req.files);
+  // console.log(mediaArray);
+  // mediaArray.forEach((mediaEl) => {
+  //   console.log(mediaEl.attrs.src);
+  // })
+};
+
+const uploadFilesToCourse = (req, res) => {
+  console.log(req.files);
 };
 
 const getModule = (req, res) => {
@@ -147,5 +175,6 @@ module.exports = {
   // redirectToCourse,
   getCourse,
   createCourse,
+  uploadFilesToCourse,
   getModule,
 }

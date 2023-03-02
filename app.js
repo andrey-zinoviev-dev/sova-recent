@@ -52,7 +52,7 @@ const users = [];
 // });
 
 io.use((socket, next) => {
-    console.log(socket);
+    // console.log(socket);
     const { localsessionID } = socket.handshake.auth;
     
     if(localsessionID) {
@@ -145,7 +145,7 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+app.use(express.json({limit: '10mb'}));
 
 //html template engine
 app.set('view engine', 'ejs');

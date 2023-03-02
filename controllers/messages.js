@@ -59,7 +59,7 @@ const getMessagesOfUser = ((req, res) => {
 const sendMessage = (req, res) => {
   
   const { text, moduleID, user, to } = req.body;
-  
+  // console.log(req.files);
 
   Conversation.find({members: {$all: [user, to]}})
   .then((doc) => {
