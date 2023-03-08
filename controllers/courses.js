@@ -26,24 +26,52 @@ const getCourse = (req, res) => {
 
 const createCourse = (req, res) => {
   // console.log(req.body);
-  // const { course, module } = req.body;
-  console.log(req.body);
+  const { course, module } = req.body;
+  const { name, description } = JSON.parse(course);
+  const {text} = JSON.parse(module);
+  // const filesLayout = text.content.filter((el) => {
+  //   return el.type === 'image' || el.type === 'video';
+  // });
 
-  // Courses.findOne({name: course.name})
-  // .then((doc) => {
-  //   if(doc) {
-  //     return;
-  //   }
-  //   Courses.create({name: course.name, description: course.description})
-  //   .then((createdCourse) => {
+  // req.files.forEach((uploadedFile) => {
+  //   const fileToUpdate = filesLayout.find((elToFind) => {
+  //     return elToFind.title === uploadedFile.originalName;
+  //   });
+  //   // fileToUpdate && fileToUpdate.attrs.src = uploadedFile.path;
+  //   fileToUpdate.attrs.src = uploadedFile.path.replace('public','');
+  // });
+  const uploadedContent = text.content.map((contentEl) => {
+    if(contentEl.type === 'image' || contentEl.type === 'video') {
+      const fileToUpdate = req.files.find((file) => {
+        return file.originalName === contentEl.title;
+      });
+      //change url further
+      contentEl.attrs.src = fileToUpdate.path.replace('public', 'http://localhost:3000'); 
+    } 
+    return contentEl;
+
+  });
+  // console.log(text);
+  // console.log(uploadedContent);
+  text.content = uploadedContent;
+  Courses.findOne({name: name})
+  .then((doc) => {
+  //   console.log(doc);
+    if(doc) {
+      return;
+    }
+    Courses.create({name: name, description: description})
+    .then((createdCourse) => {
+      
   //     // console.log(createdCourse);
-  //     lessonModules.create({name: "Модуль Алекс", description: "Первый модуль курса для Алексов", course: createdCourse._id})
-  //     .then((createdModule) => {
-  //       createdCourse.modules.push(createdModule);
-  //       createdCourse.save();
-  //     })
-  //   })
-  // })
+      lessonModules.create({name: "Модуль Алекс", description: "Первый модуль курса для Алексов", layout: text, files: req.files, course: createdCourse._id})
+      .then((createdModule) => {
+        createdCourse.modules.push(createdModule);
+        createdCourse.save();
+        res.status(201).send(createdCourse);
+      })
+    })
+  })
 
   // const { module } = req.body;
   // const {text} = module;

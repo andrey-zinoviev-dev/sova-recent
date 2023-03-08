@@ -4,8 +4,10 @@ const userModel = require('./userModel');
 const moduleSchema = new mongoose.Schema({
   name: String,
   description: String,
-  images: [String],
-  videos: [String],
+  layout: Object,
+  files: [Object],
+  // images: [String],
+  // videos: [String],
   messages: [{
     type: mongoose.Schema.Types.ObjectId, ref: 'Message'
   }],
