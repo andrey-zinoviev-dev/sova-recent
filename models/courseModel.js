@@ -4,6 +4,7 @@ const userModel = require('./userModel');
 const moduleSchema = new mongoose.Schema({
   name: String,
   description: String,
+  layout: Object,
   images: [String],
   videos: [String],
   messages: [{
