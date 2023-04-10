@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const userModel = require('./userModel');
-
+const lessonModel = require('./lessonsModel');
 const moduleSchema = new mongoose.Schema({
   name: String,
   description: String,
@@ -8,7 +8,9 @@ const moduleSchema = new mongoose.Schema({
 
   images: [String],
   videos: [String],
-
+  lessons: [
+      {type: mongoose.Schema.Types.ObjectId, ref: 'lessons'},
+  ],
   messages: [{
     type: mongoose.Schema.Types.ObjectId, ref: 'Message'
   }],

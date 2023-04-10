@@ -4,7 +4,7 @@ const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
 
 const requestCourses = (req, res) => {
-  Courses.find({}).populate('modules')
+  Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"})
   .then((docs) => {
     if(!docs) {
       return res.status(401).send({
@@ -102,7 +102,7 @@ const uploadFilesToCourse = (req, res) => {
 
 const getModule = (req, res) => {
   const { courseModuleId } = req.params;
-  lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "author"}}).populate({path:"course", populate: {path: "modules"}}).populate({path: 'students'})
+  lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "author"}}).populate({path:"course", populate: {path: "modules"}}).populate({path: 'students'}).populate({path: "lessons"})
   .then((moduleDoc) => {
     if(!moduleDoc) {
       return res.status(401).send({
