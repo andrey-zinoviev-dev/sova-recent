@@ -3,13 +3,13 @@ const userModel = require('./userModel');
 const lessonModel = require('./lessonsModel');
 const moduleSchema = new mongoose.Schema({
   name: String,
-  description: String,
-  layout: Object,
+  // description: String,
+  // layout: Object,
 
-  images: [String],
-  videos: [String],
+  // images: [String],
+  // videos: [String],
   lessons: [
-      {type: mongoose.Schema.Types.ObjectId, ref: 'lessons'},
+    Object,
   ],
   messages: [{
     type: mongoose.Schema.Types.ObjectId, ref: 'Message'
