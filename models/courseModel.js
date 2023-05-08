@@ -1,26 +1,32 @@
 const mongoose = require('mongoose');
 const userModel = require('./userModel');
 const lessonModel = require('./lessonsModel');
-const moduleSchema = new mongoose.Schema({
-  name: String,
-  // description: String,
-  // layout: Object,
+// const moduleSchema = new mongoose.Schema({
+//   name: String,
+//   // description: String,
+//   // layout: Object,
 
-  // images: [String],
-  // videos: [String],
-  lessons: [
-    Object,
-  ],
-  messages: [{
-    type: mongoose.Schema.Types.ObjectId, ref: 'Message'
-  }],
-  course: {
-    type: mongoose.Schema.Types.ObjectId, ref: 'courses',
-  },
-  students: [
-    {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-  ],
-});
+//   // images: [String],
+//   // videos: [String],
+//   lessons: [
+//     new mongoose.Schema({
+//       title: String,
+//       outline: Object,
+//       // module:  {
+//       //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
+//       // }
+//     }),
+//   ],
+//   messages: [{
+//     type: mongoose.Schema.Types.ObjectId, ref: 'Message'
+//   }],
+//   course: {
+//     type: mongoose.Schema.Types.ObjectId, ref: 'courses',
+//   },
+//   students: [
+//     {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+//   ],
+// });
 
 const courseSchema = new mongoose.Schema({
   name: {
@@ -32,7 +38,38 @@ const courseSchema = new mongoose.Schema({
   length: {
     type: Number,
   },
-  modules: [{type: mongoose.Schema.Types.ObjectId, ref: 'module'}],
+  modules: [
+    new mongoose.Schema({
+      title: String,
+      // lessons: Array,
+      author: Object,
+      // description: String,
+      // layout: Object,
+    
+      // images: [String],
+      // videos: [String],
+      lessons: [
+        new mongoose.Schema({
+          title: String,
+          layout: Object,
+          module: Object,
+          // module:  {
+          //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
+          // }
+        }),
+      ],
+      // messages: [{
+      //   type: mongoose.Schema.Types.ObjectId, ref: 'Message'
+      // }],
+      course: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'courses',
+      },
+      students: [
+        {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+      ],
+    }),
+  ],
+  // modules: [{type: mongoose.Schema.Types.ObjectId, ref: 'module'}],
   author: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
   },
@@ -47,6 +84,6 @@ const courseSchema = new mongoose.Schema({
   // },
 });
 const Courses = mongoose.model('courses', courseSchema);
-const lessonModules = mongoose.model('module', moduleSchema);
+// const lessonModules = mongoose.model('module', moduleSchema);
 
-module.exports = { Courses, lessonModules };
+module.exports = { Courses };

@@ -29,7 +29,7 @@ const createCourse = (req, res) => {
   const { course, modules } = req.body;
   const parsedCourse = JSON.parse(course);
   const parsedModules = JSON.parse(modules);
-
+  // console.log(parsedModules);
   const newModules = parsedModules.map((parsedModule) => {
     const {lessons} = parsedModule;
     
@@ -44,7 +44,7 @@ const createCourse = (req, res) => {
         }
         return contentEl;
       });
-      lesson.layout = updatedContent;
+      lesson.layout.content = updatedContent;
       return lesson;
     })
     return {...parsedModule, lessons: updatedLessons};
@@ -66,26 +66,27 @@ const createCourse = (req, res) => {
 
   Courses.findOne({name: parsedCourse.name})
   .then((doc) => {
-    console.log(doc);
+  //   console.log(doc);
     if(doc) {
       return;
     }
-    Courses.create({name: parsedCourse.name, description: parsedCourse.description})
+    Courses.create({name: parsedCourse.name, description: parsedCourse.description, modules: parsedModules})
     .then((createdCourse) => {
-      // console.log(newModules);
-      const modulesToInsert = newModules.map((newModule) => {
-        return lessonModules.create({name: newModule.title, lessons: newModule.lessons, course: createdCourse._id, students: []})
-        // .then((createdModule) => {
-        //   return createdCourse.updateOne({$addToSet: {modules: createdModule}}, {new: true})
-        // })
-      });
-      Promise.all(modulesToInsert)
-      .then((results) => {
-        console.log(results);
-        createdCourse.modules = results;
-        createdCourse.save();
-        res.status(201).send(createdCourse);
-      })
+      res.status(201).send(createdCourse);
+  //     // console.log(newModules);
+  //     const modulesToInsert = newModules.map((newModule) => {
+  //       return lessonModules.create({name: newModule.title, lessons: newModule.lessons, course: createdCourse._id, students: []})
+  //       // .then((createdModule) => {
+  //       //   return createdCourse.updateOne({$addToSet: {modules: createdModule}}, {new: true})
+  //       // })
+  //     });
+  //     Promise.all(modulesToInsert)
+  //     .then((results) => {
+  //       console.log(results);
+  //       createdCourse.modules = results;
+  //       createdCourse.save();
+  //       res.status(201).send(createdCourse);
+  //     })
       
     })
   })
