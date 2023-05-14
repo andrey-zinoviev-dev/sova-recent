@@ -73,6 +73,7 @@ const courseSchema = new mongoose.Schema({
   author: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
   },
+  cover: String,
   // {
   //   // type: [{ name: String, description: String, images: [String], videos: [String], }],
   // },

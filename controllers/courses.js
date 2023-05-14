@@ -29,7 +29,8 @@ const createCourse = (req, res) => {
   const { course, modules } = req.body;
   const parsedCourse = JSON.parse(course);
   const parsedModules = JSON.parse(modules);
-  // console.log(parsedModules);
+  console.log(parsedCourse.cover);
+  // console.log(req.files);
   const newModules = parsedModules.map((parsedModule) => {
     const {lessons} = parsedModule;
     
@@ -64,13 +65,18 @@ const createCourse = (req, res) => {
 
   });
 
+  const courseCover = req.files.find((file) => {
+    return file.originalname === parsedCourse.cover.title;
+  });
+  const newPath = courseCover.path.replace('public', 'http://localhost:3000');
+
   Courses.findOne({name: parsedCourse.name})
   .then((doc) => {
   //   console.log(doc);
     if(doc) {
       return;
     }
-    Courses.create({name: parsedCourse.name, description: parsedCourse.description, modules: parsedModules})
+    Courses.create({name: parsedCourse.name, description: parsedCourse.description, modules: newModules, cover: newPath})
     .then((createdCourse) => {
       res.status(201).send(createdCourse);
   //     // console.log(newModules);
@@ -190,17 +196,34 @@ const uploadFilesToCourse = (req, res) => {
   console.log(req.files);
 };
 
-const getModule = (req, res) => {
-  const { courseModuleId } = req.params;
-  lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "author"}}).populate({path:"course", populate: {path: "modules"}}).populate({path: 'students'}).populate({path: "lessons"})
-  .then((moduleDoc) => {
-    if(!moduleDoc) {
-      return res.status(401).send({
-        message: 'Что-то пошло не так, модуль курса не найден'
-      });
-    }
-    return res.status(200).send(moduleDoc);
+const getLesson = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  // console.log(courseID, moduleID, lessonID);
+  Courses.findById(courseID)
+  .then((course) => {
+    const { modules } = course;
+
+    const module = modules.find((module) => {
+      return module._id.toString() === moduleID;
+    });
+
+    const { lessons } = module;
+
+    const lesson = lessons.find((lesson) => {
+      return lesson._id.toString() === lessonID;
+    });
+
+    res.status(200).send(lesson);
   })
+  // lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "author"}}).populate({path:"course", populate: {path: "modules"}}).populate({path: 'students'}).populate({path: "lessons"})
+  // .then((moduleDoc) => {
+  //   if(!moduleDoc) {
+  //     return res.status(401).send({
+  //       message: 'Что-то пошло не так, модуль курса не найден'
+  //     });
+  //   }
+  //   return res.status(200).send(moduleDoc);
+  // })
 };
 // const getCourseModule = (req, res) => {
 
@@ -299,5 +322,5 @@ module.exports = {
   getCourse,
   createCourse,
   uploadFilesToCourse,
-  getModule,
+  getLesson,
 }
