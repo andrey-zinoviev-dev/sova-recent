@@ -35,18 +35,21 @@ const createCourse = (req, res) => {
     const {lessons} = parsedModule;
     
     const updatedLessons = lessons.map((lesson) => {
-      const { content } = lesson.layout;
-      const updatedContent = content.map((contentEl) => {
-        if(contentEl.type === 'image' || contentEl.type === 'video') {
-          const foundFile = req.files.find((fileFromMulter) => {
-            return fileFromMulter.originalname === contentEl.attrs.title;
-          });
-            contentEl.attrs.src = foundFile.path.replace('public', 'http://localhost:3000');
-        }
-        return contentEl;
-      });
-      lesson.layout.content = updatedContent;
-      return lesson;
+      if(lesson.layout) {
+        const { content } = lesson.layout;
+        const updatedContent = content.map((contentEl) => {
+          if(contentEl.type === 'image' || contentEl.type === 'video') {
+            const foundFile = req.files.find((fileFromMulter) => {
+              return fileFromMulter.originalname === contentEl.attrs.title;
+            });
+              contentEl.attrs.src = foundFile.path.replace('public', 'http://localhost:3000');
+          }
+          return contentEl;
+        });
+        lesson.layout.content = updatedContent;
+        return lesson;
+      }
+
     })
     return {...parsedModule, lessons: updatedLessons};
     // lessons.forEach((lesson) => {
@@ -213,7 +216,7 @@ const getLesson = (req, res) => {
       return lesson._id.toString() === lessonID;
     });
 
-    res.status(200).send(lesson);
+    res.status(200).send({module, lesson});
   })
   // lessonModules.findById(courseModuleId).populate({path: "course", populate: {path: "author"}}).populate({path:"course", populate: {path: "modules"}}).populate({path: 'students'}).populate({path: "lessons"})
   // .then((moduleDoc) => {

@@ -53,6 +53,7 @@ const courseSchema = new mongoose.Schema({
           title: String,
           layout: Object,
           module: Object,
+          students: [Object],
           // module:  {
           //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
           // }
