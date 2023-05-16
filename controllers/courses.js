@@ -204,6 +204,7 @@ const getLesson = (req, res) => {
   // console.log(courseID, moduleID, lessonID);
   Courses.findById(courseID)
   .then((course) => {
+    console.log(course);
     const { modules } = course;
 
     const module = modules.find((module) => {

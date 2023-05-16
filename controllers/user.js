@@ -84,9 +84,20 @@ const redirectToLoggedInPage = (req, res) => {
     
 };
 
+const getAllStudents = (req, res) => {
+    User.find({admin: false})
+    .then((docs) => {
+        if(!docs) {
+            return;
+        }
+        return res.status(200).send(docs);
+    })
+}
+
 module.exports = {
     login,
     register,
     showCurrentUser,
     redirectToLoggedInPage,
+    getAllStudents
 }

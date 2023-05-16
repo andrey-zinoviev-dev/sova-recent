@@ -38,6 +38,7 @@ const courseSchema = new mongoose.Schema({
   length: {
     type: Number,
   },
+  students: [Object],
   modules: [
     new mongoose.Schema({
       title: String,
@@ -53,7 +54,6 @@ const courseSchema = new mongoose.Schema({
           title: String,
           layout: Object,
           module: Object,
-          students: [Object],
           // module:  {
           //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
           // }
@@ -65,9 +65,9 @@ const courseSchema = new mongoose.Schema({
       course: {
         type: mongoose.Schema.Types.ObjectId, ref: 'courses',
       },
-      students: [
-        {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-      ],
+      // students: [
+      //   {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+      // ],
     }),
   ],
   // modules: [{type: mongoose.Schema.Types.ObjectId, ref: 'module'}],
