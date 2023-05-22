@@ -38,7 +38,9 @@ const courseSchema = new mongoose.Schema({
   length: {
     type: Number,
   },
-  students: [Object],
+  students: [{
+    type: mongoose.Schema.Types.ObjectId, ref: "User",
+  }],
   modules: [
     new mongoose.Schema({
       title: String,

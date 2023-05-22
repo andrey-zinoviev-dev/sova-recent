@@ -320,6 +320,25 @@ const getLesson = (req, res) => {
 //   // res.send('ok');
 // };
 
+const addStudentsToCourse = (req, res) => {
+  const { courseId, students } = req.body;
+  Courses.findById(courseId)
+  .then((foundCourse) => {
+    if(!foundCourse) {
+      return;
+    }
+    const studentsToInsert = students.filter((student) => {
+      return !foundCourse.students.includes(student);
+    });
+    console.log(studentsToInsert);
+    studentsToInsert.forEach((student) => {
+      foundCourse.students.push(student);
+    });
+    foundCourse.save();
+    res.status(200).send({message: "Ученики успешно добавлены!"});
+  })
+};
+
 module.exports = {
   requestCourses,
   // redirectToCourse,
@@ -327,4 +346,5 @@ module.exports = {
   createCourse,
   uploadFilesToCourse,
   getLesson,
+  addStudentsToCourse
 }
