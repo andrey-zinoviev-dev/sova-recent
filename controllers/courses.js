@@ -335,7 +335,7 @@ const addStudentsToCourse = (req, res) => {
       foundCourse.students.push(student);
     });
     foundCourse.save();
-    res.status(200).send({message: "Ученики успешно добавлены!"});
+    res.status(200).send({message: "Ученики успешно добавлены!", updatedCourse: foundCourse});
   })
 };
 
