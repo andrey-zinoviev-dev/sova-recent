@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const secureRoutes = (req, res, next) => {
   //TEST PURPOSES AUTH THROGH LOCALSTORAGE
   const token = req.headers.authorization;
+  // console.log(token);
   if(!token) {
     return res.status(401).send({
       message: 'Необходима авторизация'

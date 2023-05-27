@@ -11,6 +11,9 @@ const messageSchema = new mongoose.Schema({
     to: {
         type: mongoose.Schema.Types.ObjectId, ref: 'User',
     },
+    course: {
+        type: mongoose.Schema.Types.ObjectId, ref: "Course",
+    },
     module: {
         type: mongoose.Schema.Types.ObjectId, ref: 'module',
     },

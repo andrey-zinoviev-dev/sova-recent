@@ -7,7 +7,15 @@ const conversationSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId, ref: 'User',
         }]
     ,
-}, {timestamps: true});
+    messages: [
+        new mongoose.Schema({
+            user: String,
+            text: String,
+            to: String,
+            // course: Object,
+        }, {timestamps: true})
+    ],
+} );
 
 module.exports = mongoose.model('Conversation', conversationSchema);
 

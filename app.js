@@ -14,7 +14,7 @@ const { secureRoutes } = require('./middlewares/auth');
 
 const { securedRouter } = require('./routes/securedRouter');
 
-mongoose.connect('mongodb://localhost:27017/sova');
+mongoose.connect('mongodb://127.0.0.1:27017/sova');
 
 const app = express();
 //server initialization

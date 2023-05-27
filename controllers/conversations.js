@@ -2,7 +2,7 @@ const Conversation = require('../models/Conversation');
 
 const getConversations = (req, res) => {
     const { userId } = req.params;
-    console.log(userId);
+    // console.log(userId);
     Conversation.find({ members: { $in: [userId]}}).populate('members')
     .then((data) => {
         if(!data) {
