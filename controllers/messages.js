@@ -81,12 +81,12 @@ const sendMessage = (req, res) => {
     // const foundConvo = doc.pop();
     // console.log(doc);
     if(foundConvo) {
-      
-
-      // const addedMessage = foundConvo.messages.create(newMessage);
       foundConvo.messages.push(newMessage);
+      const lastMessage = foundConvo.messages[foundConvo.messages.length - 1];
+      
       foundConvo.save();
-      return res.status(201).send(foundConvo);
+
+      return res.status(201).send({convo: foundConvo, lastMessage: lastMessage });
 
       // return Message.create({text: text, user: user, to: to, module: moduleID, conversation: foundConvo, files: req.files})
       // .then((message) =>{

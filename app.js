@@ -67,74 +67,87 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-    
-    // save session on socket connection
-    socket.on('userConnected', (user) => {
-        
+    // console.log(socket);
+    //uncomment further !!!!!!!!!!!!!!!
+
+    // // save session on socket connection
+    socket.on('user connected', (user) => {
+        // console.log(user);
         socket.userID = user._id;
         socket.username = user.name;
-        
-        const foundUserIndex = users.findIndex((userInList) => {
-            return userInList.userID === user._id;
-        });
-        
-        if(foundUserIndex < 0) {
-            users.push({ sessionID: socket.sessionID, userID: user._id, username: user.name, online: true });
-        } else {
-            users[foundUserIndex] = { ...users[foundUserIndex], online: true };
-        }
-
-
-        // console.log(users);
-
-        
-        socket.emit('session', {
-            sessionID: socket.sessionID,
-            userID:  socket.userID,
-            users: users,
-        });
-        socket.join(socket.userID);
-        // if(socket.username ==='Sova') {
-        //     console.log('course author is connected');
-        // }
-        socket.emit('users', users);
-
-        socket.broadcast.emit('user is online', {
-            userID: socket.userID,
-            username: user.name,
-            online: true,
-        });
-
-        socket.on('disconnect', () => {
-            // console.log(socket);
-            const foundUserIndex = users.findIndex((userInList) => {
-                return userInList.userID === user._id;
-            });
-            users[foundUserIndex] = {...users[foundUserIndex], online: false};
-
-            socket.broadcast.emit('user is offline', {
-                userID: socket.userID,
-                username: user.name,
-                // online: false,
-                users: users,
-            });
-        });
-
-        socket.on('message', (data) => {
-            const { to, file } = data;
-            // console.log(file);
-            socket.to(to).emit('private message', data);
-        });
+        console.log(socket);
     });
+        
+    //     socket.userID = user._id;
+    //     socket.username = user.name;
+        
+    //     const foundUserIndex = users.findIndex((userInList) => {
+    //         return userInList.userID === user._id;
+    //     });
+        
+    //     if(foundUserIndex < 0) {
+    //         users.push({ sessionID: socket.sessionID, userID: user._id, username: user.name, online: true });
+    //     } else {
+    //         users[foundUserIndex] = { ...users[foundUserIndex], online: true };
+    //     }
+
+
+    //     // console.log(users);
+
+        
+    //     socket.emit('session', {
+    //         sessionID: socket.sessionID,
+    //         userID:  socket.userID,
+    //         users: users,
+    //     });
+    //     socket.join(socket.userID);
+    //     // if(socket.username ==='Sova') {
+    //     //     console.log('course author is connected');
+    //     // }
+    //     socket.emit('users', users);
+
+    //     socket.broadcast.emit('user is online', {
+    //         userID: socket.userID,
+    //         username: user.name,
+    //         online: true,
+    //     });
+
+    //     socket.on('disconnect', () => {
+    //         // console.log(socket);
+    //         const foundUserIndex = users.findIndex((userInList) => {
+    //             return userInList.userID === user._id;
+    //         });
+    //         users[foundUserIndex] = {...users[foundUserIndex], online: false};
+
+    //         socket.broadcast.emit('user is offline', {
+    //             userID: socket.userID,
+    //             username: user.name,
+    //             // online: false,
+    //             users: users,
+    //         });
+    //     });
+
+    //     socket.on('message', (data) => {
+    //         const { to, file } = data;
+    //         // console.log(file);
+    //         socket.to(to).emit('private message', data);
+    //     });
+    // });
     // console.log(socket);
 
-
+    socket.on('message', (data) => {
+        console.log(data);
+        const { to, file } = data;
+        
+        socket.broadcast.emit('private message', data);
+    });
 
     // console.log(socket.userID);
 
     // socket.broadcast.emit('disconnect', () => {
     //     console.log('user disconnected', socket);
     // })
+    // console.log(socket);
 });
 
 //cors setup
