@@ -73,9 +73,13 @@ io.on('connection', (socket) => {
     // // save session on socket connection
     socket.on('user connected', (user) => {
         // console.log(user);
-        socket.userID = user._id;
-        socket.username = user.name;
-        console.log(socket);
+        // socket.userID = user._id;
+        // socket.username = user.name;
+        socket.join(user._id);
+        // socket.emit('session', {
+        //     sessionID: socket.sessionID,
+        // })
+        // console.log(socket);
     });
         
     //     socket.userID = user._id;
@@ -136,10 +140,10 @@ io.on('connection', (socket) => {
     // console.log(socket);
 
     socket.on('message', (data) => {
-        console.log(data);
+        // console.log(data);
         const { to, file } = data;
         
-        socket.broadcast.emit('private message', data);
+        socket.to(to).emit('private message', data);
     });
 
     // console.log(socket.userID);
