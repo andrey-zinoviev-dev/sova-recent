@@ -71,13 +71,19 @@ const getMessagesOfUser = ((req, res) => {
 });
 
 const sendMessage = (req, res) => {
-  
+  console.log(req.files);
   const { text, moduleID, user, to } = req.body;
   // console.log(req.files);
+  const filesToSend = req.files.map((file) => {
+    const updatedPath = file.path.replace('public', 'http://localhost:3000');
+    return {...file, path: updatedPath};
+  });
+
+  console.log(filesToSend);
 
   Conversation.findOne({members: {$all: [user, to]}})
   .then((foundConvo) => {
-    const newMessage = {user: user, to: to, text: text};
+    const newMessage = {user: user, to: to, text: text, files: filesToSend};
     // const foundConvo = doc.pop();
     // console.log(doc);
     if(foundConvo) {

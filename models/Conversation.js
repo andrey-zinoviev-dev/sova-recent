@@ -12,6 +12,7 @@ const conversationSchema = new mongoose.Schema({
             user: String,
             text: String,
             to: String,
+            files: [Object],
             // course: Object,
         }, {timestamps: true})
     ],
