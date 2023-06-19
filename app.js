@@ -76,6 +76,7 @@ io.on('connection', (socket) => {
         // socket.userID = user._id;
         // socket.username = user.name;
         socket.join(user._id);
+        socket.broadcast.emit('show connected user', user);
         // socket.emit('session', {
         //     sessionID: socket.sessionID,
         // })
