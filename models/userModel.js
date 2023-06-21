@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         default: false,
     },
     online: {
-        type: Boolean,
+        type: Boolean, 
         default: false,
     }
     // messages: [{

@@ -14,6 +14,8 @@ const { secureRoutes } = require('./middlewares/auth');
 
 const { securedRouter } = require('./routes/securedRouter');
 
+const User = require('./models/userModel');
+
 mongoose.connect('mongodb://127.0.0.1:27017/sova');
 
 const app = express();
@@ -51,38 +53,77 @@ const users = [];
 //     next();
 // });
 
-io.use((socket, next) => {
-    // console.log(socket);
-    const { localsessionID } = socket.handshake.auth;
+// io.use((socket, next) => {
+//     // console.log(socket);
+//     // const { localsessionID } = socket.handshake.auth;
     
-    if(localsessionID) {
-        // console.log(localsessionID);
-        socket.sessionID = localsessionID;
-        return next();
-    }
-    // console.log('another connection');
-    const generatedSessionID = crypto.randomBytes(8).toString('hex');
-    socket.sessionID = generatedSessionID;
-    return next();
-});
+//     // if(localsessionID) {
+//     //     // console.log(localsessionID);
+//     //     socket.sessionID = localsessionID;
+//     //     return next();
+//     // }
+//     // // console.log('another connection');
+//     // const generatedSessionID = crypto.randomBytes(8).toString('hex');
+//     // socket.sessionID = generatedSessionID;
+//     users.push({})
+//     return next();
+// });
 
 io.on('connection', (socket) => {
-    // console.log(socket);
     //uncomment further !!!!!!!!!!!!!!!
-
     // // save session on socket connection
-    socket.on('user connected', (user) => {
-        // console.log(user);
-        // socket.userID = user._id;
-        // socket.username = user.name;
+    socket.on('user connected', user => {     
+        // socket.handshake.userID = user._id;
+        socket.userId = user._id;
+        socket.adminRights = user.admin;
+        // socket.adminRight = user.admin;
         socket.join(user._id);
+        io.in(socket.userId).allSockets()
+        .then((res) => {
+            if(res.size > 0) {
+                const foundUser = users.find((userToFind) => {
+                    return userToFind.userId === socket.userId;
+                });
+                !foundUser && users.push({userId: socket.userId, admin: socket.adminRights});
+                // && users.push({userId: socket.userId, admin: socket.adminRights})
+                socket.emit('show all connected users', users);
+            }
+        })
+        // for (let [id, socket] of io.of("/").sockets) {
+        //     // const
+        //     // console.log(socket.userId);
+        //     const foundUser = users.find((userToFind) => {
+        //         return userToFind.userId === socket.userId;
+        //     });
+        //     console.log(foundUser);
+        //     if(!foundUser) {
+        //         users.push({userId: user._id, admin: user.admin});
+        //     } else {
+        //         return;
+        //     }
+        //     // !users.find((userToSearch) => {
+        //     //     return userToSearch.userId !== socket.userId;
+        //     // }) && users.push({userId: user._id, admin: user.admin});
+        // }
+        // console.log(users);
         socket.broadcast.emit('show connected user', user);
-        // socket.emit('session', {
-        //     sessionID: socket.sessionID,
-        // })
-        // console.log(socket);
-    });
         
+    });
+
+    socket.on('disconnect', (reason) => {
+        const userToDisconnect = users.find((user) => {
+            return user.userId === socket.userId;
+        });
+
+        // socket.emit('user to disconnect', userToDisconnect)
+
+    })
+    
+
+    // socket.emit('test', 'polo');
+    // socket.on('online users', [{}]);
+
+    // socket.emit('users', [{}]);
     //     socket.userID = user._id;
     //     socket.username = user.name;
         
@@ -138,21 +179,22 @@ io.on('connection', (socket) => {
     //         socket.to(to).emit('private message', data);
     //     });
     // });
-    // console.log(socket);
-
-    socket.on('message', (data) => {
-        // console.log(data);
-        const { to, file } = data;
+    // console.log(socket)
+    // socket.on('message', (data) => {
+    //     // console.log(data);
+    //     const { to, file } = data;
         
-        socket.to(to).emit('private message', data);
-    });
+    //     socket.to(to).emit('private message', data);
+    // });
 
-    // console.log(socket.userID);
+    // // console.log(socket.userID);
 
-    // socket.broadcast.emit('disconnect', () => {
-    //     console.log('user disconnected', socket);
+    // // socket.broadcast.emit('disconnect', () => {
+    // //     console.log('user disconnected', socket);
+    // // })
+    // socket.on('disconnect', () => {
+    //     // console.log(socket);
     // })
-    // console.log(socket);
 });
 
 //cors setup

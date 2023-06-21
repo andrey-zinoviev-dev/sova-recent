@@ -85,13 +85,17 @@ const redirectToLoggedInPage = (req, res) => {
 };
 
 const getAllStudents = (req, res) => {
-    User.find({admin: false})
+    User.find({admin: false}).select('-password')
     .then((docs) => {
         if(!docs) {
             return;
         }
         return res.status(200).send(docs);
     })
+};
+
+const updateuser = (req, res) => {
+    // return User.find
 }
 
 module.exports = {
