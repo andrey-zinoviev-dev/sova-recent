@@ -70,6 +70,7 @@ const users = [];
 // });
 
 io.on('connection', (socket) => {
+    // console.log('yes');
     //uncomment further !!!!!!!!!!!!!!!
     // // save session on socket connection
     socket.on('user connected', user => {     
@@ -78,17 +79,57 @@ io.on('connection', (socket) => {
         socket.adminRights = user.admin;
         // socket.adminRight = user.admin;
         socket.join(user._id);
-        io.in(socket.userId).allSockets()
-        .then((res) => {
-            if(res.size > 0) {
-                const foundUser = users.find((userToFind) => {
-                    return userToFind.userId === socket.userId;
-                });
-                !foundUser && users.push({userId: socket.userId, admin: socket.adminRights});
-                // && users.push({userId: socket.userId, admin: socket.adminRights})
-                socket.emit('show all connected users', users);
-            }
-        })
+        // console.log(socket.userId, user._id);
+        // console.log(users);
+        socket.broadcast.emit('show connected user', user);
+        
+        const foundUserIndex = users.findIndex((userToSearch) => {
+            return userToSearch.userId === user._id;
+        });
+        console.log(foundUserIndex);
+        if(foundUserIndex < 0) {
+            // console.log('user not found');
+            users.push({userId: socket.userId, admin: socket.adminRights, online: true});
+            
+            // console.log(users);
+            return socket.emit('show all connected users', users);
+        } else {
+            console.log('user found');
+            users[foundUserIndex].online = true;
+            // console.log(users);
+            return socket.emit('show all connected users', users);
+        }
+        // io.in(socket.userId).allSockets()
+        // .then((res) => {
+        //     // console.log(res);
+        //     if(res.size > 0) {
+        //         const foundUserIndex = users.findIndex((userToFind) => {
+        //             return userToFind.userId === socket.userId;
+        //         });
+        //         console.log('on connect');
+        //         console.log(users);
+        //         // console.log(foundUserIndex);
+        //         if(foundUserIndex < 0 ) {
+        //             users.push({userId: socket.userId, admin: socket.adminRights});
+        //         } else {
+        //             console.log(users[foundUserIndex]);
+        //             users[foundUserIndex].online = true;
+        //             console.log(users[foundUserIndex]);
+        //         }
+        //         // foundUserIndex >= 0 && {...users[foundUserIndex], online: true };
+        //         // && users.push({userId: socket.userId, admin: socket.adminRights})
+        //         // console.log('on connection');
+                
+        //         const filteredUsers = users.filter((user) => {
+        //             return user.online = true;
+        //         });
+        //         console.log(users);
+        //         // console.log('filtered')
+        //         // console.log(filteredUsers);
+        //         socket.emit('show all connected users', users);
+        //     }
+        // })
+
         // for (let [id, socket] of io.of("/").sockets) {
         //     // const
         //     // console.log(socket.userId);
@@ -111,12 +152,34 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', (reason) => {
-        const userToDisconnect = users.find((user) => {
+        // console.log(socket);
+        // console.log('on disconnect');
+
+        const userToDisconnectIndex = users.findIndex((user) => {
             return user.userId === socket.userId;
         });
+        // // console.log(userToDisconnectIndex);
+        if(userToDisconnectIndex >= 0) {
+            // console.log(users[userToDisconnectIndex]);
+            users[userToDisconnectIndex].online = false;
+            // console.log(users);
+            return socket.broadcast.emit('user to disconnect', users[userToDisconnectIndex]);
+            // console.log(users[userToDisconnectIndex])
+        }
 
-        // socket.emit('user to disconnect', userToDisconnect)
+        // console.log(users);
+        // userToDisconnectIndex >= 0 && {...users[userToDisconnectIndex], online: false};
+        // console.log('on disconnect');
+        // console.log(users);
+        // if(userToDisconnect) {
+        //     userToDisconnect.online = false;
+        //     // console.log('on disconnection');
+        //     // console.log(users);
+        // };
 
+        // socket.broadcast.emit('user to disconnect', users[userToDisconnectIndex]);
+
+        // console.log(users);
     })
     
 

@@ -16,10 +16,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    online: {
-        type: Boolean, 
-        default: false,
-    }
+    // online: {
+    //     type: Boolean, 
+    //     default: false,
+    // }
     // messages: [{
     //     type: mongoose.Schema.Types.ObjectId, ref: 'Message'
     // }],
