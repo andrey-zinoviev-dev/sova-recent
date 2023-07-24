@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
         const foundUserIndex = users.findIndex((userToSearch) => {
             return userToSearch.userId === user._id;
         });
-        console.log(foundUserIndex);
+        // console.log(foundUserIndex);
         if(foundUserIndex < 0) {
             // console.log('user not found');
             users.push({userId: socket.userId, admin: socket.adminRights, online: true});
@@ -99,56 +99,11 @@ io.on('connection', (socket) => {
             // console.log(users);
             return socket.emit('show all connected users', users);
         }
-        // io.in(socket.userId).allSockets()
-        // .then((res) => {
-        //     // console.log(res);
-        //     if(res.size > 0) {
-        //         const foundUserIndex = users.findIndex((userToFind) => {
-        //             return userToFind.userId === socket.userId;
-        //         });
-        //         console.log('on connect');
-        //         console.log(users);
-        //         // console.log(foundUserIndex);
-        //         if(foundUserIndex < 0 ) {
-        //             users.push({userId: socket.userId, admin: socket.adminRights});
-        //         } else {
-        //             console.log(users[foundUserIndex]);
-        //             users[foundUserIndex].online = true;
-        //             console.log(users[foundUserIndex]);
-        //         }
-        //         // foundUserIndex >= 0 && {...users[foundUserIndex], online: true };
-        //         // && users.push({userId: socket.userId, admin: socket.adminRights})
-        //         // console.log('on connection');
-                
-        //         const filteredUsers = users.filter((user) => {
-        //             return user.online = true;
-        //         });
-        //         console.log(users);
-        //         // console.log('filtered')
-        //         // console.log(filteredUsers);
-        //         socket.emit('show all connected users', users);
-        //     }
-        // })
+    });
 
-        // for (let [id, socket] of io.of("/").sockets) {
-        //     // const
-        //     // console.log(socket.userId);
-        //     const foundUser = users.find((userToFind) => {
-        //         return userToFind.userId === socket.userId;
-        //     });
-        //     console.log(foundUser);
-        //     if(!foundUser) {
-        //         users.push({userId: user._id, admin: user.admin});
-        //     } else {
-        //         return;
-        //     }
-        //     // !users.find((userToSearch) => {
-        //     //     return userToSearch.userId !== socket.userId;
-        //     // }) && users.push({userId: user._id, admin: user.admin});
-        // }
-        // console.log(users);
-        socket.broadcast.emit('show connected user', user);
-        
+    socket.on('message', (data) => {
+        const { to } = data;
+        socket.to(to).emit('private message', data);
     });
 
     socket.on('disconnect', (reason) => {

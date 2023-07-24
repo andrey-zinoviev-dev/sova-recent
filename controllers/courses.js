@@ -4,8 +4,10 @@ const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
 
 const requestCourses = (req, res) => {
+  console.log(req.user);
   Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
   .then((docs) => {
+    console.log(docs);
     if(!docs) {
       return res.status(401).send({
         message: "Курсы не найдены"
@@ -18,25 +20,29 @@ const requestCourses = (req, res) => {
 
 const getCourse = (req, res) => {
   const { id } = req.params;
+  console.log(id);
+  User.findById( id ).then(() => {});
   Courses.findById(id).populate({path: 'modules', populate: { path: 'students'} }).populate({path: 'author'})
   .then((doc) => {
+
     res.status(200).send(doc);
   });
 };
 
 const createCourse = (req, res) => {
-  // console.log(req.body);
-  const { course, modules } = req.body;
+
+  const { course, modules, author } = req.body;
+  const parsedAuthor = JSON.parse(author);
   const parsedCourse = JSON.parse(course);
   const parsedModules = JSON.parse(modules);
   // console.log(parsedCourse.cover);
   // console.log(req.files);
   const newModules = parsedModules.map((parsedModule) => {
     const {lessons} = parsedModule;
-    
+    console.log(lessons);
     const updatedLessons = lessons.map((lesson) => {
-      if(lesson.layout) {
-        const { content } = lesson.layout;
+      if(lesson.content) {
+        const { content } = lesson.content;
         const updatedContent = content.map((contentEl) => {
           if(contentEl.type === 'image' || contentEl.type === 'video') {
             const foundFile = req.files.find((fileFromMulter) => {
@@ -46,7 +52,8 @@ const createCourse = (req, res) => {
           }
           return contentEl;
         });
-        lesson.layout.content = updatedContent;
+        console.log(updatedContent);
+        lesson.content.content = updatedContent;
         return lesson;
       }
 
@@ -65,7 +72,7 @@ const createCourse = (req, res) => {
     if(doc) {
       return;
     }
-    Courses.create({name: parsedCourse.name, description: parsedCourse.description, modules: newModules, cover: newPath})
+    Courses.create({name: parsedCourse.name, description: parsedCourse.description, author: parsedAuthor._id, modules: newModules, cover: newPath})
     .then((createdCourse) => {
       res.status(201).send(createdCourse);      
     })
