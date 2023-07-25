@@ -36,10 +36,15 @@ const createCourse = (req, res) => {
   const parsedCourse = JSON.parse(course);
   const parsedModules = JSON.parse(modules);
   // console.log(parsedCourse.cover);
-  // console.log(req.files);
+  console.log(req.files);
   const newModules = parsedModules.map((parsedModule) => {
+    console.log(parsedModule.cover);
+    const moduleCover = req.files.find((coverFile) => {
+      return coverFile.originalname === parsedModule.cover;
+    });
+    console.log(moduleCover);
     const {lessons} = parsedModule;
-    console.log(lessons);
+    // console.log(lessons);
     const updatedLessons = lessons.map((lesson) => {
       if(lesson.content) {
         const { content } = lesson.content;
@@ -52,7 +57,7 @@ const createCourse = (req, res) => {
           }
           return contentEl;
         });
-        console.log(updatedContent);
+        // console.log(updatedContent);
         lesson.content.content = updatedContent;
         return lesson;
       }
