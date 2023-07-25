@@ -36,13 +36,13 @@ const createCourse = (req, res) => {
   const parsedCourse = JSON.parse(course);
   const parsedModules = JSON.parse(modules);
   // console.log(parsedCourse.cover);
-  console.log(req.files);
+  // console.log(req.files);
   const newModules = parsedModules.map((parsedModule) => {
-    console.log(parsedModule.cover);
+    // console.log(parsedModule.cover);
     const moduleCover = req.files.find((coverFile) => {
-      return coverFile.originalname === parsedModule.cover;
+      return coverFile.originalname === parsedModule.cover.title;
     });
-    console.log(moduleCover);
+    parsedModule.cover = moduleCover.path.replace('public', 'http://localhost:3000');
     const {lessons} = parsedModule;
     // console.log(lessons);
     const updatedLessons = lessons.map((lesson) => {

@@ -44,6 +44,7 @@ const courseSchema = new mongoose.Schema({
   modules: [
     new mongoose.Schema({
       title: String,
+      cover: String,
       // lessons: Array,
       author: Object,
       // description: String,
