@@ -107,6 +107,126 @@ const editCourse = (req, res) => {
   })
 };
 
+const editModuleFromCourse = (req, res) => {
+  const { id, moduleId } = req.params;
+  
+  const { coverFile } = req.body;
+
+
+  console.log(JSON.parse(coverFile));
+  Courses.findById(id)
+  .then((doc) => {
+    if(JSON.parse(coverFile).title) {
+      const { title } = JSON.parse(coverFile);
+      const foundFile = req.files.find((file) => {
+        return file.originalname === title;
+      });
+      console.log(foundFile);
+      const updatedModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleId ? {...module, cover: foundFile.path.replace('public', 'http://localhost:3000')}  : module;
+      });
+      doc.modules = updatedModules;
+      doc.save();
+      // console.log(doc);
+      return res.status(201).send(doc);
+    } else {
+      const { link } = JSON.parse(coverFile);
+      const updatedModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleId ? {...module, cover: link}  : module;
+      });
+      doc.modules = updatedModules;
+      doc.save();
+      console.log(doc);
+      return res.status(201).send(doc);
+    }
+  });
+};
+
+const editLessonFromCourse = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+
+  const { coverFile } = req.body;
+  // const cover = JSON.parse
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(JSON.parse(coverFile).title) {
+      const { title } = JSON.parse(coverFile);
+      const foundFile = req.files.find((file) => {
+        return file.originalname === title;
+      });
+      const newModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleID ? {...module, lessons: module.lessons.map((lesson) => {
+          return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'http://localhost:3000')} : lesson;
+        })} : module;
+      });
+      doc.modules = newModules;
+      doc.save();
+      return res.status(201).send(doc);
+      // return res.status(201).send(doc);
+    } else {
+      const { link } = JSON.parse(coverFile);
+      const newModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleID ? {...module, lessons: module.lessons.map((lesson) => {
+          return lesson._id.toString() === lessonID ? {...lesson, cover: link} : lesson;
+        })} : module;
+      });
+      doc.modules = newModules;
+      doc.save();
+      console.log(doc);
+      return res.status(201).send(doc);
+      // return res.status(201).send(doc);
+    }
+  })
+};
+
+const editLessonContentFromCourse = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  const { content } = req.body;
+  Courses.findById(courseID)
+  .then((doc) => {
+    const updatedModules = doc.modules.map((module) => {
+      return module._id.toString() === moduleID ? {...module, lessons: module.lessons.map((lesson) => {
+        return lesson._id.toString() === lessonID ? {...lesson, content: content} : lesson;
+      })} : module
+    });
+    doc.modules = updatedModules;
+    doc.save();
+    res.status(201).send(doc);
+  })
+};
+
+const addLessonToCourse = (req, res) => {
+  const { courseID, moduleID } = req.params;
+
+  const { title, cover, content } = JSON.parse(req.body.moduleData);
+
+  Courses.findById(courseID)
+  .then((doc) => {
+    const updatedContent = content.content.map((element) => {
+      return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
+            return file.originalname.includes(element.attrs.title);
+      }).path.replace('public', 'http://localhost:3000')}} : element;
+
+    });
+
+    if(cover.title) {
+      const fileToInsert = req.files.find((file) => {
+        return file.originalname === cover.title;
+      });
+
+      console.log(fileToInsert);
+      // console.log(updatedContent);
+      const updatedModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleID ? {...module, lessons: [...module.lessons, {title: title, cover: fileToInsert.path.replace('public', 'http://localhost:3000'), content: {...content, content: updatedContent}}]} : module;
+      });
+      
+      doc.modules = updatedModules;
+      doc.save();
+      return res.status(201).send(doc);
+    }
+  })
+}
+
 const deleteModuleFromCourse = (req, res) => {
   const { courseID, moduleID } = req.params;
   Courses.findById(courseID)
@@ -120,9 +240,20 @@ const deleteModuleFromCourse = (req, res) => {
   })
 };
 
-const uploadFilesToCourse = (req, res) => {
-  console.log(req.files);
-};
+const deleteLessonFromCourse = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  Courses.findById(courseID)
+  .then((doc) => {
+    const updatedModules = doc.modules.map((module) => {
+      return module._id.toString() === moduleID ? {...module, lessons: module.lessons.filter((lesson) => {
+        return lesson._id.toString() !== lessonID;
+      })} : module;
+    });
+    doc.modules = updatedModules;
+    doc.save();
+    res.status(201).send(doc);
+  })
+}
 
 const getLesson = (req, res) => {
   const { courseID, moduleID, lessonID } = req.params;
@@ -151,7 +282,7 @@ const getLesson = (req, res) => {
 const addStudentsToCourse = (req, res) => {
   const { courseID } = req.params;
   const { students } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   // console.log(courseID);
   Courses.findById(courseID)
   .then((foundCourse) => {
@@ -182,8 +313,12 @@ module.exports = {
   getCourse,
   createCourse,
   editCourse,
-  uploadFilesToCourse,
   getLesson,
   addStudentsToCourse,
-  deleteModuleFromCourse
+  deleteModuleFromCourse,
+  deleteLessonFromCourse,
+  editModuleFromCourse,
+  editLessonFromCourse,
+  editLessonContentFromCourse,
+  addLessonToCourse
 }

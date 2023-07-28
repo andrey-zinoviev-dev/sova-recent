@@ -55,8 +55,9 @@ const courseSchema = new mongoose.Schema({
       lessons: [
         new mongoose.Schema({
           title: String,
-          layout: Object,
-          module: Object,
+          cover: String,
+          content: Object,
+          // module: Object,
           // module:  {
           //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
           // }

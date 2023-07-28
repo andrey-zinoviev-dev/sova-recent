@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents } = require('../controllers/user');
-const { requestCourses, getCourse, createCourse, editCourse, deleteModuleFromCourse, uploadFilesToCourse, getLesson, addStudentsToCourse } = require('../controllers/courses');
+const { requestCourses, getCourse, createCourse, editCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
@@ -20,9 +20,17 @@ securedRouter.get('/currentUser', showCurrentUser);
 securedRouter.get('/courses', redirectToLoggedInPage);
 securedRouter.get('/coursesList', requestCourses);
 securedRouter.get('/courses/:id', getCourse);
+
 securedRouter.post('/courses/add', upload.array('files'), createCourse);
+
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
-securedRouter.delete('/courses/:courseID/modules/:moduleID', deleteModuleFromCourse)
+securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
+securedRouter.put('/courses/:id/modules/:moduleId/cover', upload.array('file'), editModuleFromCourse);
+securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', editLessonContentFromCourse);
+securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('files'), addLessonToCourse);
+
+securedRouter.delete('/courses/:courseID/modules/:moduleID', deleteModuleFromCourse);
+securedRouter.delete('/courses/:courseID/modules/:moduleID/lessons/:lessonID/delete', deleteLessonFromCourse);
 // securedRouter.post('/courses/add/files', upload.array("files"), uploadFilesToCourse);
 // securedRouter.get('/courses/:id/modules/:courseModuleId', redirectToCourse);
 securedRouter.get('/courses/:courseID/modules/:moduleID/lessons/:lessonID', getLesson)
