@@ -94,6 +94,10 @@ const getAllStudents = (req, res) => {
     })
 };
 
+// const registerUser = (req, res) => {
+//     console.log(req.body);
+// }
+
 const updateuser = (req, res) => {
     // return User.find
 }
@@ -103,5 +107,5 @@ module.exports = {
     register,
     showCurrentUser,
     redirectToLoggedInPage,
-    getAllStudents
+    getAllStudents,
 }
