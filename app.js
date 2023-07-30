@@ -16,8 +16,8 @@ const { securedRouter } = require('./routes/securedRouter');
 
 const User = require('./models/userModel');
 
-// mongoose.connect('mongodb://127.0.0.1:27017/sova');
-mongoose.connect('mongodb://127.0.0.1:27017/test');
+mongoose.connect('mongodb://127.0.0.1:27017/sova');
+// mongoose.connect('mongodb://127.0.0.1:27017/test');
 
 const app = express();
 //server initialization
@@ -225,7 +225,7 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json({limit: '10mb'}));
+app.use(express.json({limit: '50mb'}));
 
 //html template engine
 app.set('view engine', 'ejs');
