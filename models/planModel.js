@@ -12,6 +12,9 @@ const planSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    vip: {
+        type: Boolean,
+    }
 });
 
 module.exports = mongoose.model('Plan', planSchema);
