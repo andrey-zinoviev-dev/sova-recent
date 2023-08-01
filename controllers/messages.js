@@ -71,19 +71,22 @@ const getMessagesOfUser = ((req, res) => {
 });
 
 const sendMessage = (req, res) => {
-  console.log(req.files);
+  // console.log(req.files);
   const { text, moduleID, user, to } = req.body;
+  // console.log(text, moduleID, user, to);
   // console.log(req.files);
   const filesToSend = req.files.map((file) => {
-    const updatedPath = file.path.replace('public', 'http://localhost:3000');
+    const updatedPath = file.path.replace('public', 'http://api.sova-courses.site');
     return {...file, path: updatedPath};
   });
 
-  console.log(filesToSend);
+  // console.log(filesToSend);
 
   Conversation.findOne({members: {$all: [user, to]}})
   .then((foundConvo) => {
+    // console.log(foundConvo);
     const newMessage = {user: user, to: to, text: text, files: filesToSend};
+    console.log(newMessage);
     // const foundConvo = doc.pop();
     // console.log(doc);
     if(foundConvo) {
@@ -107,7 +110,7 @@ const sendMessage = (req, res) => {
       // console.log(createdConvo);
       createdConvo.messages.push(newMessage);
       createdConvo.save();
-      return res.status(201).send(createdConvo);
+      return res.status(201).send({ convo: foundConvo, lastMessage: newMessage });
       // if(!convo) {
       //   return;
       // }
