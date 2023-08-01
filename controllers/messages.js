@@ -80,7 +80,7 @@ const sendMessage = (req, res) => {
     return {...file, path: updatedPath};
   });
 
-  // console.log(filesToSend);
+  console.log(filesToSend);
 
   Conversation.findOne({members: {$all: [user, to]}})
   .then((foundConvo) => {
