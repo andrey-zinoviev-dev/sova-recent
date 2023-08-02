@@ -25,8 +25,8 @@ const httpServer = createServer(app);
 //socket initialization
 const io = new Server(httpServer, {
     cors: {
-        origin: false, 
-        // origin: ['http://localhost:3001', 'http://localhost:3002', 'http://sova-courses.site', 'http://www.sova-courses.site'],
+        // origin: false, 
+        origin: ['http://localhost:3001', 'http://localhost:3002', 'http://sova-courses.site', 'http://www.sova-courses.site'],
         credentials: true,
     }
 });
@@ -219,7 +219,7 @@ io.on('connection', (socket) => {
 
 //cors setup
 app.use(cors({
-    origin: "*",
+    origin: "['http://127.0.0.1:5501', 'http://localhost:3001', 'http://localhost:3002', 'http://sova-courses.site', 'http://www.sova-courses.site']",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
 }))
