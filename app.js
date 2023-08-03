@@ -26,7 +26,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         // origin: false, 
-        origin: ['http://localhost:3001', 'http://localhost:3002', 'http://sova-courses.site', 'http://www.sova-courses.site'],
+        origin: ['http://localhost:3001', 'http://localhost:3002', 'https://sova-courses.site', 'https://www.sova-courses.site'],
         credentials: true,
     }
 });

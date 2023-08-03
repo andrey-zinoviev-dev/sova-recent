@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    courses: {
+        type: Array,
+        default: [],
+    }
     // online: {
     //     type: Boolean, 
     //     default: false,

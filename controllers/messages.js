@@ -76,7 +76,7 @@ const sendMessage = (req, res) => {
   // console.log(text, moduleID, user, to);
   // console.log(req.files);
   const filesToSend = req.files.map((file) => {
-    const updatedPath = file.path.replace('public', 'http://api.sova-courses.site');
+    const updatedPath = file.path.replace('public', 'https://api.sova-courses.site');
     return {...file, path: updatedPath};
   });
 

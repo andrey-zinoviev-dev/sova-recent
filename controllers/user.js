@@ -3,6 +3,7 @@ const Plan = require('../models/planModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const ejs = require('ejs');
+const { Courses } = require('../models/courseModel');
 
 const login = (req, res) => {
     const {email, password} = req.body;
@@ -34,7 +35,8 @@ const login = (req, res) => {
 };
 
 const register = (req, res) => {
-    const { email, password, fullname } = req.body;
+    const { email, password, name, courses } = req.body;
+    // console.log(courses);
     return User.findOne({email: email})
     .then((doc) => {
         if(doc) {
@@ -42,10 +44,55 @@ const register = (req, res) => {
         }
         return bcrypt.hash(password, 10)
         .then((hash) => {
-            return User.create({ email: email, password: hash, name: fullname})
+            return User.create({ email: email, password: hash, name: name, courses: courses})
             .then((doc) => {
-                const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
-                return res.status(201).send({token});
+                if(!doc) {
+                    return;
+                }
+                const coursesIds = courses.map((course) => {
+                    return course._id;
+                })
+                Courses.updateMany({_id: {$in: coursesIds} }, {
+                    $addToSet: {
+                        students: doc,
+                    }
+                })
+                .then((docs) => {
+                    if(!docs) {
+                        return;
+                    }
+                    const updatedCourses = Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+                    .then((returnedCourses) => {
+                        return returnedCourses;
+                        // if(!docs) {
+                        //     return;
+                        // }
+                        // res.status(201).send(docs);
+                    })
+                    const updatedUsers = User.find({admin: false})
+                    .then((users) => {
+                        return users;
+                    })
+                    Promise.all([updatedCourses, updatedUsers])
+                    .then((values) => {
+                        const [returnedCourses, users] = values;
+                        if(!returnedCourses || !users) {
+                            return
+                        }
+                        res.status(201).send({courses: returnedCourses, students: users});
+                    })
+                })
+                // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+                // .then((docs) => {
+                //     if(!docs) {
+                //         return;
+                //     }
+                //     console.log(docs);
+                //     // res.status(201).send(docs);
+                // })
+
+                // const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
+                // return res.status(201).send({token});
             }); 
         })
 
