@@ -219,7 +219,7 @@ io.on('connection', (socket) => {
 
 //cors setup
 app.use(cors({
-    origin: ['http://127.0.0.1:5501', 'http://localhost:3001', 'http://localhost:3002', 'http://sova-courses.site', 'http://www.sova-courses.site'],
+    origin: ['http://127.0.0.1:5501', 'http://localhost:3001', 'http://localhost:3002', 'https://sova-courses.site', 'https://www.sova-courses.site'],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
 }))
