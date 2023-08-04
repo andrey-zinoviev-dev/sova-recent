@@ -10,6 +10,7 @@ const login = (req, res) => {
     
     User.findOne({email: email})
     .then((doc) => {
+        // console.log(doc);
         if(!doc) {
             return res.status(400).send({
                 message: "Проверьте почту или пароль",
@@ -36,7 +37,7 @@ const login = (req, res) => {
 
 const register = (req, res) => {
     const { email, password, name, courses } = req.body;
-    // console.log(courses);
+    console.log(courses);
     return User.findOne({email: email})
     .then((doc) => {
         if(doc) {
@@ -49,12 +50,13 @@ const register = (req, res) => {
                 if(!doc) {
                     return;
                 }
+                console.log(doc);
                 const coursesIds = courses.map((course) => {
                     return course._id;
                 })
                 Courses.updateMany({_id: {$in: coursesIds} }, {
                     $addToSet: {
-                        students: doc,
+                        students: doc._id.toString(),
                     }
                 })
                 .then((docs) => {
@@ -75,6 +77,7 @@ const register = (req, res) => {
                     })
                     Promise.all([updatedCourses, updatedUsers])
                     .then((values) => {
+                        console.log(values);
                         const [returnedCourses, users] = values;
                         if(!returnedCourses || !users) {
                             return

@@ -298,25 +298,39 @@ const addStudentsToCourse = (req, res) => {
   const { students } = req.body;
   // console.log(req.body);
   // console.log(courseID);
+  const studentsIds = students.map((student) => {
+    return student.studentId;
+  });
+  console.log(studentsIds);
   Courses.findById(courseID)
   .then((foundCourse) => {
     // console.log(foundCourse);
     if(!foundCourse) {
       return;
     }
+
     // const studentsToInsert = students.filter((student) => {
     //   return !foundCourse.students.includes(student);
     // });
     // // console.log(studentsToInsert);
     students.forEach((student) => {
-      foundCourse.students.push(student);
+      // foundCourse.students.push(student.studentId);
+      // User.updateMany({_id: {$in: student.studentId} }, {
+      //   $addToSet: {
+      //     courses: doc._id.toString(),
+      //   }
+      // })
     });
 
     foundCourse.save();
-    return foundCourse.populate('students')
-    .then((populatedCourse) => {
-      res.status(201).send(populatedCourse);
-    })
+
+
+
+    // console.log(foundCourse);
+    // return foundCourse.populate('students')
+    // .then((populatedCourse) => {
+    //   res.status(201).send(populatedCourse);
+    // })
     
   })
 };
