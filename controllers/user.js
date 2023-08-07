@@ -144,6 +144,22 @@ const getAllStudents = (req, res) => {
     })
 };
 
+const chechUserByEmail = (req, res) => {
+    const { email } = req.body;
+    User.findOne({email: email}).select('-password')
+    .then((doc) => {
+        if(!doc) {
+            return res.status(400).send({message: "Пользователь не найден"})
+        }
+        return res.status(200).send(doc);
+    })
+};
+
+const changeUserPassword = (req, res) => {
+    const { password } = req.body;
+    console.log(password);
+}
+
 // const registerUser = (req, res) => {
 //     console.log(req.body);
 // }
@@ -158,4 +174,6 @@ module.exports = {
     showCurrentUser,
     redirectToLoggedInPage,
     getAllStudents,
+    chechUserByEmail,
+    changeUserPassword,
 }

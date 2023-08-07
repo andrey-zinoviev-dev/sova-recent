@@ -1,5 +1,5 @@
 const express = require('express');
-const { login, register } = require('../controllers/user');
+const { login, register, chechUserByEmail, changeUserPassword } = require('../controllers/user');
 const router = express();
 
 // router.get('/courses', (req, res) => {
@@ -7,6 +7,8 @@ const router = express();
 // });
 router.post('/login', login);
 router.post('/register', register);
+router.post('/email', chechUserByEmail);
+router.put('/newPassword', changeUserPassword)
 
 module.exports = {
     router,
