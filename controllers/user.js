@@ -156,8 +156,23 @@ const chechUserByEmail = (req, res) => {
 };
 
 const changeUserPassword = (req, res) => {
-    const { password } = req.body;
-    console.log(password);
+    const { email, password } = req.body;
+    User.findById(email).select('-password')
+    .then((doc) => {
+        if(!doc) {
+            return res.status(400).send({message: "Пользователь не найден"})
+        }
+        return bcrypt.hash(password, 10)
+        .then((hash) => {
+            if(!hash) {
+                return;
+            }
+            doc.password = hash;
+            doc.save();
+            return res.status(201).send({success: true})
+        })
+        // return res.status(200).send(doc);
+    })
 }
 
 // const registerUser = (req, res) => {
