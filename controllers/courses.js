@@ -213,7 +213,7 @@ const addLessonToCourse = (req, res) => {
   const { courseID, moduleID } = req.params;
 
   const { title, cover, content } = JSON.parse(req.body.moduleData);
-
+  console.log(req.files);
   Courses.findById(courseID)
   .then((doc) => {
     const updatedContent = content.content.map((element) => {
@@ -223,13 +223,15 @@ const addLessonToCourse = (req, res) => {
 
     });
 
+    // console.log(updatedContent);
+
     if(cover.title) {
       const fileToInsert = req.files.find((file) => {
         return file.originalname === cover.title;
       });
 
-      console.log(fileToInsert);
-      // console.log(updatedContent);
+      // console.log(fileToInsert);
+    //   // console.log(updatedContent);
       const updatedModules = doc.modules.map((module) => {
         return module._id.toString() === moduleID ? {...module, lessons: [...module.lessons, {title: title, cover: fileToInsert.path.replace('public', 'https://api.sova-courses.site'), content: {...content, content: updatedContent}}]} : module;
       });
