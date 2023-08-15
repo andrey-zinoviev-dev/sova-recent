@@ -1,6 +1,6 @@
 const express = require('express');
 const securedRouter = express();
-const { showCurrentUser, redirectToLoggedInPage, getAllStudents } = require('../controllers/user');
+const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
 const { requestCourses, getCourse, createCourse, editCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
@@ -15,6 +15,8 @@ const multerStorage = multer.diskStorage({
   }
 })
 const upload = multer({storage: multerStorage});
+
+securedRouter.post('/register', upload.array('csv'), register)
 
 securedRouter.get('/currentUser', showCurrentUser);
 securedRouter.get('/courses', redirectToLoggedInPage);

@@ -6,7 +6,7 @@ const router = express();
 //     res.status(200).send({message: 'show all courses'});
 // });
 router.post('/login', login);
-router.post('/register', register);
+// router.post('/register', register);
 router.post('/email', chechUserByEmail);
 router.put('/newPassword', changeUserPassword)
 

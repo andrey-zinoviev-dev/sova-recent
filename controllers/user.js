@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const ejs = require('ejs');
 const { Courses } = require('../models/courseModel');
+const CSVToJSON = require('csvtojson');
 
 const login = (req, res) => {
     const {email, password} = req.body;
@@ -36,70 +37,78 @@ const login = (req, res) => {
 };
 
 const register = (req, res) => {
-    const { email, password, name, courses } = req.body;
-    console.log(courses);
-    return User.findOne({email: email})
-    .then((doc) => {
-        if(doc) {
-            return res.status(400).send({message: 'Пользователь существует'});
-        }
-        return bcrypt.hash(password, 10)
-        .then((hash) => {
-            return User.create({ email: email, password: hash, name: name, courses: courses})
-            .then((doc) => {
-                if(!doc) {
-                    return;
-                }
-                console.log(doc);
-                const coursesIds = courses.map((course) => {
-                    return course._id;
-                })
-                Courses.updateMany({_id: {$in: coursesIds} }, {
-                    $addToSet: {
-                        students: doc._id.toString(),
-                    }
-                })
-                .then((docs) => {
-                    if(!docs) {
-                        return;
-                    }
-                    const updatedCourses = Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
-                    .then((returnedCourses) => {
-                        return returnedCourses;
-                        // if(!docs) {
-                        //     return;
-                        // }
-                        // res.status(201).send(docs);
-                    })
-                    const updatedUsers = User.find({admin: false})
-                    .then((users) => {
-                        return users;
-                    })
-                    Promise.all([updatedCourses, updatedUsers])
-                    .then((values) => {
-                        console.log(values);
-                        const [returnedCourses, users] = values;
-                        if(!returnedCourses || !users) {
-                            return
-                        }
-                        res.status(201).send({courses: returnedCourses, students: users});
-                    })
-                })
-                // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
-                // .then((docs) => {
-                //     if(!docs) {
-                //         return;
-                //     }
-                //     console.log(docs);
-                //     // res.status(201).send(docs);
-                // })
-
-                // const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
-                // return res.status(201).send({token});
-            }); 
-        })
-
+    // console.log(req.files.pop());
+    CSVToJSON().fromFile(req.files.pop().path)
+    .then((users) => {
+        const modifiedUsers = users.map((user) => {
+            return {name: user.name, email: user.email, phone: user.phone};
+        });
+        
     })
+    // const { email, password, name, courses } = req.body;
+    // console.log(courses);
+    // return User.findOne({email: email})
+    // .then((doc) => {
+    //     if(doc) {
+    //         return res.status(400).send({message: 'Пользователь существует'});
+    //     }
+    //     return bcrypt.hash(password, 10)
+    //     .then((hash) => {
+    //         return User.create({ email: email, password: hash, name: name, courses: courses})
+    //         .then((doc) => {
+    //             if(!doc) {
+    //                 return;
+    //             }
+    //             console.log(doc);
+    //             const coursesIds = courses.map((course) => {
+    //                 return course._id;
+    //             })
+    //             Courses.updateMany({_id: {$in: coursesIds} }, {
+    //                 $addToSet: {
+    //                     students: doc._id.toString(),
+    //                 }
+    //             })
+    //             .then((docs) => {
+    //                 if(!docs) {
+    //                     return;
+    //                 }
+    //                 const updatedCourses = Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+    //                 .then((returnedCourses) => {
+    //                     return returnedCourses;
+    //                     // if(!docs) {
+    //                     //     return;
+    //                     // }
+    //                     // res.status(201).send(docs);
+    //                 })
+    //                 const updatedUsers = User.find({admin: false})
+    //                 .then((users) => {
+    //                     return users;
+    //                 })
+    //                 Promise.all([updatedCourses, updatedUsers])
+    //                 .then((values) => {
+    //                     console.log(values);
+    //                     const [returnedCourses, users] = values;
+    //                     if(!returnedCourses || !users) {
+    //                         return
+    //                     }
+    //                     res.status(201).send({courses: returnedCourses, students: users});
+    //                 })
+    //             })
+    //             // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+    //             // .then((docs) => {
+    //             //     if(!docs) {
+    //             //         return;
+    //             //     }
+    //             //     console.log(docs);
+    //             //     // res.status(201).send(docs);
+    //             // })
+
+    //             // const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
+    //             // return res.status(201).send({token});
+    //         }); 
+    //     })
+
+    // })
 };
 
 const showCurrentUser = (req, res) => {
