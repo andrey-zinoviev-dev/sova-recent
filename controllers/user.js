@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const ejs = require('ejs');
 const { Courses } = require('../models/courseModel');
 const CSVToJSON = require('csvtojson');
+const generatePassword = require('password-generator');
 
 const login = (req, res) => {
     const {email, password} = req.body;
@@ -19,6 +20,7 @@ const login = (req, res) => {
         }
         return bcrypt.compare(password, doc.password)
         .then((matched) => {
+            console.log(matched);
             if(!matched) {
                 return res.status(400).send({
                     message: 'проверьте почту или пароль',
@@ -37,13 +39,60 @@ const login = (req, res) => {
 };
 
 const register = (req, res) => {
+    const newPasses = [];
     // console.log(req.files.pop());
     CSVToJSON().fromFile(req.files.pop().path)
     .then((users) => {
         const modifiedUsers = users.map((user) => {
-            return {name: user.name, email: user.email, phone: user.phone};
+            const generatedPassword = generatePassword(10, false);
+            newPasses.push({name: user.name, email: user.email, password: generatedPassword, phone: user.phone});
+            // return bcrypt.hash(generatedPassword, 10)
+            // .then((hash) => {
+
+            //     // return User.create({email: user.email, password: hash, name: user.name})
+            // })
+            // return {name: user.name, email: user.email, password: generatedPassword, phone: user.phone}
+            // bcrypt.hash(generatedPassword, )
+            return bcrypt.hash(generatedPassword, 10)
+            .then((hash) => {
+                return User.create({email: user.email, password: hash, name: user.name});
+            })
         });
+
+        // modifiedUsers.forEach((user) => {
+        //     User.create({email: user.email, name: user.name, password: user.password})
+        // })
+        // const usersWithHashedPasses = modifiedUsers.map((userHashed) => {
+        //     return bcrypt.hash(userHashed.password, 10)
+        //     .then((hashedPassword) => {
+        //         return {name: userHashed.name, email: userHashed.email, password: hashedPassword, phone: userHashed.phone};
+        //     })
+        // });
+
+        // Promise.all(usersWithHashedPasses)
+        // .then((finalUsers) => {
+        //     console.log(newPasses);
+        //     finalUsers.forEach((finalUser) => {
+        //         return User.create({email: finalUser.email, name: finalUser.name, password: finalUser.password})
+        //     });
+        //     // return User.create({})
+        // })
         
+        Promise.all(modifiedUsers)
+        .then((data) => {
+            if(!data) {
+                return;
+            }
+            console.log(newPasses);
+            return res.status(201).send({success: true});
+        })
+        .catch((err) => {
+            if(err.code === 11000) {
+                res.status(400).send({message: "Кто-то из пользователей уже есть"})
+                // throw new Error('Кто-то из пользователей уже есть на платформе')
+            }
+        })
+       
     })
     // const { email, password, name, courses } = req.body;
     // console.log(courses);
