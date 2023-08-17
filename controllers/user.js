@@ -6,6 +6,32 @@ const ejs = require('ejs');
 const { Courses } = require('../models/courseModel');
 const CSVToJSON = require('csvtojson');
 const generatePassword = require('password-generator');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    host: 'sm6.hosting.reg.ru',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'admin@sovacourses.site',
+        pass: "testpassword",
+    }
+})
+
+transporter.verify((err, success) => {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log('connected to smtp');
+    }
+})
+
+// transporter.sendMail({
+//     from: 'admin@sovacourses.site',
+//     to: ['sttrog_810@mail.ru, sttrog810@gmail.com, dreese12d@gmail.com'],
+//     subject: "test smtp sender sova",
+//     text: "Тест отправки письма",
+// })
 
 const login = (req, res) => {
     const {email, password} = req.body;
