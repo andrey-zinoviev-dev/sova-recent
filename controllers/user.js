@@ -8,24 +8,24 @@ const CSVToJSON = require('csvtojson');
 const generatePassword = require('password-generator');
 const nodemailer = require('nodemailer');
 
-// const transporter = nodemailer.createTransport({
-//     host: 'sm6.hosting.reg.ru',
-//     port: 465,
-//     pool: true,
-//     secure: true,
-//     auth: {
-//         user: 'admin@sovacourses.site',
-//         pass: "testpassword",
-//     }
-// })
+const transporter = nodemailer.createTransport({
+    host: 'sm6.hosting.reg.ru',
+    port: 465,
+    pool: true,
+    secure: true,
+    auth: {
+        user: 'admin@sova-courses.site',
+        pass: "testpassword",
+    }
+})
 
-// transporter.verify((err, success) => {
-//     if(err) {
-//         console.log(err);
-//     } else {
-//         console.log('connected to smtp');
-//     }
-// })
+transporter.verify((err, success) => {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log('connected to smtp');
+    }
+})
 
 // transporter.sendMail({
 //     from: 'admin@sovacourses.site',
@@ -70,9 +70,10 @@ const register = (req, res) => {
     // console.log(req.files.pop());
     CSVToJSON().fromFile(req.files.pop().path)
     .then((users) => {
+        // console.log(users);
         const modifiedUsers = users.map((user) => {
             const generatedPassword = generatePassword(10, false);
-            newPasses.push({name: user.name, email: user.email, password: generatedPassword, phone: user.phone});
+            newPasses.push({name: user.name, email: user.email, password: generatedPassword, phone: user.phone, tarif: user.tarif});
             // return bcrypt.hash(generatedPassword, 10)
             // .then((hash) => {
 
@@ -110,8 +111,26 @@ const register = (req, res) => {
             if(!data) {
                 return;
             }
-            console.log(newPasses);
-            return res.status(201).send({success: true});
+            newPasses.forEach((user) => {
+                transporter.sendMail({
+                    from: 'admin@sova-courses.site',
+                    to: user.email,
+                    subject: 'Добро пожаловать на платформу Саши Совы',
+                    html: `
+                        <h1>Сова тебя приветствует!</h1>
+                        <p>Твой тариф: ${user.tarif}</p>.
+                        <div>
+                            <p>Твой логин- ${user.email}</p>
+                            <p>Твой пароль- ${user.password}</p>
+                        </div>
+                        <button>
+                            <a href="https://sova-courses.site">Присоединиться</a>
+                        </button>
+                    `
+                })
+            });
+            // console.log(newPasses);
+            return res.status(201).send(data);
         })
         .catch((err) => {
             if(err.code === 11000) {
