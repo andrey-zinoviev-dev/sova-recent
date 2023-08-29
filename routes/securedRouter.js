@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
-const { requestCourses, getCourse, createCourse, editCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse } = require('../controllers/courses');
+const { requestCourses, getCourse, createCourse, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
@@ -27,7 +27,7 @@ securedRouter.post('/courses/add', upload.array('files'), createCourse);
 
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
-securedRouter.put('/courses/:id/modules/:moduleId/cover', upload.array('file'), editModuleFromCourse);
+securedRouter.put('/courses/:id/modules/:moduleId/cover', upload.array('coverFile'), editModuleFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', editLessonContentFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('files'), addLessonToCourse);
 
