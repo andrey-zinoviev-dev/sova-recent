@@ -26,8 +26,9 @@ securedRouter.get('/courses/:id', getCourse);
 securedRouter.post('/courses/add', upload.array('files'), createCourse);
 
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
+securedRouter.put('/courses/:id/addModule', upload.array('moduleCover'), addModuleToCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
-securedRouter.put('/courses/:id/modules/:moduleId/cover', upload.array('coverFile'), editModuleFromCourse);
+securedRouter.put('/courses/:id/modules/:moduleId/editModule', upload.array('coverFile'), editModuleFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', editLessonContentFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('files'), addLessonToCourse);
 
