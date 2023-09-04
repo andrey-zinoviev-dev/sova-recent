@@ -246,7 +246,24 @@ const editModuleFromCourse = (req, res) => {
       const lessonsToInsert = parsedModule.lessons.filter((lesson) => {
         return !lesson._id;
       });
-      console.log(lessonsToInsert);
+
+      const updatedLessonsToInsert = lessonsToInsert.map((lesson) => {
+        const lessonCover = req.files.find((file) => {
+          return file.originalname === lesson.cover.title;
+        });
+
+        // lesson.cover = lessonCover.path.replace('public', 'http://localhost:3000');
+
+        const updatedLessonContent = lesson.content.content.map((contentElement) => {
+          return contentElement.type === 'image' || contentElement.type === 'video' ? {...contentElement, attrs: {...contentElement.attrs, src: req.files.find((file) => {
+            return file.originalname === contentElement.attrs.title;
+          }).path.replace('public', 'http://localhost:3000')}} : contentElement;
+        });
+        
+        return {...lesson, cover:lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
+      });
+
+      moduleToUpdate.lessons = [...moduleToUpdate.lessons, ...updatedLessonsToInsert];
       // return;
     }
     if(parsedModule.cover.title) {
