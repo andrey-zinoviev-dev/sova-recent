@@ -228,7 +228,6 @@ const editModuleFromCourse = (req, res) => {
   const { moduleData } = req.body;
 
   const parsedModule = JSON.parse(moduleData);
-
   // console.log(req.files);
   // console.log(parsedModule);
   Courses.findById(id)
@@ -240,30 +239,116 @@ const editModuleFromCourse = (req, res) => {
     if(parsedModule.title !== moduleToUpdate.title) {
       moduleToUpdate.title = parsedModule.title;
     }
-    if(parsedModule.lessons.length !== moduleToUpdate.lessons.length) {
-      console.log('update lessons array');
+    if(parsedModule.lessons.length !== moduleToUpdate.lessons.length || parsedModule.lessons.some((lesson) => {
+      return lesson.edit;
+    })) {
+      // console.log(parsedModule.lessons);
+      if(parsedModule.lessons.length !== moduleToUpdate.lessons.length) {
+        const lessonsToInsert = parsedModule.lessons.filter((lesson) => {
+          return !lesson._id;
+        });
+        const updatedLessons = lessonsToInsert.map((lesson) => {
+          const lessonCoverFile = req.files.find((file) => {
+            return file.originalname === lesson.cover.title;
+          });
+          lesson.cover = lessonCoverFile.path.replace('public', 'http://localhost:3000');
+          const lessonContent = lesson.content.content.map((contentEl) => {
+            if(contentEl.type === 'image' || contentEl.type === 'video') {
+              const contentFile = req.files.find((file) => {
+                return file.originalname === contentEl.attrs.title;
+              });
+              
+              contentEl.attrs.src = contentFile.path.replace('public', 'http://localhost:3000');
+            }
+            return contentEl;
+          });
+
+          return {...lesson, content: {...lesson.content, content: lessonContent}};
+
+        });
+        moduleToUpdate.lessons = [...moduleToUpdate.lessons, ...updatedLessons];
+
+      } 
+      if( parsedModule.lessons.some((lesson) => {
+        return lesson.edit;
+      })) {
+        // console.log('update existing lessons');
+
+        const updatedLessons = parsedModule.lessons.map((lesson) => {
+          const lessonCoverFile = req.files.find((file) => {
+            return file.originalname === lesson.cover.title;
+          });
+
+          lesson.cover = lessonCoverFile ? lessonCoverFile.path.replace('public', 'http://localhost:3000') : lesson.cover;
+
+          const lessonContent = lesson.content.content.map((contentEl) => {
+            if(contentEl.type === 'image' || contentEl.type === 'video') {
+              const contentFile = req.files.find((file) => {
+                return file.originalname === contentEl.attrs.title;
+              });
+              contentEl.attrs.src = contentFile ? contentFile.path.replace('public', 'http://localhost:3000') : contentEl.attrs.src;
+
+              
+              // return {...contentEl, }
+            }
+
+            return contentEl;
+          });
+
+          lesson.content = {...lesson.content, content: lessonContent};
+
+          return lesson;
+
+        });
+
+        moduleToUpdate.lessons = updatedLessons;
+        // console.log(lessonsToUpdate);
+        // const lessonsToUpdate
+      }
+      // console.log(parsedModule)
       // console.log(moduleToUpdate.lessons);
-      const lessonsToInsert = parsedModule.lessons.filter((lesson) => {
-        return !lesson._id;
-      });
 
-      const updatedLessonsToInsert = lessonsToInsert.map((lesson) => {
-        const lessonCover = req.files.find((file) => {
-          return file.originalname === lesson.cover.title;
-        });
+      // const lessonsToInsert = parsedModule.lessons.filter((lesson) => {
+      //   return !lesson._id;
+      // });
 
-        // lesson.cover = lessonCover.path.replace('public', 'http://localhost:3000');
+      // const updatedLessonsToInsert = parsedModule.lessons.map((lesson) => {
+      //   const lessonCover = req.files.find((file) => {
+      //     return file.originalname === lesson.cover.title;
+      //   });
+      // //   // lesson.cover = lessonCover.path.replace('public', 'http://localhost:3000');
 
-        const updatedLessonContent = lesson.content.content.map((contentElement) => {
-          return contentElement.type === 'image' || contentElement.type === 'video' ? {...contentElement, attrs: {...contentElement.attrs, src: req.files.find((file) => {
-            return file.originalname === contentElement.attrs.title;
-          }).path.replace('public', 'http://localhost:3000')}} : contentElement;
-        });
+      //   const updatedLessonContent = lesson.content.content.map((contentElement) => {
+      //     if(contentElement.type === 'image' || contentElement.type === 'video') {
+      //       const foundContentFile = req.files.find((file) => {
+      //         return file.originalname === contentElement.attrs.title;
+      //       });
+      //       foundContentFile ? console.log(foundContentFile) : console.log(contentElement.attrs.src);
+      //       contentElement.attrs.src = foundContentFile ? foundContentFile.path.replace('public', 'http://localhost:3000') : contentElement.attrs.src;
+      //     }
+      //     return contentElement;
+      //     // return contentElement.type === 'image' || contentElement.type === 'video' ? {...contentElement, attrs: {...contentElement.attrs, src: req.files.find((file) => {
+      //     //   return file.originalname === contentElement.attrs.title;
+      //     // }) ? req.files.find((file) => {
+      //     //   return file.originalname === contentElement.attrs.title;
+      //     // }).path.replace('public', 'http://localhost:3000') : contentElement.attrs.src}} : contentElement;
+      //   });
+      //   // console.log(updatedLessonContent);
         
-        return {...lesson, cover:lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
-      });
+      //   return {...lesson, cover:lessonCover ? lessonCover.path.replace('public', 'http://localhost:3000') : lesson.cover, content: {...lesson.content, content: updatedLessonContent}};
+      // });
+      
+      // if(parsedModule.lessons.length !== moduleToUpdate.lessons.length) {
+      //   moduleToUpdate.lessons = [...moduleToUpdate.lessons, ...updatedLessonsToInsert];
+      // } else if (parsedModule.lessons.some((lesson) => {
+      //   return lesson.edit;
+      // })) {
+      //   console.log('update existing lessons');
+      // }
+      // return;
+      // return;
+      // moduleToUpdate.lessons = [...moduleToUpdate.lessons, ...updatedLessonsToInsert];
 
-      moduleToUpdate.lessons = [...moduleToUpdate.lessons, ...updatedLessonsToInsert];
       // return;
     }
     if(parsedModule.cover.title) {
