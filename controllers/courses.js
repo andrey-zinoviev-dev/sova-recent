@@ -162,38 +162,40 @@ const addModuleToCourse = (req, res) => {
   const { id } = req.params;
   const { moduleData } = req.body;
   const parsedModuleData = JSON.parse(moduleData);
+  console.log(req.files);
   Courses.findById(id)
   .then((doc) => {
-    console.log(doc);
-    // if(!doc) {
-    //   return;
-    // }
-    // const moduleCover = req.files.find((file) => {
-    //   return file.originalname === parsedModuleData.cover.title;
-    // });
-    // parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
+    console.log(parsedModuleData);
+    // console.log(doc);
+    if(!doc) {
+      return;
+    }
+    const moduleCover = req.files.find((file) => {
+      return file.originalname === parsedModuleData.cover.title;
+    });
+    parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
 
     // // parsedModuleData.lessons.forEach((lesson) => {
     // //   console.log(lesson.content);
     // // })
 
-    // const updatedLessons = parsedModuleData.lessons.map((lesson) => {
-    //   const lessonCover = req.files.find((file) => {
-    //     return file.originalname === lesson.cover.title;
-    //   });
-    //   // console.log(lesson.content);
-    //   const updatedLessonContent = lesson.content.content.map((lessonContent) => {
-    //     if(lessonContent.type === 'image' || lessonContent.type === 'video') {
-    //       const lessonFile = req.files.find((lessonFileToSearch) => {
-    //         return lessonFileToSearch.originalname === lessonContent.attrs.title;
-    //       });
-    //       lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
-    //       return lessonContent
-    //     }
-    //     return lessonContent;
-    //   });
-    //   console.log(updatedLessonContent);
-    //   lesson.content.content = updatedLessonContent;
+    const updatedLessons = parsedModuleData.lessons.map((lesson) => {
+      const lessonCover = req.files.find((file) => {
+        return file.originalname === lesson.cover.title;
+      });
+      console.log(lessonCover);
+      const updatedLessonContent = lesson.content.content.map((lessonContent) => {
+        if(lessonContent.type === 'image' || lessonContent.type === 'video') {
+          const lessonFile = req.files.find((lessonFileToSearch) => {
+            return lessonFileToSearch.originalname === lessonContent.attrs.title;
+          });
+          lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
+          return lessonContent
+        }
+        return lessonContent;
+      });
+      // console.log(updatedLessonContent);
+      // lesson.content.content = updatedLessonContent;
       
     //   // if(lesson)
     //   // const updated
@@ -212,13 +214,15 @@ const addModuleToCourse = (req, res) => {
     //   //   // lesson.content.cotnent = updatedLessonContent;
     //   // } 
 
-    //   return {...lesson, cover: lessonCover.path.replace('public', 'http://localhost:3000')};
-    // });
+      return {...lesson, cover: lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
+    });
+
+    parsedModuleData.lessons = updatedLessons;
 
     // parsedModuleData.lessons = updatedLessons;
-    // doc.modules = [...doc.modules, parsedModuleData];
-    // doc.save();
-    // res.status(201).send(doc);
+    doc.modules = [...doc.modules, parsedModuleData];
+    doc.save();
+    res.status(201).send(doc);
   })
 
 }
