@@ -29,8 +29,8 @@ securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
 securedRouter.put('/courses/:id/addModule', upload.array('moduleCover'), addModuleToCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
 securedRouter.put('/courses/:id/modules/:moduleId/editModule', upload.array('coverFile'), editModuleFromCourse);
-securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', editLessonContentFromCourse);
-securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('files'), addLessonToCourse);
+securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', upload.array('file'), editLessonContentFromCourse);
+securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('file'), addLessonToCourse);
 
 securedRouter.delete('/courses/:courseID/modules/:moduleID', deleteModuleFromCourse);
 securedRouter.delete('/courses/:courseID/modules/:moduleID/lessons/:lessonID/delete', deleteLessonFromCourse);
