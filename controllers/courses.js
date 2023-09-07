@@ -2,6 +2,7 @@
 const { Courses, lessonModules } = require('../models/courseModel');
 const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
+const CSVToJSON = require('csvtojson');
 
 const requestCourses = (req, res) => {
   // console.log(req.user);
@@ -560,119 +561,70 @@ const getLesson = (req, res) => {
 
 const addStudentsToCourse = (req, res) => {
   const { courseID } = req.params;
-  const { students } = req.body;
+  // console.log(req.files);
+  // const { usersFile } = req.body;
   // console.log(req.body);
   // console.log(courseID);
-  const studentsIds = students.map((student) => {
-    return student.studentId;
-  });
+  // const studentsIds = students.map((student) => {
+  //   return student.studentId;
+  // });
   // console.log(studentsIds);
   Courses.findById(courseID).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
   .then((foundCourse) => {
-    // console.log(foundCourse);
-    if(!foundCourse) {
-      return;
-    }
-    
-    User.bulkWrite(students.map((student) => {
-      return {updateOne: {
-        filter: {
-          _id: student.studentId
-        },
-        update: {
-          courses: {_id: courseID, grade: student.grade}
-        }
-      }}
-    }))
+    CSVToJSON().fromFile(req.files.pop().path)
     .then((data) => {
-      // console.log(data);
-      User.find({admin: false})
-      .then((docs) => {
-        const updatedUsers = docs.filter((filterDoc) => {
-          return students.find((student) => {
-            return student.studentId === filterDoc._id.toString();
-          })
-        });
-
-        foundCourse.students = [...foundCourse.students, ...updatedUsers.map((updatedUser) => {
-          return updatedUser._id.toString();
-        })];
-        foundCourse.save()
-        .then((savedCourse) => {
-          if(!savedCourse) {
-            return;
-          }
-          savedCourse.populate([{path: 'modules', populate: {path: "lessons"}}, {path: "author"}, {path: 'students'}])
-          .then((finalCourse) => {
-            return res.status(201).send({course: finalCourse, users: docs})
-          })
-          // return res.status(201).send({course: savedCourse, users: docs});
-        })
-        // Courses.findById(courseID).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
-        // .then((updatedCourse) => {
-        //   if(!updatedCourse) {
-        //     return;
-        //   }
-        //   console.log(updatedCourse);
-        //   res.status(201).send({course: updatedCourse, users: docs})
-        // })
-        // res.status(201).send({course: foundCourse, users: docs})
-      })
+      console.log(data);
     })
-    // const studentsToInsert = students.filter((student) => {
-    //   return !foundCourse.students.includes(student);
-    // });
-    // // console.log(studentsToInsert);
-    // students.forEach((student) => {
-    //   User.findByIdAndUpdate(student.studentId)
-    //   .then((foundUser) => {
-    //     if(!foundUser) {
-    //       return;
-    //     }
-    //     foundUser.courses.push({_id: courseID, grade: student.grade});
-    //     foundUser.save();
-    //     foundCourse.students.push(student.studentId);
-    //   })
-    //   // foundCourse.students.push(student.studentId);
-    //   // User.updateMany({_id: {$in: student.studentId} }, {
-    //   //   $addToSet: {
-    //   //     courses: doc._id.toString(),
-    //   //   }
-    //   // })
-    // });
-
-    // foundCourse.save();
-
-    
-
-    // console.log(User.find({admin: false}))
-
-    // const usersToSend = User.find({admin: false})
-    // .then((docs) => {
-    //   return docs;
-    // });
-
-    // const coursesToSend = Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
-    // .then((foundCourses) => {
-    //   return foundCourses;
-    // })
-
-    // Promise.all([usersToSend, coursesToSend])
-    // .then((values) => {
-    //   const [docs, foundCourses] = values;
-    //   console.log(docs, foundCourses);
-    // })
-
-
-
-
-
     // console.log(foundCourse);
-    // return foundCourse.populate('students')
-    // .then((populatedCourse) => {
-    //   res.status(201).send(populatedCourse);
-    // })
+    // if(!foundCourse) {
+    //   return;
+    // }
     
+    // User.bulkWrite(students.map((student) => {
+    //   return {updateOne: {
+    //     filter: {
+    //       _id: student.studentId
+    //     },
+    //     update: {
+    //       courses: {_id: courseID, grade: student.grade}
+    //     }
+    //   }}
+    // }))
+    // .then((data) => {
+    //   // console.log(data);
+    //   User.find({admin: false})
+    //   .then((docs) => {
+    //     const updatedUsers = docs.filter((filterDoc) => {
+    //       return students.find((student) => {
+    //         return student.studentId === filterDoc._id.toString();
+    //       })
+    //     });
+
+    //     foundCourse.students = [...foundCourse.students, ...updatedUsers.map((updatedUser) => {
+    //       return updatedUser._id.toString();
+    //     })];
+    //     foundCourse.save()
+    //     .then((savedCourse) => {
+    //       if(!savedCourse) {
+    //         return;
+    //       }
+    //       savedCourse.populate([{path: 'modules', populate: {path: "lessons"}}, {path: "author"}, {path: 'students'}])
+    //       .then((finalCourse) => {
+    //         return res.status(201).send({course: finalCourse, users: docs})
+    //       })
+    //       // return res.status(201).send({course: savedCourse, users: docs});
+    //     })
+    //     // Courses.findById(courseID).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+    //     // .then((updatedCourse) => {
+    //     //   if(!updatedCourse) {
+    //     //     return;
+    //     //   }
+    //     //   console.log(updatedCourse);
+    //     //   res.status(201).send({course: updatedCourse, users: docs})
+    //     // })
+    //     // res.status(201).send({course: foundCourse, users: docs})
+    //   })
+    // })
   })
 };
 

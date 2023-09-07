@@ -43,7 +43,7 @@ securedRouter.get('/contact/:userId/messages', getMessagesOfUser);
 securedRouter.post('/messages', upload.array("files"), sendMessage);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
-securedRouter.put('/courses/:courseID/students', addStudentsToCourse);
+securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
 
 module.exports = {
   securedRouter,
