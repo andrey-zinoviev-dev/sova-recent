@@ -577,7 +577,7 @@ const addStudentsToCourse = (req, res) => {
       const users = data.map((user) => {
         return User.findOne({email: user.email})
         .then((doc) => {
-          return {...user, found: doc};
+          return !doc ? user : doc;
         })
       });
 
@@ -585,27 +585,33 @@ const addStudentsToCourse = (req, res) => {
 
       Promise.all(users)
       .then((result) => {
-        const usersResult = result.map((user) => {
-          return user.found ? user 
-          : 
-          bcrypt.hash('password', 10)
-          .then((hash) => {
-            return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: []})
-            .then((savedUser) => {
-              savedUser.courses.push(foundCourse._id);
-              savedUser.save();
-              return savedUser;
-            })
-          })
-        });
+        console.log(result);
+      //   const usersResult = result.map((user) => {
+      //     return user.found ? User.findById(user.found._id.toString())
+      //     .then((foundUser) => {
+      //       console.log(foundUser);
+      //     }) 
+      //     // user.found.save();
+      //     : 
+      //     bcrypt.hash('password', 10)
+      //     .then((hash) => {
+      //       console.log(hash);
+      //       // return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: []})
+      //       // .then((savedUser) => {
+      //       //   savedUser.courses.push(foundCourse._id);
+      //       //   savedUser.save();
+      //       //   return savedUser;
+      //       // })
+      //     })
+      //   });
 
-        Promise.all(usersResult)
-        .then((data) => {
-          console.log(data);
-          foundCourse.students = data;
-          foundCourse.save();
-          res.status(201).send(foundCourse);
-        });
+      //   Promise.all(usersResult)
+      //   .then((data) => {
+      //     console.log(data);
+      //     // foundCourse.students = data;
+      //     // foundCourse.save();
+      //     // res.status(201).send(foundCourse);
+      //   });
 
       })
     })
