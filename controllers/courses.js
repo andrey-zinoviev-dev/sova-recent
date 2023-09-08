@@ -1,5 +1,6 @@
 // const { populate } = require('../models/chatMessage');
 const { Courses, lessonModules } = require('../models/courseModel');
+const bcrypt = require('bcrypt');
 const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
 const CSVToJSON = require('csvtojson');
@@ -573,7 +574,40 @@ const addStudentsToCourse = (req, res) => {
   .then((foundCourse) => {
     CSVToJSON().fromFile(req.files.pop().path)
     .then((data) => {
-      console.log(data);
+      const users = data.map((user) => {
+        return User.findOne({email: user.email})
+        .then((doc) => {
+          return {...user, found: doc};
+        })
+      });
+
+      console.log(users);
+
+      Promise.all(users)
+      .then((result) => {
+        const usersResult = result.map((user) => {
+          return user.found ? user 
+          : 
+          bcrypt.hash('password', 10)
+          .then((hash) => {
+            return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: []})
+            .then((savedUser) => {
+              savedUser.courses.push(foundCourse._id);
+              savedUser.save();
+              return savedUser;
+            })
+          })
+        });
+
+        Promise.all(usersResult)
+        .then((data) => {
+          console.log(data);
+          foundCourse.students = data;
+          foundCourse.save();
+          res.status(201).send(foundCourse);
+        });
+
+      })
     })
     // console.log(foundCourse);
     // if(!foundCourse) {
