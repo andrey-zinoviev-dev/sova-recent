@@ -570,50 +570,78 @@ const addStudentsToCourse = (req, res) => {
   //   return student.studentId;
   // });
   // console.log(studentsIds);
-  Courses.findById(courseID).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+  Courses.findById(courseID).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"})
   .then((foundCourse) => {
     CSVToJSON().fromFile(req.files.pop().path)
     .then((data) => {
       const users = data.map((user) => {
         return User.findOne({email: user.email})
         .then((doc) => {
-          return !doc ? user : doc;
+          if(!doc) {
+            return bcrypt.hash('password', 10)
+            .then((hash) => {
+              return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [foundCourse._id]})
+              .then((newUser) => {
+                return newUser._id;
+              })
+            })
+          } else {
+            doc.courses = !doc.courses.includes(foundCourse._id) ? [...doc.courses, foundCourse._id] : doc.courses;
+            doc.save();
+            return doc._id;
+          }
+          // return !doc ? bcrypt.hash('password', 10)
+          // .then((hash) => {
+          //   return User.create({email: user.emai, password: hash, name: user.name, admin: false, courses: [...foundCourse._id]})
+          // })
+          // : 
+          // doc;
         })
       });
 
-      console.log(users);
+      // console.log(data);
 
       Promise.all(users)
       .then((result) => {
         console.log(result);
-      //   const usersResult = result.map((user) => {
-      //     return user.found ? User.findById(user.found._id.toString())
-      //     .then((foundUser) => {
-      //       console.log(foundUser);
-      //     }) 
-      //     // user.found.save();
-      //     : 
-      //     bcrypt.hash('password', 10)
-      //     .then((hash) => {
-      //       console.log(hash);
-      //       // return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: []})
-      //       // .then((savedUser) => {
-      //       //   savedUser.courses.push(foundCourse._id);
-      //       //   savedUser.save();
-      //       //   return savedUser;
-      //       // })
-      //     })
-      //   });
+        console.log(foundCourse.students);
+        const newUsers = result.filter((newUser) => {
+          return !foundCourse.students.includes(newUser._id);
+        });
+        console.log(newUsers);
+        // const updatedStudentsList = 
+        foundCourse.students = [...foundCourse.students, ...newUsers];
 
-      //   Promise.all(usersResult)
-      //   .then((data) => {
-      //     console.log(data);
-      //     // foundCourse.students = data;
-      //     // foundCourse.save();
-      //     // res.status(201).send(foundCourse);
-      //   });
+        foundCourse.save();
+        return res.status(201).send(foundCourse);
+      // //   const usersResult = result.map((user) => {
+      // //     return user.found ? User.findById(user.found._id.toString())
+      // //     .then((foundUser) => {
+      // //       console.log(foundUser);
+      // //     }) 
+      // //     // user.found.save();
+      // //     : 
+      // //     bcrypt.hash('password', 10)
+      // //     .then((hash) => {
+      // //       console.log(hash);
+      // //       // return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: []})
+      // //       // .then((savedUser) => {
+      // //       //   savedUser.courses.push(foundCourse._id);
+      // //       //   savedUser.save();
+      // //       //   return savedUser;
+      // //       // })
+      // //     })
+      });
 
-      })
+      // //   Promise.all(usersResult)
+      // //   .then((data) => {
+      // //     console.log(data);
+      // //     // foundCourse.students = data;
+      // //     // foundCourse.save();
+      // //     // res.status(201).send(foundCourse);
+      // //   });
+
+      // })
     })
     // console.log(foundCourse);
     // if(!foundCourse) {
