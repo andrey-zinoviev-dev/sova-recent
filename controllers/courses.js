@@ -4,6 +4,20 @@ const bcrypt = require('bcrypt');
 const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
 const CSVToJSON = require('csvtojson');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    host: 'sm6.hosting.reg.ru',
+    port: 465,
+    pool: true,
+    secure: true,
+    auth: {
+        user: 'admin@sova-courses.site',
+        pass: "testpassword",
+    }
+});
+
+const generatePassword = require('password-generator');
 
 const requestCourses = (req, res) => {
   // console.log(req.user);
@@ -578,10 +592,26 @@ const addStudentsToCourse = (req, res) => {
         return User.findOne({email: user.email})
         .then((doc) => {
           if(!doc) {
-            return bcrypt.hash('password', 10)
+            const generatedPassword = generatePassword(10, false);
+            return bcrypt.hash(generatedPassword, 10)
             .then((hash) => {
               return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [foundCourse._id]})
               .then((newUser) => {
+                transporter.sendMail({
+                  from: 'admin@sova-courses.site',
+                  to: user.email,
+                  subject: 'Добро пожаловать на платформу Саши Совы',
+                  html: `
+                      <h1>Сова тебя приветствует на курсе ${foundCourse.name}!</h1>
+                      <div>
+                          <p>Твой логин- ${user.email}</p>
+                          <p>Твой пароль- ${generatedPassword}</p>
+                      </div>
+                      <button>
+                          <a href="http://localhost:3000">Присоединиться</a>
+                      </button>
+                  `
+              })
                 return newUser._id;
               })
             })
