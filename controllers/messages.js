@@ -72,7 +72,9 @@ const getMessagesOfUser = ((req, res) => {
 
 const sendMessage = (req, res) => {
   // console.log(req.files);
-  const { text, moduleID, user, to } = req.body;
+  const { text, moduleID, user, to, location } = req.body;
+  // const { course, module, lesson } = JSON.parse(location);
+
   // console.log(text, moduleID, user, to);
   // console.log(req.files);
   const filesToSend = req.files.map((file) => {
@@ -90,6 +92,7 @@ const sendMessage = (req, res) => {
     // const foundConvo = doc.pop();
     // console.log(doc);
     if(foundConvo) {
+      foundConvo.location = JSON.parse(location);
       foundConvo.messages.push(newMessage);
       const lastMessage = foundConvo.messages[foundConvo.messages.length - 1];
       
@@ -107,6 +110,7 @@ const sendMessage = (req, res) => {
     }
     return Conversation.create({members: [user, to]})
     .then((createdConvo) => {
+      createdConvo.location = JSON.parse(location);
       // console.log(createdConvo);
       createdConvo.messages.push(newMessage);
       createdConvo.save();

@@ -13,6 +13,7 @@ const transporter = nodemailer.createTransport({
     port: 465,
     pool: true,
     secure: true,
+    from: '"Sasha Sova"<admin@sova-courses.site>',
     auth: {
         user: 'admin@sova-courses.site',
         pass: "testpassword",
@@ -214,7 +215,7 @@ const showCurrentUser = (req, res) => {
             message: "Пользователь не найден",
         });
     }
-    User.findById(_id).select('-password')
+    User.findById(_id).select('-password').populate('courses')
     .then((doc) => {
         return res.status(200).send(doc);
     })
