@@ -598,9 +598,9 @@ const addStudentsToCourse = (req, res) => {
               return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [foundCourse._id]})
               .then((newUser) => {
                 transporter.sendMail({
-                  from: 'admin@sova-courses.site',
+                  from: '"Sasha Sova" <admin@sova-courses.site>',
                   to: user.email,
-                  subject: 'Добро пожаловать на платформу Саши Совы',
+                  subject: 'Добро пожаловать на платформу Саши Совы!',
                   html: `
                       <h1>Сова тебя приветствует на курсе ${foundCourse.name}!</h1>
                       <div>
