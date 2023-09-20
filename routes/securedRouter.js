@@ -39,7 +39,7 @@ securedRouter.delete('/courses/:courseID/modules/:moduleID/lessons/:lessonID/del
 securedRouter.get('/courses/:courseID/modules/:moduleID/lessons/:lessonID', getLesson)
 // securedRouter.get('/modules/:courseModuleId/messages', getMessagesOfUser);
 // securedRouter.get('/courses/:id/data', getCourse);
-securedRouter.get('/contact/:userId/messages', getMessagesOfUser);
+securedRouter.get('/contact/:userId/courses/:courseID/modules/:moduleID/lessons/:lessonID/messages', getMessagesOfUser);
 securedRouter.post('/messages', upload.array("files"), sendMessage);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);

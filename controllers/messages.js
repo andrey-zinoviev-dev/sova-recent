@@ -5,12 +5,13 @@ const Conversation = require('../models/Conversation');
 
 const getMessagesOfUser = ((req, res) => {
   const _id = req.user;
-  const {userId} = req.params;
+  const {userId, courseID, moduleID, lessonID} = req.params;
+  // console.log(courseID, moduleID, lessonID);
   // console.log(userId);
   // const foundUser = User.findById(_id);
-  Conversation.findOne({members: {$all: [_id, userId]}}).populate('members')
+  Conversation.findOne({members: {$all: [_id, userId]}, location: {course: courseID, module: moduleID, lesson: lessonID}}).populate('members')
   .then((foundConvo) => {
-    // console.log(foundConvo);
+    console.log(foundConvo);
     if(!foundConvo) {
       // return;
       return res.status(400).send({message: "Пока нет сообщений"});
@@ -73,6 +74,8 @@ const getMessagesOfUser = ((req, res) => {
 const sendMessage = (req, res) => {
   // console.log(req.files);
   const { text, moduleID, user, to, location } = req.body;
+  const pasredLocation = JSON.parse(location);
+  // console.log(pasredLocation);
   // const { course, module, lesson } = JSON.parse(location);
 
   // console.log(text, moduleID, user, to);
@@ -82,17 +85,17 @@ const sendMessage = (req, res) => {
     return {...file, path: updatedPath};
   });
 
-  console.log(filesToSend);
+  // console.log(filesToSend);
 
-  Conversation.findOne({members: {$all: [user, to]}})
+  Conversation.findOne({members: {$all: [user, to]}, location: {course: pasredLocation.course, module: pasredLocation.module, lesson: pasredLocation.lesson}})
   .then((foundConvo) => {
-    // console.log(foundConvo);
+    console.log(foundConvo);
     const newMessage = {user: user, to: to, text: text, files: filesToSend};
     console.log(newMessage);
     // const foundConvo = doc.pop();
     // console.log(doc);
     if(foundConvo) {
-      foundConvo.location = JSON.parse(location);
+      foundConvo.location = pasredLocation;
       foundConvo.messages.push(newMessage);
       const lastMessage = foundConvo.messages[foundConvo.messages.length - 1];
       
@@ -108,9 +111,9 @@ const sendMessage = (req, res) => {
       //   return res.status(201).send(message);
       // });
     }
-    return Conversation.create({members: [user, to]})
+    return Conversation.create({members: [user, to], location: location})
     .then((createdConvo) => {
-      createdConvo.location = JSON.parse(location);
+      createdConvo.location = pasredLocation;
       // console.log(createdConvo);
       createdConvo.messages.push(newMessage);
       createdConvo.save();
