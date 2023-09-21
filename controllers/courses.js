@@ -726,6 +726,22 @@ const addStudentsToCourse = (req, res) => {
   })
 };
 
+const lessonNotification = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  Courses.findById(courseID)
+  .then((foundCourse) => {
+    if(!foundCourse) {
+      return;
+    }
+    const lessonToSend = foundCourse.modules.find((module) => {
+      return module._id.toString() === moduleID;
+    }).lessons.find((lesson) => {
+      return lesson._id.toString() === lessonID;
+    });
+    console.log(lessonToSend);
+  })
+};
+
 module.exports = {
   requestCourses,
   // redirectToCourse,
@@ -740,5 +756,6 @@ module.exports = {
   editModuleFromCourse,
   editLessonFromCourse,
   editLessonContentFromCourse,
-  addLessonToCourse
+  addLessonToCourse,
+  lessonNotification
 }

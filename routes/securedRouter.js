@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
-const { requestCourses, getCourse, createCourse, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse } = require('../controllers/courses');
+const { requestCourses, getCourse, createCourse, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
@@ -44,6 +44,7 @@ securedRouter.post('/messages', upload.array("files"), sendMessage);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
 securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
+securedRouter.get('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
 
 module.exports = {
   securedRouter,
