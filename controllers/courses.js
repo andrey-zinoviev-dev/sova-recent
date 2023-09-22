@@ -38,7 +38,7 @@ const getCourse = (req, res) => {
   const { id } = req.params;
   // console.log(id);
   User.findById( id ).then(() => {});
-  Courses.findById(id).populate({path: 'modules', populate: { path: 'students'} }).populate({path: 'author'})
+  Courses.findById(id).populate({path: 'modules'}).populate({path: 'author'}).populate({path: 'students'})
   .then((doc) => {
 
     res.status(200).send(doc);
