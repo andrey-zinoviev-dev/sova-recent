@@ -39,6 +39,10 @@ const courseSchema = new mongoose.Schema({
     type: Number,
   },
   students: [{
+    // id: String,
+    // name: String,
+    // email: String,
+    // tarif: String,
     type: mongoose.Schema.Types.ObjectId, ref: "User",
   }],
   available: {

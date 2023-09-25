@@ -595,7 +595,7 @@ const addStudentsToCourse = (req, res) => {
             const generatedPassword = generatePassword(10, false);
             return bcrypt.hash(generatedPassword, 10)
             .then((hash) => {
-              return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [foundCourse._id]})
+              return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: foundCourse._id, tarif: user.tarif}]})
               .then((newUser) => {
                 transporter.sendMail({
                   from: '"Sasha Sova" <admin@sova-courses.site>',
@@ -728,17 +728,35 @@ const addStudentsToCourse = (req, res) => {
 
 const lessonNotification = (req, res) => {
   const { courseID, moduleID, lessonID } = req.params;
+  console.log(req.body);
   Courses.findById(courseID)
   .then((foundCourse) => {
     if(!foundCourse) {
       return;
     }
-    const lessonToSend = foundCourse.modules.find((module) => {
-      return module._id.toString() === moduleID;
-    }).lessons.find((lesson) => {
-      return lesson._id.toString() === lessonID;
-    });
-    console.log(lessonToSend);
+    // const lessonToSend = foundCourse.modules.find((module) => {
+    //   return module._id.toString() === moduleID;
+    // }).lessons.find((lesson) => {
+    //   return lesson._id.toString() === lessonID;
+    // });
+    // console.log(lessonToSend);
+    req.body.forEach((student) => {
+      transporter.sendMail({
+        from: '"Sasha Sova" <admin@sova-courses.site>',
+        to: student.email,
+        subject: `Новый урок на курсе ${foundCourse.name}`,
+        html: `
+            <h1>На курсе ${foundCourse.name} появился новый урок!</h1>
+            <div>
+              Посмотреть урок можно по ссылке
+              <button>
+                  <a href=http://localhost:3001>Посмотреть курс</a>
+              </button>
+            </div>
+
+        `
+      })
+    })
   })
 };
 

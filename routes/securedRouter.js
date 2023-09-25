@@ -44,7 +44,7 @@ securedRouter.post('/messages', upload.array("files"), sendMessage);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
 securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
-securedRouter.get('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
+securedRouter.post('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
 
 module.exports = {
   securedRouter,
