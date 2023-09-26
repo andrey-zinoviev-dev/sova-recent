@@ -750,7 +750,7 @@ const lessonNotification = (req, res) => {
             <div>
               Посмотреть урок можно по ссылке
               <button>
-                  <a href=http://localhost:3001>Посмотреть курс</a>
+                  <a href=http://localhost:3001/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Посмотреть курс</a>
               </button>
             </div>
 
