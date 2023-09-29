@@ -75,7 +75,8 @@ io.on('connection', (socket) => {
     // console.log('yes');
     //uncomment further !!!!!!!!!!!!!!!
     // // save session on socket connection
-    socket.on('user connected', user => {     
+    socket.on('user connected', (user) => { 
+        console.log(user);    
         // socket.handshake.userID = user._id;
         socket.userId = user._id;
         socket.adminRights = user.admin;
@@ -83,23 +84,24 @@ io.on('connection', (socket) => {
         socket.join(user._id);
         // console.log(socket.userId, user._id);
         // console.log(users);
-        socket.broadcast.emit('show connected user', user);
+        socket.broadcast.emit('show connected user', {userId: user._id, admin: user.admin, online: true});
         
         const foundUserIndex = users.findIndex((userToSearch) => {
             return userToSearch.userId === user._id;
         });
         // console.log(foundUserIndex);
         if(foundUserIndex < 0) {
+            
             // console.log('user not found');
             users.push({userId: socket.userId, admin: socket.adminRights, online: true});
             
             // console.log(users);
-            return socket.emit('show all connected users', users);
+            socket.emit('show all connected users', users);
         } else {
-            console.log('user found');
+            // console.log('user found');
             users[foundUserIndex].online = true;
             // console.log(users);
-            return socket.emit('show all connected users', users);
+            socket.emit('show all connected users', users);
         }
     });
 
