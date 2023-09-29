@@ -16,8 +16,8 @@ const { securedRouter } = require('./routes/securedRouter');
 
 const User = require('./models/userModel');
 
-mongoose.connect('mongodb://127.0.0.1:27017/sova');
-// mongoose.connect('mongodb://127.0.0.1:27017/test');
+// mongoose.connect('mongodb://127.0.0.1:27017/sova');
+mongoose.connect('mongodb://127.0.0.1:27017/test');
 
 const app = express();
 //server initialization
