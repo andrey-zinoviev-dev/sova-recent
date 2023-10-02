@@ -151,6 +151,7 @@ const editCourse = (req, res) => {
     res.status(201).send(doc);
   })
 
+
   // console.log(JSON.parse(moduleData));
   // console.log(req.files);
   // Courses.findById(id)
@@ -171,6 +172,12 @@ const editCourse = (req, res) => {
   //   doc.save();
   //   return res.status(201).send(doc);
   // })
+};
+
+const editCourseCover = (req, res) => {
+  console.log(req.file);
+  const { id } = req.params;
+  console.log(id);
 };
 
 const addModuleToCourse = (req, res) => {
@@ -765,6 +772,7 @@ module.exports = {
   // redirectToCourse,
   getCourse,
   createCourse,
+  editCourseCover,
   editCourse,
   addModuleToCourse,
   getLesson,
