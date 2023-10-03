@@ -134,7 +134,7 @@ const editCourse = (req, res) => {
       });
       // console.log(parsedModuleData);
       parsedModuleData.cover = uploadedModuleCover.path.replace('public', 'https://api.sova-courses.site');
-      console.log(parsedModuleData);
+      // console.log(parsedModuleData);
       const updatedLessons = parsedModuleData.lessons.map((lesson) => {
         const foundLessonCover = req.files.find((file) => {
           return file.originalname === lesson.cover.title;
@@ -174,10 +174,47 @@ const editCourse = (req, res) => {
   // })
 };
 
-const editCourseCover = (req, res) => {
-  console.log(req.file);
+const editCourseTitle = (req, res) => {
   const { id } = req.params;
-  console.log(id);
+  const { name } = req.body;
+  Courses.findById(id)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+    doc.name = name;
+    doc.save();
+    return res.status(201).send({name: doc.name, message: "Название успешно обновлено!"});
+  })
+};
+
+const editCourseDesc = (req, res) => {
+  const { id } = req.params;
+  const { desc } = req.body;
+  Courses.findById(id)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+    doc.description = desc;
+    doc.save();
+    return res.status(201).send({desc: doc.description, message: "Описание успешно обновлено!"});
+  })
+};
+
+const editCourseCover = (req, res) => {
+  // console.log(req.file);
+  const { id } = req.params;
+  Courses.findById(id)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+    const newCoverPath = req.file.path.replace('public', 'http://localhost:3000');
+    doc.cover = newCoverPath;
+    doc.save();
+    return res.status(201).send({coverPath: doc.cover, message: "Обложка успешно обновлена!"});
+  })
 };
 
 const addModuleToCourse = (req, res) => {
@@ -772,6 +809,8 @@ module.exports = {
   // redirectToCourse,
   getCourse,
   createCourse,
+  editCourseTitle,
+  editCourseDesc,
   editCourseCover,
   editCourse,
   addModuleToCourse,
