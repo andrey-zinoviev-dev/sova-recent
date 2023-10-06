@@ -48,7 +48,7 @@ const login = (req, res) => {
         }
         return bcrypt.compare(password, doc.password)
         .then((matched) => {
-            console.log(matched);
+            // console.log(matched);
             if(!matched) {
                 return res.status(400).send({
                     message: 'проверьте почту или пароль',
@@ -209,7 +209,7 @@ const register = (req, res) => {
 
 const showCurrentUser = (req, res) => {
     const { _id } = req.user;
-    console.log(_id);
+    // console.log(_id);
     if(!_id) {
         return res.status(401).send({
             message: "Пользователь не найден",
@@ -217,7 +217,7 @@ const showCurrentUser = (req, res) => {
     }
     User.findById(_id).select('-password').populate('courses')
     .then((doc) => {
-        console.log(doc);
+        // console.log(doc);
         return res.status(200).send(doc);
     })
 };

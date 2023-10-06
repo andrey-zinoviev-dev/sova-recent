@@ -53,11 +53,15 @@ const createCourse = (req, res) => {
   // parsedModules.forEach((module) => {
   //   console.log(module.lessons);
   // })
-  console.log(req.files);
+  // console.log(req.files);
+  // req.files.forEach((file) => {
+  //   file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+  // });
+  // console.log(req.files);
   const newModules = parsedModules.map((parsedModule) => {
     // console.log(parsedModule.cover);
     const moduleCover = req.files.find((coverFile) => {
-      return coverFile.originalname === parsedModule.cover.title;
+      return Buffer.from(coverFile.originalname, 'latin1').toString('utf8') === parsedModule.cover.title;
     });
     parsedModule.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
     const {lessons} = parsedModule;
@@ -69,7 +73,7 @@ const createCourse = (req, res) => {
         const updatedContent = content.map((contentEl) => {
           if(contentEl.type === 'image' || contentEl.type === 'video') {
             const foundFile = req.files.find((fileFromMulter) => {
-              return fileFromMulter.originalname === contentEl.attrs.title;
+              return Buffer.from(fileFromMulter.originalname, 'latin1').toString('utf8') === contentEl.attrs.title;
             });
             // console.log(foundFile);
               contentEl.attrs.src = foundFile.path.replace('public', 'https://api.sova-courses.site');
@@ -80,7 +84,7 @@ const createCourse = (req, res) => {
         lesson.content.content = updatedContent;
         if(lesson.cover.title) {
           const lessonCover = req.files.find((lessonFile) => {
-            return lessonFile.originalname === lesson.cover.title;
+            return Buffer.from(lessonFile.originalname, 'latin1').toString('utf8') === lesson.cover.title;
           });
           lesson.cover = lessonCover.path.replace('public', 'https://api.sova-courses.site');
         }
@@ -97,8 +101,8 @@ const createCourse = (req, res) => {
   const courseCover = req.files.find((file) => {
     return file.originalname === parsedCourse.cover.title;
   });
-  const newPath = courseCover.path.replace('public', 'https://api.sova-courses.site');
-  // const newPath = courseCover.path.replace('public', 'http://localhost:3000');
+  // const newPath = courseCover.path.replace('public', 'https://api.sova-courses.site');
+  const newPath = courseCover.path.replace('public', 'http://localhost:3000');
   Courses.findOne({name: parsedCourse.name})
   .then((doc) => {
   //   console.log(doc);
@@ -210,10 +214,53 @@ const editCourseCover = (req, res) => {
     if(!doc) {
       return;
     }
+    req.file.originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf-8');
+    // console.log(req.file);
     const newCoverPath = req.file.path.replace('public', 'http://localhost:3000');
     doc.cover = newCoverPath;
     doc.save();
     return res.status(201).send({coverPath: doc.cover, message: "Обложка успешно обновлена!"});
+  })
+};
+
+const editModuleTitle = (req, res) => {
+  
+  const { courseID, moduleID } = req.params;
+  const { title } = req.body;
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+    const updatedModules = doc.modules.map((module) => {
+      return module._id.toString() === moduleID ? {...module, title: title} : module;
+    });
+
+    doc.modules = updatedModules;
+    doc.save();
+
+    return res.status(201).send({title: title, message: "название модуля успешно обновлено!"});
+  })
+};
+
+const editModuleCover = (req, res) => {
+  const { courseID, moduleID } = req.params;
+  
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+    // req.file.originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf-8');
+    req.file.path = req.file.path.replace('public', 'http://localhost:3000');
+    // console.log(req.file);
+    const updatedModules = doc.modules.map((module) => {
+      return module._id.toString() === moduleID ? {...module, cover: req.file.path} : module;
+    });
+
+    doc.modules = updatedModules;
+    doc.save();
+    return res.status(201).send({cover: req.file.path, message: "Обложка модуля успешно обновлена!"});
   })
 };
 
@@ -812,6 +859,8 @@ module.exports = {
   editCourseTitle,
   editCourseDesc,
   editCourseCover,
+  editModuleTitle,
+  editModuleCover,
   editCourse,
   addModuleToCourse,
   getLesson,
