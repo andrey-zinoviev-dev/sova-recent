@@ -64,7 +64,7 @@ const createCourse = (req, res) => {
       return coverFile.originalname === parsedModule.cover.title;
     });
     // parsedModule.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
-    parsedModule.cover = moduleCover.path.replace('public', 'http://localhost:3000');
+    parsedModule.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
     const {lessons} = parsedModule;
     // console.log(lessons);
     const updatedLessons = lessons.map((lesson) => {
@@ -78,7 +78,7 @@ const createCourse = (req, res) => {
             });
             // console.log(foundFile);
               // contentEl.attrs.src = foundFile.path.replace('public', 'https://api.sova-courses.site');
-              contentEl.attrs.src = foundFile.path.replace('public', 'http://localhost:3000');
+              contentEl.attrs.src = foundFile.path.replace('public', 'https://api.sova-courses.site');
           }
           return contentEl;
         });
@@ -89,7 +89,7 @@ const createCourse = (req, res) => {
             return lessonFile.originalname === lesson.cover.title;
           });
           // lesson.cover = lessonCover.path.replace('public', 'https://api.sova-courses.site');
-          lesson.cover = lessonCover.path.replace('public', 'http://localhost:3000');
+          lesson.cover = lessonCover.path.replace('public', 'https://api.sova-courses.site');
         }
         
       }
@@ -105,7 +105,7 @@ const createCourse = (req, res) => {
     return file.originalname === parsedCourse.cover.title;
   });
   // const newPath = courseCover.path.replace('public', 'https://api.sova-courses.site');
-  const newPath = courseCover.path.replace('public', 'http://localhost:3000');
+  const newPath = courseCover.path.replace('public', 'https://api.sova-courses.site');
   Courses.findOne({name: parsedCourse.name})
   .then((doc) => {
   //   console.log(doc);
@@ -219,7 +219,7 @@ const editCourseCover = (req, res) => {
     }
     // req.file.originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf-8');
     // console.log(req.file);
-    const newCoverPath = req.file.path.replace('public', 'http://localhost:3000');
+    const newCoverPath = req.file.path.replace('public', 'https://api.sova-courses.site');
     doc.cover = newCoverPath;
     doc.save();
     return res.status(201).send({coverPath: doc.cover, message: "Обложка успешно обновлена!"});
@@ -255,7 +255,7 @@ const editModuleCover = (req, res) => {
       return;
     }
     // req.file.originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf-8');
-    req.file.path = req.file.path.replace('public', 'http://localhost:3000');
+    req.file.path = req.file.path.replace('public', 'https://api.sova-courses.site');
     // console.log(req.file);
     const updatedModules = doc.modules.map((module) => {
       return module._id.toString() === moduleID ? {...module, cover: req.file.path} : module;
@@ -283,8 +283,8 @@ const addModuleToCourse = (req, res) => {
     const moduleCover = req.files.find((file) => {
       return file.originalname === parsedModuleData.cover.title;
     });
-    parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
-    // parsedModuleData.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
+    // parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
+    parsedModuleData.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
 
     // // parsedModuleData.lessons.forEach((lesson) => {
     // //   console.log(lesson.content);
@@ -300,8 +300,8 @@ const addModuleToCourse = (req, res) => {
           const lessonFile = req.files.find((lessonFileToSearch) => {
             return lessonFileToSearch.originalname === lessonContent.attrs.title;
           });
-          // lessonContent.attrs.src = lessonFile.path.replace('public', 'https://api.sova-courses.site');
-          lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
+          lessonContent.attrs.src = lessonFile.path.replace('public', 'https://api.sova-courses.site');
+          // lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
           return lessonContent
         }
         return lessonContent;
@@ -326,8 +326,8 @@ const addModuleToCourse = (req, res) => {
     //   //   // lesson.content.cotnent = updatedLessonContent;
     //   // } 
 
-      // return {...lesson, cover: lessonCover.path.replace('public', 'https://api.sova-courses.site'), content: {...lesson.content, content: updatedLessonContent}};
-      return {...lesson, cover: lessonCover.path.replace('public', 'https://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
+      return {...lesson, cover: lessonCover.path.replace('public', 'https://api.sova-courses.site'), content: {...lesson.content, content: updatedLessonContent}};
+      // return {...lesson, cover: lessonCover.path.replace('public', 'https://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
     });
 
     parsedModuleData.lessons = updatedLessons;
@@ -480,8 +480,8 @@ const editModuleFromCourse = (req, res) => {
       const moduleCover = req.files.find((file) => {
         return file.originalname === parsedModule.cover.title;
       });
-      // moduleToUpdate.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
-      moduleToUpdate.cover = moduleCover.path.replace('public', 'http://localhost:3000');
+      moduleToUpdate.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
+      // moduleToUpdate.cover = moduleCover.path.replace('public', 'http://localhost:3000');
       // doc.cover = moduleCover.path.replace('public', 'http://localhost:3000')
     }
     doc.modules = doc.modules.map((module) => {
@@ -506,8 +506,8 @@ const editLessonFromCourse = (req, res) => {
       });
       const newModules = doc.modules.map((module) => {
         return module._id.toString() === moduleID ? {...module, lessons: module.lessons.map((lesson) => {
-          return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'http://localhost:3000')} : lesson;
-          // return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'https://api.sova-courses.site')} : lesson;
+          // return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'http://localhost:3000')} : lesson;
+          return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'https://api.sova-courses.site')} : lesson;
         })} : module;
       });
       doc.modules = newModules;
@@ -552,8 +552,8 @@ const editLessonContentFromCourse = (req, res) => {
         return file.originalname === parsedLessonData.cover.title;
       });
       // console.log(coverFile);
-      // lessonToUpdate.cover = coverFile.path.replace('public', 'https://api.sova-courses.site');
-      lessonToUpdate.cover = coverFile.path.replace('public', 'http://localhost:3000');
+      lessonToUpdate.cover = coverFile.path.replace('public', 'https://api.sova-courses.site');
+      // lessonToUpdate.cover = coverFile.path.replace('public', 'http://localhost:3000');
     }
 
     if(parsedLessonData.content.content.length !== lessonToUpdate.content.content.length) {
@@ -562,8 +562,8 @@ const editLessonContentFromCourse = (req, res) => {
           const contentFile = req.files.find((file) => {
             return file.originalname === contentEl.attrs.title;
           });
-          return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'http://localhost:3000') : contentEl.attrs.src}};
-          // return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'https://api.sova-courses.site') : contentEl.attrs.src}};
+          // return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'http://localhost:3000') : contentEl.attrs.src}};
+          return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'https://api.sova-courses.site') : contentEl.attrs.src}};
         };
 
         return contentEl;
@@ -595,17 +595,17 @@ const addLessonToCourse = (req, res) => {
     });
 
     const updatedContent = parsedLessonData.content.content.map((element) => {
-      // return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
-      //       return file.originalname.includes(element.attrs.title);
-      // }).path.replace('public', 'https://api.sova-courses.site')}} : element;
       return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
-        return file.originalname.includes(element.attrs.title);
-  }).path.replace('public', 'http://localhost:3000')}} : element;
+            return file.originalname.includes(element.attrs.title);
+      }).path.replace('public', 'https://api.sova-courses.site')}} : element;
+  //     return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
+  //       return file.originalname.includes(element.attrs.title);
+  // }).path.replace('public', 'http://localhost:3000')}} : element;
 
     });
 
-    // moduleToUpdate.lessons = [...moduleToUpdate.lessons, {title: parsedLessonData.title, cover: lessonCoverFile.path.replace('public', 'https://api.sova-courses.site'), content: {...parsedLessonData.content, content: updatedContent}}];
-    moduleToUpdate.lessons = [...moduleToUpdate.lessons, {title: parsedLessonData.title, cover: lessonCoverFile.path.replace('public', 'http://localhost:3000'), content: {...parsedLessonData.content, content: updatedContent}}];
+    moduleToUpdate.lessons = [...moduleToUpdate.lessons, {title: parsedLessonData.title, cover: lessonCoverFile.path.replace('public', 'https://api.sova-courses.site'), content: {...parsedLessonData.content, content: updatedContent}}];
+    // moduleToUpdate.lessons = [...moduleToUpdate.lessons, {title: parsedLessonData.title, cover: lessonCoverFile.path.replace('public', 'http://localhost:3000'), content: {...parsedLessonData.content, content: updatedContent}}];
 
     doc.save();
     return res.status(201).send(moduleToUpdate);
