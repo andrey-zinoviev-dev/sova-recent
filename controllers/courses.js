@@ -112,7 +112,7 @@ const createCourse = (req, res) => {
     if(doc) {
       return;
     }
-    Courses.create({name: parsedCourse.name, description: parsedCourse.description, author: parsedAuthor._id, modules: newModules, cover: newPath})
+    Courses.create({name: parsedCourse.name, description: parsedCourse.description, author: parsedAuthor._id, modules: newModules, cover: newPath, tarifs: parsedCourse.tarifs})
     .then((createdCourse) => {
       res.status(201).send(createdCourse);      
     })
@@ -283,8 +283,8 @@ const addModuleToCourse = (req, res) => {
     const moduleCover = req.files.find((file) => {
       return file.originalname === parsedModuleData.cover.title;
     });
-    parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
-    // parsedModuleData.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
+    // parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
+    parsedModuleData.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
 
     // // parsedModuleData.lessons.forEach((lesson) => {
     // //   console.log(lesson.content);
@@ -300,8 +300,8 @@ const addModuleToCourse = (req, res) => {
           const lessonFile = req.files.find((lessonFileToSearch) => {
             return lessonFileToSearch.originalname === lessonContent.attrs.title;
           });
-          // lessonContent.attrs.src = lessonFile.path.replace('public', 'https://api.sova-courses.site');
-          lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
+          lessonContent.attrs.src = lessonFile.path.replace('public', 'https://api.sova-courses.site');
+          // lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
           return lessonContent
         }
         return lessonContent;
@@ -326,8 +326,8 @@ const addModuleToCourse = (req, res) => {
     //   //   // lesson.content.cotnent = updatedLessonContent;
     //   // } 
 
-      // return {...lesson, cover: lessonCover.path.replace('public', 'https://api.sova-courses.site'), content: {...lesson.content, content: updatedLessonContent}};
-      return {...lesson, cover: lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
+      return {...lesson, cover: lessonCover.path.replace('public', 'https://api.sova-courses.site'), content: {...lesson.content, content: updatedLessonContent}};
+      // return {...lesson, cover: lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
     });
 
     parsedModuleData.lessons = updatedLessons;
@@ -506,8 +506,8 @@ const editLessonFromCourse = (req, res) => {
       });
       const newModules = doc.modules.map((module) => {
         return module._id.toString() === moduleID ? {...module, lessons: module.lessons.map((lesson) => {
-          return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'http://localhost:3000')} : lesson;
-          // return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'https://api.sova-courses.site')} : lesson;
+          // return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'http://localhost:3000')} : lesson;
+          return lesson._id.toString() === lessonID ? {...lesson, cover: foundFile.path.replace('public', 'https://api.sova-courses.site')} : lesson;
         })} : module;
       });
       doc.modules = newModules;
@@ -533,6 +533,7 @@ const editLessonFromCourse = (req, res) => {
 const editLessonContentFromCourse = (req, res) => {
   const { courseID, moduleID, lessonID } = req.params;
   const { lessonData } = req.body;
+  // console.log(lessonData);
   Courses.findById(courseID).populate({path: 'modules', populate: { path: 'students'} }).populate({path: 'author'})
   .then((doc) => {
     const parsedLessonData = JSON.parse(lessonData);
@@ -598,9 +599,9 @@ const addLessonToCourse = (req, res) => {
       return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
             return file.originalname.includes(element.attrs.title);
       }).path.replace('public', 'https://api.sova-courses.site')}} : element;
-  //     return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
-  //       return file.originalname.includes(element.attrs.title);
-  // }).path.replace('public', 'http://localhost:3000')}} : element;
+      // return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
+      //   return file.originalname.includes(element.attrs.title);
+      // }).path.replace('public', 'http://localhost:3000')}} : element;
 
     });
 
@@ -653,7 +654,9 @@ const deleteLessonFromCourse = (req, res) => {
     });
     doc.modules = updatedModules;
     doc.save();
-    res.status(201).send(doc);
+    res.status(201).send(doc.modules.find((module) => {
+      return module._id.toString() === moduleID;
+    }));
   })
 }
 
@@ -708,7 +711,7 @@ const addStudentsToCourse = (req, res) => {
                           <p>Твой пароль- ${generatedPassword}</p>
                       </div>
                       <button>
-                          <a href="https://api.sova-courses.site">Присоединиться</a>
+                          <a href="https://sova-courses.site">Присоединиться</a>
                       </button>
                   `
               })
@@ -860,11 +863,16 @@ const lessonNotification = (req, res) => {
             <div>
               Посмотреть урок можно по ссылке
               <button>
-                  <a href=https://api.sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Посмотреть курс</a>
+                  <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Посмотреть курс</a>
               </button>
             </div>
 
         `
+      })
+      .then((data) => {
+        if(data.messageId) {
+          res.status(201).send({message: "Сообщения успешно отправлены!"});
+        }
       })
     })
   })

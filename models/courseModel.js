@@ -87,6 +87,11 @@ const courseSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
   },
   cover: String,
+  tarifs: {
+    type: Array,
+    required: true,
+    default: [],
+  }
   // {
   //   // type: [{ name: String, description: String, images: [String], videos: [String], }],
   // },
