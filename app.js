@@ -16,8 +16,10 @@ const { securedRouter } = require('./routes/securedRouter');
 
 const User = require('./models/userModel');
 
-// mongoose.connect('mongodb://127.0.0.1:27017/sova')
-mongoose.connect('mongodb://127.0.0.1:27017/test')
+const { errorHandler } = require("./middlewares/errorHandler");
+
+mongoose.connect('mongodb://127.0.0.1:27017/sova')
+// mongoose.connect('mongodb://127.0.0.1:27017/test')
 .catch((err) => {
     console.log(err);
 });
@@ -243,6 +245,8 @@ app.use("/", router);
 //jwt middleware
 app.use(secureRoutes);
 app.use("/", securedRouter);
+//error middleware
+app.use(errorHandler)
 
 httpServer.listen(3000, () => {
     console.log('server is up');

@@ -8,6 +8,8 @@ const CSVToJSON = require('csvtojson');
 const generatePassword = require('password-generator');
 const nodemailer = require('nodemailer');
 
+
+
 const transporter = nodemailer.createTransport({
     host: 'sm6.hosting.reg.ru',
     port: 465,
@@ -35,24 +37,26 @@ transporter.verify((err, success) => {
 //     text: "Тест отправки письма",
 // })
 
-const login = (req, res) => {
+const login = (req, res, next) => {
     const {email, password} = req.body;
     
     User.findOne({email: email})
     .then((doc) => {
         // console.log(doc);
         if(!doc) {
-            return res.status(400).send({
-                message: "Проверьте почту или пароль",
-            });
+            throw new Error("Пользователь с такой почтой не найден");
+            // return res.status(400).send({
+            //     message: "Проверьте почту или пароль",
+            // });
         }
         return bcrypt.compare(password, doc.password)
         .then((matched) => {
             // console.log(matched);
             if(!matched) {
-                return res.status(400).send({
-                    message: 'проверьте почту или пароль',
-                });
+                // return res.status(400).send({
+                //     message: 'Проверьте почту или пароль',
+                // });
+                throw new Error("Проверьте почту или пароль");
             }
             const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
             //FOR TEST PURPOSES TOKEN GOES TO LOCALSTORAGE, REVERT TO COOKE LATER
@@ -63,7 +67,13 @@ const login = (req, res) => {
             //     message: "Успешный вход",
             // });
         })
-    });
+        // .catch((err) => {
+        //     next({codeStatus: 401, message: err});
+        // })
+    })
+    .catch((err) => {
+        next({codeStatus: 400, message: err.message});
+    })
 };
 
 const register = (req, res) => {
