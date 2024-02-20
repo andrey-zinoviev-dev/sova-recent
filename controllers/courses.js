@@ -79,7 +79,7 @@ const createCourse = (req, res) => {
         return {...lesson, cover: `http://localhost:3000/${lessonCoverFile.path.replace('public',"")}` ,content: {...lesson.content, content: filesContent}};
       });
       // console.log(updatedLessons);
-      return {...module, cover: `http://localhost:3000/${moduleCoverFile.path.replace('public',"")}`, lessons: updatedLessons}
+      return {...module, title: module.name, cover: `http://localhost:3000/${moduleCoverFile.path.replace('public',"")}`, lessons: updatedLessons}
     });
     const foundCourseCoverFile = req.files.find((file) => {
       return file.originalname === course.cover.title;
