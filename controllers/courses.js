@@ -46,7 +46,7 @@ const getCourse = (req, res) => {
   });
 };
 
-const createCourse = (req, res) => {
+const createCourse = (req, res, next) => {
   // console.log(req.body);
   const {courseData} = req.body;
   const {course, modules} = JSON.parse(courseData);
@@ -55,7 +55,7 @@ const createCourse = (req, res) => {
   .then((doc) => {
   // //   console.log(doc);
     if(doc) {
-      return;
+      throw new Error("Курс уже существует");
     }
     const updatedModules = modules.map((module) => {
       const moduleCoverFile = req.files.find((file) => {
@@ -89,6 +89,12 @@ const createCourse = (req, res) => {
     .then((createdCourse) => {
       res.status(201).send(createdCourse);      
     })
+    .catch((err) => {
+      next({codeStatus: 400, message: err.message})
+    })
+  })
+  .catch((err) => {
+    next({codeStatus: 400, message: err.message})
   })
 };
 
