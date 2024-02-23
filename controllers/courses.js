@@ -38,12 +38,27 @@ const requestCourses = (req, res) => {
 const getCourse = (req, res) => {
   const { id } = req.params;
   // console.log(id);
-  User.findById( id ).then(() => {});
+  // User.findById( id ).then(() => {});
   Courses.findById(id).populate({path: 'modules'}).populate({path: 'author'}).populate({path: 'students'})
   .then((doc) => {
-
+    console.log('found course by id');
     res.status(200).send(doc);
-  });
+  })
+};
+
+const findCourse = (req, res, next) => {
+  const { name } = req.params;
+  // console.log(name);
+  Courses.findOne({name: name})
+  .then((doc) => {
+    if(doc) {
+      throw new Error("Курс уже есть");
+    }
+    res.status(200).send({noCourse: true});
+  })
+  .catch((err) => {
+    next({codeStatus: 400, message: err.message})
+  })
 };
 
 const createCourse = (req, res, next) => {
@@ -860,6 +875,7 @@ module.exports = {
   requestCourses,
   // redirectToCourse,
   getCourse,
+  findCourse,
   createCourse,
   editCourseTitle,
   editCourseDesc,

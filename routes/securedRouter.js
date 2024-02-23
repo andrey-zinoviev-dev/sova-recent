@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
-const { requestCourses, getCourse, createCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover } = require('../controllers/courses');
+const { requestCourses, getCourse, findCourse, createCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
@@ -22,7 +22,7 @@ securedRouter.get('/currentUser', showCurrentUser);
 securedRouter.get('/courses', redirectToLoggedInPage);
 securedRouter.get('/coursesList', requestCourses);
 securedRouter.get('/courses/:id', getCourse);
-
+securedRouter.get('/findCourse/:name', findCourse)
 securedRouter.post('/courses/add', upload.array('files'), createCourse);
 
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
