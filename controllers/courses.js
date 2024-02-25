@@ -102,6 +102,22 @@ const createCourse = (req, res, next) => {
     // console.log(foundCourseCoverFile);
     Courses.create({name: course.name, description: course.description, author: '64dc0ea66e65a6888d91da49', modules: updatedModules, cover: `http://localhost:3000/${foundCourseCoverFile.path.replace('public',"")}`, tarifs: course.tarifs.split(",")})
     .then((createdCourse) => {
+      User.find({admin: false})
+      .then((users) => {
+        users.forEach((user) => {
+          transporter.sendMail({
+            from: '"Sasha Sova" <admin@sova-courses.site>',
+            to: user.email,
+            subject: `Новый курс: ${course.name}!`,
+            html: `
+                <h1>Появился новый курс ${course.name}!</h1>
+                <button>
+                    <a href="http://localhost:3001/courses/${createdCourse.id.toString()}/modules/${createdCourse.modules[0].id.toString()}/lessons/${createdCourse.modules[0].lessons[0]._id.toString()}">Посмотреть</a>
+                </button>
+            `
+          })
+        })
+      })
       res.status(201).send(createdCourse);      
     })
     .catch((err) => {
@@ -707,7 +723,7 @@ const addStudentsToCourse = (req, res) => {
                           <a href="https://sova-courses.site">Присоединиться</a>
                       </button>
                   `
-              })
+                })
                 return newUser._id;
               })
             })
