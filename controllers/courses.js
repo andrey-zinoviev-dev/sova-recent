@@ -111,14 +111,14 @@ const createCourse = (req, res, next) => {
             const generatedPassword = generatePassword(10, false);
             return bcrypt.hash(generatedPassword, 10)
             .then((hash) => {
-              return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: foundCourse._id, tarif: user.tarif}]})
+              return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: createdCourse._id, tarif: user.tarif}]})
               .then((newUser) => {
                 transporter.sendMail({
                   from: '"Sasha Sova" <admin@sova-courses.site>',
                   to: user.email,
                   subject: 'Добро пожаловать на платформу Саши Совы!',
                   html: `
-                      <h1>Сова тебя приветствует на курсе ${foundCourse.name}!</h1>
+                      <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
                       <div>
                           <p>Твой логин- ${user.email}</p>
                           <p>Твой пароль- ${generatedPassword}</p>
