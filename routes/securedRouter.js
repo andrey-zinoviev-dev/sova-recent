@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
-const { requestCourses, getCourse, findCourse, createCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover } = require('../controllers/courses');
+const { requestCourses, getCourse, findCourse, testUpload, createCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover } = require('../controllers/courses');
 const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
@@ -13,8 +13,11 @@ const multerStorage = multer.diskStorage({
   filename: function (req, file, callback) {
     callback(null, Date.now() + Math.round(Math.random() * 1E9) + "-" + file.originalname)
   }
-})
-const upload = multer({storage: multerStorage});
+});
+const memoryStorage = multer.memoryStorage();
+const upload = multer({storage: memoryStorage});
+// const upload = multer({storage: multerStorage});
+
 
 securedRouter.post('/register', upload.array('csv'), register)
 
@@ -24,6 +27,8 @@ securedRouter.get('/coursesList', requestCourses);
 securedRouter.get('/courses/:id', getCourse);
 securedRouter.get('/findCourse/:name', findCourse)
 securedRouter.post('/courses/add', upload.array('files'), createCourse);
+
+securedRouter.post('/testUpload', upload.single("file"), testUpload);
 
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
 securedRouter.put('/courses/:id/title', editCourseTitle);

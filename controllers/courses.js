@@ -1,11 +1,14 @@
 // const { populate } = require('../models/chatMessage');
-const fs = require("fs");
+// const fs = require("fs");
 const { Courses, lessonModules } = require('../models/courseModel');
 const bcrypt = require('bcrypt');
 const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
 const CSVToJSON = require('csvtojson');
 const nodemailer = require('nodemailer');
+
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const transporter = nodemailer.createTransport({
     host: 'sm6.hosting.reg.ru',
@@ -18,7 +21,20 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const dotenv = require("dotenv");
+dotenv.config();
+
 const generatePassword = require('password-generator');
+
+//s3 initiation
+const s3 = new S3Client({
+  region: process.env.BUCKET_REGION,
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.SECRET_KEY,
+  },
+  endpoint: "https://storage.yandexcloud.net",
+})
 
 const requestCourses = (req, res) => {
   // console.log(req.user);
@@ -60,6 +76,39 @@ const findCourse = (req, res, next) => {
     next({codeStatus: 400, message: err.message})
   })
 };
+
+const testUpload = (req, res) => {
+  // console.log(req.file);
+  const getCommand = new GetObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: req.file.originalname,
+  })
+  s3.send(getCommand)
+  .then((data) => {
+    data && getSignedUrl(s3, getCommand, {expiresIn: 30})
+    .then((url) => {
+      console.log(url);
+    })
+    .catch((err) => {
+      console.log("error in presigned url generation");
+      console.log(err);
+    })
+  })
+  .catch((err) => {
+    const command = new PutObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: req.file.originalname,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype
+    });
+    s3.send(command)
+    .then((sentFile) => {
+      console.log(sentFile);
+    })
+    // console.log(err.httpStatusCode);
+  })
+
+}
 
 const createCourse = (req, res, next) => {
   // console.log(req.body);
@@ -942,6 +991,7 @@ module.exports = {
   // redirectToCourse,
   getCourse,
   findCourse,
+  testUpload,
   createCourse,
   editCourseTitle,
   editCourseDesc,
