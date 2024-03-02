@@ -6,14 +6,16 @@ const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
 const multer = require('multer');
-const multerStorage = multer.diskStorage({
-  destination: function (req, file, callback) {
-    callback(null, 'public/uploads/');
-  }, 
-  filename: function (req, file, callback) {
-    callback(null, Date.now() + Math.round(Math.random() * 1E9) + "-" + file.originalname)
-  }
-});
+
+// const multerStorage = multer.diskStorage({
+//   destination: function (req, file, callback) {
+//     callback(null, 'public/uploads/');
+//   }, 
+//   filename: function (req, file, callback) {
+//     callback(null, Date.now() + Math.round(Math.random() * 1E9) + "-" + file.originalname)
+//   }
+// });
+
 const memoryStorage = multer.memoryStorage();
 const upload = multer({storage: memoryStorage});
 // const upload = multer({storage: multerStorage});
@@ -28,7 +30,7 @@ securedRouter.get('/courses/:id', getCourse);
 securedRouter.get('/findCourse/:name', findCourse)
 securedRouter.post('/courses/add', upload.array('files'), createCourse);
 
-securedRouter.post('/testUpload', upload.single("file"), testUpload);
+// securedRouter.post('/testUpload', upload.single("file"), testUpload);
 
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
 securedRouter.put('/courses/:id/title', editCourseTitle);

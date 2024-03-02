@@ -78,35 +78,36 @@ const findCourse = (req, res, next) => {
 };
 
 const testUpload = (req, res) => {
+  
   // console.log(req.file);
-  const getCommand = new GetObjectCommand({
-    Bucket: process.env.BUCKET_NAME,
-    Key: req.file.originalname,
-  })
-  s3.send(getCommand)
-  .then((data) => {
-    data && getSignedUrl(s3, getCommand, {expiresIn: 30})
-    .then((url) => {
-      console.log(url);
-    })
-    .catch((err) => {
-      console.log("error in presigned url generation");
-      console.log(err);
-    })
-  })
-  .catch((err) => {
-    const command = new PutObjectCommand({
-      Bucket: process.env.BUCKET_NAME,
-      Key: req.file.originalname,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype
-    });
-    s3.send(command)
-    .then((sentFile) => {
-      console.log(sentFile);
-    })
-    // console.log(err.httpStatusCode);
-  })
+  // const getCommand = new GetObjectCommand({
+  //   Bucket: process.env.BUCKET_NAME,
+  //   Key: req.file.originalname,
+  // })
+  // s3.send(getCommand)
+  // .then((data) => {
+  //   data && getSignedUrl(s3, getCommand, {expiresIn: 30})
+  //   .then((url) => {
+  //     console.log(url);
+  //   })
+  //   .catch((err) => {
+  //     console.log("error in presigned url generation");
+  //     console.log(err);
+  //   })
+  // })
+  // .catch((err) => {
+  //   const command = new PutObjectCommand({
+  //     Bucket: process.env.BUCKET_NAME,
+  //     Key: req.file.originalname,
+  //     Body: req.file.buffer,
+  //     ContentType: req.file.mimetype
+  //   });
+  //   s3.send(command)
+  //   .then((sentFile) => {
+  //     console.log(sentFile);
+  //   })
+  //   // console.log(err.httpStatusCode);
+  // })
 
 }
 
