@@ -85,7 +85,7 @@ io.on('connection', (socket) => {
     //uncomment further !!!!!!!!!!!!!!!
     // // save session on socket connection
     socket.on('user connected', (user) => { 
-        console.log(user);    
+        // console.log(user);    
         // socket.handshake.userID = user._id;
         socket.userId = user._id;
         socket.adminRights = user.admin;

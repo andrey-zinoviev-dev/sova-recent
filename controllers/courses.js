@@ -46,8 +46,23 @@ const requestCourses = (req, res) => {
         message: "Курсы не найдены"
       });
     }
+    const coversToRead = docs.map((doc) => {
+      const readCommand = new GetObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: doc.cover.title,
+      });
+      return getSignedUrl(s3, readCommand, {expiresIn: 60})
+      .then((url) => {
+        return doc.cover.path = url;
+      })
+    });
+    Promise.all(coversToRead)
+    .then((covers) => {
+      console.log(covers);
+      return res.status(200).send(docs);
+    })
     // console.log(docs);
-    return res.status(200).send(docs);
+    
   });
 };
 
@@ -57,7 +72,7 @@ const getCourse = (req, res) => {
   // User.findById( id ).then(() => {});
   Courses.findById(id).populate({path: 'modules'}).populate({path: 'author'}).populate({path: 'students'})
   .then((doc) => {
-    console.log('found course by id');
+    // console.log('found course by id');
     res.status(200).send(doc);
   })
 };
@@ -77,54 +92,118 @@ const findCourse = (req, res, next) => {
   })
 };
 
-const testUpload = (req, res) => {
-  
-  // console.log(req.file);
-  // const getCommand = new GetObjectCommand({
-  //   Bucket: process.env.BUCKET_NAME,
-  //   Key: req.file.originalname,
-  // })
-  // s3.send(getCommand)
-  // .then((data) => {
-  //   data && getSignedUrl(s3, getCommand, {expiresIn: 30})
-  //   .then((url) => {
-  //     console.log(url);
-  //   })
-  //   .catch((err) => {
-  //     console.log("error in presigned url generation");
-  //     console.log(err);
-  //   })
-  // })
-  // .catch((err) => {
-  //   const command = new PutObjectCommand({
-  //     Bucket: process.env.BUCKET_NAME,
-  //     Key: req.file.originalname,
-  //     Body: req.file.buffer,
-  //     ContentType: req.file.mimetype
-  //   });
-  //   s3.send(command)
-  //   .then((sentFile) => {
-  //     console.log(sentFile);
-  //   })
-  //   // console.log(err.httpStatusCode);
-  // })
-
-}
-
 const createCourse = (req, res, next) => {
   // console.log(req.body);
   const {courseData, author} = req.body;
+  const { _id } = JSON.parse(author);
+  // console.log(_id);
   const {course, modules, tarifs, students} = JSON.parse(courseData);
   
   Courses.findOne({name: course.name})
   .then((doc) => {
-    modules.forEach((module) => {
-      console.log(module.lessons);
-    })
+    // modules.forEach((module) => {
+    //   console.log(module.lessons.content);
+    // })
     // console.log(doc);
-  //   if(doc) {
-  //     throw new Error("Курс уже существует");
-  //   }
+    if(doc) {
+      throw new Error("Курс уже существует");
+    } 
+
+    const fileUploadCommands = req.files.map((file) => {
+        const uploadCommand = new PutObjectCommand({
+              Bucket: process.env.BUCKET_NAME,
+              Key: file.originalname,
+              Body: file.buffer,
+              ContentType: file.mimetype
+        });
+        
+        return s3.send(uploadCommand)
+            // .then((sentFile) => {
+            //   console.log(sentFile);
+            // })
+      })
+    
+
+
+
+    Promise.all(fileUploadCommands)
+    .then((data) => {
+      Courses.create({name: course.name, description: course.description, author: _id, modules: modules.map((module) => {
+        return {...module, title: module.name, cover: module.cover, author: JSON.parse(author)}
+      }), cover: course.cover, tarifs: tarifs, students: []})
+      .then((createdCourse) => {
+        return res.status(201).send(createdCourse); 
+            //create users
+        // const studentsAdded = students.map((user) => {
+        //   return User.findOne({email: user.email})
+        //   .then((doc) => {
+        //     if(!doc) {
+        //       const generatedPassword = generatePassword(10, false);
+        //       return bcrypt.hash(generatedPassword, 10)
+        //       .then((hash) => {
+        //         return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: createdCourse._id, tarif: user.tarif}]})
+        //         .then((newUser) => {
+        //           transporter.sendMail({
+        //             from: '"Sasha Sova" <admin@sova-courses.site>',
+        //             to: user.email,
+        //             subject: 'Добро пожаловать на платформу Саши Совы!',
+        //             html: `
+        //                 <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
+        //                 <div>
+        //                     <p>Твой логин- ${user.email}</p>
+        //                     <p>Твой пароль- ${generatedPassword}</p>
+        //                 </div>
+        //                 <button>
+        //                     <a href="https://sova-courses.site">Присоединиться</a>
+        //                 </button>
+        //             `
+        //           })
+        //           return newUser._id;
+        //         })
+        //       })
+        //     } else {
+        //       // doc.courses = 
+        //       // if(!doc.courses.find((course) => {
+        //       //   return course.id.toString() === foundCourse._id.toString();
+        //       // })) {
+        //       doc.courses.push({id: createdCourse._id, tarif: user.tarif});
+        //       doc.save();
+        //       // }
+        //       return doc._id;
+        //     }
+        //   })
+        // });
+
+        // Promise.all(studentsAdded)
+        // .then((value) => {
+        //   createdCourse.students = value;
+        //   createdCourse.save();
+
+        //   User.find({admin: false})
+        //   .then((users) => {
+        //     users.forEach((user) => {
+        //       transporter.sendMail({
+        //         from: '"Sasha Sova" <admin@sova-courses.site>',
+        //         to: user.email,
+        //         subject: `Новый курс: ${course.name}!`,
+        //         html: `
+        //             <h1>Появился новый курс ${course.name}!</h1>
+        //             <button>
+        //                 <a href="http://localhost:3001/courses/${createdCourse.id.toString()}/modules/${createdCourse.modules[0].id.toString()}/lessons/${createdCourse.modules[0].lessons[0]._id.toString()}">Посмотреть</a>
+        //             </button>
+        //         `
+        //       })
+        //     })
+        //   })
+
+        //   res.status(201).send(createdCourse);      
+        // })
+
+      })
+      // .catch((err) => {
+      //   next({codeStatus: 400, message: err.message})
+      // })
+    })
   //   const updatedModules = modules.map((module) => {
   //     const moduleCoverFile = req.files.find((file) => {
   //       return file.originalname === module.cover.title;
@@ -154,78 +233,78 @@ const createCourse = (req, res, next) => {
   //   });
 
   //   // console.log(foundCourseCoverFile);
-  //   Courses.create({name: course.name, description: course.description, author: '64dc0ea66e65a6888d91da49', modules: updatedModules, cover: `http://localhost:3000/${foundCourseCoverFile.path.replace('public',"")}`, tarifs: tarifs, students: []})
-  //   .then((createdCourse) => {
-  //         //create users
-  //     const studentsAdded = students.map((user) => {
-  //       return User.findOne({email: user.email})
-  //       .then((doc) => {
-  //         if(!doc) {
-  //           const generatedPassword = generatePassword(10, false);
-  //           return bcrypt.hash(generatedPassword, 10)
-  //           .then((hash) => {
-  //             return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: createdCourse._id, tarif: user.tarif}]})
-  //             .then((newUser) => {
-  //               transporter.sendMail({
-  //                 from: '"Sasha Sova" <admin@sova-courses.site>',
-  //                 to: user.email,
-  //                 subject: 'Добро пожаловать на платформу Саши Совы!',
-  //                 html: `
-  //                     <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
-  //                     <div>
-  //                         <p>Твой логин- ${user.email}</p>
-  //                         <p>Твой пароль- ${generatedPassword}</p>
-  //                     </div>
-  //                     <button>
-  //                         <a href="https://sova-courses.site">Присоединиться</a>
-  //                     </button>
-  //                 `
-  //               })
-  //               return newUser._id;
-  //             })
-  //           })
-  //         } else {
-  //           // doc.courses = 
-  //           // if(!doc.courses.find((course) => {
-  //           //   return course.id.toString() === foundCourse._id.toString();
-  //           // })) {
-  //           doc.courses.push({id: createdCourse._id, tarif: user.tarif});
-  //           doc.save();
-  //           // }
-  //           return doc._id;
-  //         }
-  //       })
-  //     });
+    // Courses.create({name: course.name, description: course.description, author: '64dc0ea66e65a6888d91da49', modules: updatedModules, cover: `http://localhost:3000/${foundCourseCoverFile.path.replace('public',"")}`, tarifs: tarifs, students: []})
+    // .then((createdCourse) => {
+    //       //create users
+    //   // const studentsAdded = students.map((user) => {
+    //   //   return User.findOne({email: user.email})
+    //   //   .then((doc) => {
+    //   //     if(!doc) {
+    //   //       const generatedPassword = generatePassword(10, false);
+    //   //       return bcrypt.hash(generatedPassword, 10)
+    //   //       .then((hash) => {
+    //   //         return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: createdCourse._id, tarif: user.tarif}]})
+    //   //         .then((newUser) => {
+    //   //           transporter.sendMail({
+    //   //             from: '"Sasha Sova" <admin@sova-courses.site>',
+    //   //             to: user.email,
+    //   //             subject: 'Добро пожаловать на платформу Саши Совы!',
+    //   //             html: `
+    //   //                 <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
+    //   //                 <div>
+    //   //                     <p>Твой логин- ${user.email}</p>
+    //   //                     <p>Твой пароль- ${generatedPassword}</p>
+    //   //                 </div>
+    //   //                 <button>
+    //   //                     <a href="https://sova-courses.site">Присоединиться</a>
+    //   //                 </button>
+    //   //             `
+    //   //           })
+    //   //           return newUser._id;
+    //   //         })
+    //   //       })
+    //   //     } else {
+    //   //       // doc.courses = 
+    //   //       // if(!doc.courses.find((course) => {
+    //   //       //   return course.id.toString() === foundCourse._id.toString();
+    //   //       // })) {
+    //   //       doc.courses.push({id: createdCourse._id, tarif: user.tarif});
+    //   //       doc.save();
+    //   //       // }
+    //   //       return doc._id;
+    //   //     }
+    //   //   })
+    //   // });
 
-  //     Promise.all(studentsAdded)
-  //     .then((value) => {
-  //       createdCourse.students = value;
-  //       createdCourse.save();
+    //   // Promise.all(studentsAdded)
+    //   // .then((value) => {
+    //   //   createdCourse.students = value;
+    //   //   createdCourse.save();
 
-  //       User.find({admin: false})
-  //       .then((users) => {
-  //         users.forEach((user) => {
-  //           transporter.sendMail({
-  //             from: '"Sasha Sova" <admin@sova-courses.site>',
-  //             to: user.email,
-  //             subject: `Новый курс: ${course.name}!`,
-  //             html: `
-  //                 <h1>Появился новый курс ${course.name}!</h1>
-  //                 <button>
-  //                     <a href="http://localhost:3001/courses/${createdCourse.id.toString()}/modules/${createdCourse.modules[0].id.toString()}/lessons/${createdCourse.modules[0].lessons[0]._id.toString()}">Посмотреть</a>
-  //                 </button>
-  //             `
-  //           })
-  //         })
-  //       })
+    //   //   User.find({admin: false})
+    //   //   .then((users) => {
+    //   //     users.forEach((user) => {
+    //   //       transporter.sendMail({
+    //   //         from: '"Sasha Sova" <admin@sova-courses.site>',
+    //   //         to: user.email,
+    //   //         subject: `Новый курс: ${course.name}!`,
+    //   //         html: `
+    //   //             <h1>Появился новый курс ${course.name}!</h1>
+    //   //             <button>
+    //   //                 <a href="http://localhost:3001/courses/${createdCourse.id.toString()}/modules/${createdCourse.modules[0].id.toString()}/lessons/${createdCourse.modules[0].lessons[0]._id.toString()}">Посмотреть</a>
+    //   //             </button>
+    //   //         `
+    //   //       })
+    //   //     })
+    //   //   })
 
-  //       res.status(201).send(createdCourse);      
-  //     })
+    //   //   res.status(201).send(createdCourse);      
+    //   // })
 
-  //   })
-  //   .catch((err) => {
-  //     next({codeStatus: 400, message: err.message})
-  //   })
+    // })
+    // .catch((err) => {
+    //   next({codeStatus: 400, message: err.message})
+    // })
   })
   .catch((err) => {
     next({codeStatus: 400, message: err.message})
@@ -995,7 +1074,7 @@ module.exports = {
   // redirectToCourse,
   getCourse,
   findCourse,
-  testUpload,
+
   createCourse,
   editCourseTitle,
   editCourseDesc,

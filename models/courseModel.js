@@ -52,7 +52,7 @@ const courseSchema = new mongoose.Schema({
   modules: [
     new mongoose.Schema({
       title: String,
-      cover: String,
+      cover: Object,
       // lessons: Array,
       author: Object,
       // description: String,
@@ -63,7 +63,7 @@ const courseSchema = new mongoose.Schema({
       lessons: [
         new mongoose.Schema({
           title: String,
-          cover: String,
+          cover: Object,
           content: Object,
           // module: Object,
           // module:  {
@@ -86,11 +86,14 @@ const courseSchema = new mongoose.Schema({
   author: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
   },
-  cover: String,
+  cover: Object,
   tarifs: {
     type: Array,
     required: true,
     default: [],
+    name: String,
+    start: String,
+    expire: String,
   }
   // {
   //   // type: [{ name: String, description: String, images: [String], videos: [String], }],
