@@ -68,12 +68,52 @@ const requestCourses = (req, res) => {
 
 const getCourse = (req, res) => {
   const { id } = req.params;
-  // console.log(id);
-  // User.findById( id ).then(() => {});
   Courses.findById(id).populate({path: 'modules'}).populate({path: 'author'}).populate({path: 'students'})
   .then((doc) => {
-    // console.log('found course by id');
-    res.status(200).send(doc);
+    const readCommand = new GetObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: doc.cover.title,
+    });
+    getSignedUrl(s3, readCommand, {expiresIn: 60})
+    .then((url) => {
+      doc.cover.path = url;
+      Promise.all(doc.modules.map((docModule) => {
+
+        const moduleCoverCommand = new GetObjectCommand({
+          Bucket: process.env.BUCKET_NAME,
+          Key: docModule.cover.title,
+        })
+
+        return getSignedUrl(s3, moduleCoverCommand, {expiresIn: 60})
+        .then((url) => {
+          docModule.cover.path = url;
+          return Promise.all(docModule.lessons.map((moduleLesson) => {
+            const lessonCoverCommand = new GetObjectCommand({
+              Bucket: process.env.BUCKET_NAME,
+              Key: moduleLesson.cover.title,
+            });
+
+            return getSignedUrl(s3, lessonCoverCommand, {expiresIn: 60})
+            .then((lessonUrl) => {
+              moduleLesson.cover.path = lessonUrl;
+              return moduleLesson;
+            })
+
+          }))
+          .then((lessonsCovers) => {
+            // console.log(lessonsCovers);
+            docModule.lessons = lessonsCovers;
+            return docModule;
+          })
+
+          // console.log(updatedLessons);
+          // docModule.lessons = updatedLessons;
+        })
+      }))
+      .then(() => {
+        res.status(201).send(doc);
+      })
+    })
   })
 };
 
