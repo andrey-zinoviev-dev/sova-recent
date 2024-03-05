@@ -36,7 +36,7 @@ const s3 = new S3Client({
   endpoint: "https://storage.yandexcloud.net",
 })
 
-const requestCourses = (req, res) => {
+const requestCourses = (req, res, next) => {
   // console.log(req.user);
   Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
   .then((docs) => {
@@ -55,11 +55,17 @@ const requestCourses = (req, res) => {
       .then((url) => {
         return doc.cover.path = url;
       })
+      .catch((err) => {
+        throw new Error ("не найдены файлы");
+      })
     });
     Promise.all(coversToRead)
     .then((covers) => {
       // console.log(covers);
       return res.status(200).send(docs);
+    })
+    .catch((err) => {
+      next({codeStatus: 401, message: err.message})
     })
     // console.log(docs);
     
