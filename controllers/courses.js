@@ -58,7 +58,7 @@ const requestCourses = (req, res) => {
     });
     Promise.all(coversToRead)
     .then((covers) => {
-      console.log(covers);
+      // console.log(covers);
       return res.status(200).send(docs);
     })
     // console.log(docs);
