@@ -897,7 +897,7 @@ const deleteLessonFromCourse = (req, res) => {
   })
 }
 
-const getLesson = (req, res) => {
+const getLesson = (req, res, next) => {
   const { courseID, moduleID, lessonID } = req.params;
   // console.log(courseID, moduleID, lessonID);
   Courses.findById(courseID)
@@ -915,7 +915,78 @@ const getLesson = (req, res) => {
       return lesson._id.toString() === lessonID;
     });
 
-    res.status(200).send({module, lesson});
+    // const promise = 
+    // const readCommand = new GetObjectCommand({
+    //   Bucket: process.env.BUCKET_NAME,
+    //   Key: lesson.cover.title
+    // })
+    // getSignedUrl(s3, )
+
+    // const lessonContentMedia = lesson.content.content.filter((el) => {
+    //   return el.type === 'image' || el.type === 'video';
+    // }).map((el) => {
+    //   return el.attrs.title;
+    // });
+
+    Promise.all(lesson.content.content.map((el) => {
+      const readCommand = new GetObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: el.attrs.title,
+      });
+
+      return (el.type === "image" || el.type === "video") ?  
+      getSignedUrl(s3, readCommand, { expiresIn: 60 })
+      .then((url) => {
+        // console.log(url);
+        el.attrs.src = url;
+        return el;
+      })
+      .catch((err) => {
+        throw new Error("Не найдены файлы урока");
+      })
+      : 
+      new Promise(function(resolve, reject) {
+        resolve(el);
+      })
+      .then((data) => {
+        // console.log('yes');
+        // console.log(data);
+        return el;
+      })
+      .catch((err) => {
+        throw new Error("Не найдены данные урока");
+      })
+ 
+    }))
+    .then((data) => {
+      lesson.content.content = data;
+      // console.log(lesson)
+      // console.log(lesson.content.content);
+      res.status(200).send({module, lesson});
+    })
+    .catch((err) => {
+      next({codeStatus: 401, message: err.message})
+    })
+
+    // console.log(lessonContentMedia);
+
+    
+    // console.log(filesArray);
+
+    // const 
+
+    // Promise.all(filesArray.map((file) => {
+    //   const readCommand = new GetObjectCommand({
+    //     Bucket: process.env.BUCKET_NAME,
+    //     Key: file,
+    //   });
+    //   return getSignedUrl(s3, readCommand, { expiresIn: 60 });
+    
+    // }))
+    // .then((urls) => {
+    //   console.log(urls);
+    // })
+
   })
 };
 
