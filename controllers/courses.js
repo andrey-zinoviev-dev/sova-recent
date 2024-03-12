@@ -915,6 +915,42 @@ const getLesson = (req, res, next) => {
       return lesson._id.toString() === lessonID;
     });
 
+    const updatedArray = lesson.content.content.map((el) => {
+      if(el.type === 'image' || el.type === 'video') {
+        const readCommand = new GetObjectCommand({
+          Bucket: process.env.BUCKET_NAME,
+          Key: el.attrs.title,
+        });
+        return getSignedUrl(s3, readCommand, { expiresIn: 60 })
+        .then((url) => {
+          // console.log(url);
+          el.attrs.src = url;
+          return el;
+        })
+        .catch((err) => {
+          throw new Error("Не найдены файлы урока");
+        })
+      } 
+      else {
+        return new Promise(function(resolve, reject) {
+          resolve(el);
+        })
+        .then((data) => {
+          return data;
+        })
+      }
+
+    });
+
+    Promise.all(updatedArray)
+    .then((data) => {
+      lesson.content.content = data;
+      res.status(200).send({module, lesson}); 
+    })
+    .catch((err) => {
+      next({codeStatus: 400, message: err.message})
+    })
+
     // const promise = 
     // const readCommand = new GetObjectCommand({
     //   Bucket: process.env.BUCKET_NAME,
@@ -928,64 +964,47 @@ const getLesson = (req, res, next) => {
     //   return el.attrs.title;
     // });
 
-    Promise.all(lesson.content.content.map((el) => {
-      const readCommand = new GetObjectCommand({
-        Bucket: process.env.BUCKET_NAME,
-        Key: el.attrs.title,
-      });
-
-      return (el.type === "image" || el.type === "video") ?  
-      getSignedUrl(s3, readCommand, { expiresIn: 60 })
-      .then((url) => {
-        // console.log(url);
-        el.attrs.src = url;
-        return el;
-      })
-      .catch((err) => {
-        throw new Error("Не найдены файлы урока");
-      })
-      : 
-      new Promise(function(resolve, reject) {
-        resolve(el);
-      })
-      .then((data) => {
-        // console.log('yes');
-        // console.log(data);
-        return el;
-      })
-      .catch((err) => {
-        throw new Error("Не найдены данные урока");
-      })
- 
-    }))
-    .then((data) => {
-      lesson.content.content = data;
-      // console.log(lesson)
-      // console.log(lesson.content.content);
-      res.status(200).send({module, lesson});
-    })
-    .catch((err) => {
-      next({codeStatus: 401, message: err.message})
-    })
-
-    // console.log(lessonContentMedia);
-
-    
-    // console.log(filesArray);
-
-    // const 
-
-    // Promise.all(filesArray.map((file) => {
+    // Promise.all(lesson.content.content.map((el) => {
     //   const readCommand = new GetObjectCommand({
     //     Bucket: process.env.BUCKET_NAME,
-    //     Key: file,
+    //     Key: el.attrs.title,
     //   });
-    //   return getSignedUrl(s3, readCommand, { expiresIn: 60 });
-    
+
+    //   return (el.type === "image" || el.type === "video") ?  
+    //   getSignedUrl(s3, readCommand, { expiresIn: 60 })
+    //   .then((url) => {
+    //     // console.log(url);
+    //     el.attrs.src = url;
+    //     return el;
+    //   })
+    //   .catch((err) => {
+    //     throw new Error("Не найдены файлы урока");
+    //   })
+    //   : 
+    //   new Promise(function(resolve, reject) {
+    //     resolve(el);
+    //   })
+    //   .then((data) => {
+    //     // console.log('yes');
+    //     // console.log(data);
+    //     return el;
+    //   })
+    //   .catch((err) => {
+    //     throw new Error("Не найдены данные урока");
+    //   })
+ 
     // }))
-    // .then((urls) => {
-    //   console.log(urls);
+    // .then((data) => {
+    //   lesson.content.content = data;
+    //   // console.log(lesson)
+    //   // console.log(lesson.content.content);
+    //   res.status(200).send({module, lesson});
     // })
+    // .catch((err) => {
+    //   next({codeStatus: 401, message: err.message})
+    // })
+
+    // console.log(lessonContentMedia);
 
   })
 };
