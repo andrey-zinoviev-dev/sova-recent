@@ -250,112 +250,13 @@ const createCourse = (req, res, next) => {
         next({codeStatus: 400, message: err.message})
       })
     })
-  //   const updatedModules = modules.map((module) => {
-  //     const moduleCoverFile = req.files.find((file) => {
-  //       return file.originalname === module.cover.title;
-  //     });
-  //     const updatedLessons = module.lessons.map((lesson) => {
-  //       const lessonCoverFile = req.files.find((file) => {
-  //         return file.originalname === lesson.cover.title;
-  //       })
-  //       const filesContent = lesson.content.content.map((element) => {
-  //         if(element.type === 'image' || element.type === 'video') {
-  //           const foundLessonFile = req.files.find((file) => {
-  //             return file.originalname === element.attrs.title;
-  //           });
-  //           element.attrs.src = `http://localhost:3000/${foundLessonFile.path.replace('public',"")}`
-  //         }
-  //         // console.log(element);
-  //         return element;
-  //       });
-  //       // console.log(filesContent);
-  //       return {...lesson, cover: `http://localhost:3000/${lessonCoverFile.path.replace('public',"")}` ,content: {...lesson.content, content: filesContent}};
-  //     });
-  //     // console.log(updatedLessons);
-  //     return {...module, title: module.name, cover: `http://localhost:3000/${moduleCoverFile.path.replace('public',"")}`, lessons: updatedLessons}
-  //   });
-  //   const foundCourseCoverFile = req.files.find((file) => {
-  //     return file.originalname === course.cover.title;
-  //   });
-
-  //   // console.log(foundCourseCoverFile);
-    // Courses.create({name: course.name, description: course.description, author: '64dc0ea66e65a6888d91da49', modules: updatedModules, cover: `http://localhost:3000/${foundCourseCoverFile.path.replace('public',"")}`, tarifs: tarifs, students: []})
-    // .then((createdCourse) => {
-    //       //create users
-    //   // const studentsAdded = students.map((user) => {
-    //   //   return User.findOne({email: user.email})
-    //   //   .then((doc) => {
-    //   //     if(!doc) {
-    //   //       const generatedPassword = generatePassword(10, false);
-    //   //       return bcrypt.hash(generatedPassword, 10)
-    //   //       .then((hash) => {
-    //   //         return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: createdCourse._id, tarif: user.tarif}]})
-    //   //         .then((newUser) => {
-    //   //           transporter.sendMail({
-    //   //             from: '"Sasha Sova" <admin@sova-courses.site>',
-    //   //             to: user.email,
-    //   //             subject: 'Добро пожаловать на платформу Саши Совы!',
-    //   //             html: `
-    //   //                 <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
-    //   //                 <div>
-    //   //                     <p>Твой логин- ${user.email}</p>
-    //   //                     <p>Твой пароль- ${generatedPassword}</p>
-    //   //                 </div>
-    //   //                 <button>
-    //   //                     <a href="https://sova-courses.site">Присоединиться</a>
-    //   //                 </button>
-    //   //             `
-    //   //           })
-    //   //           return newUser._id;
-    //   //         })
-    //   //       })
-    //   //     } else {
-    //   //       // doc.courses = 
-    //   //       // if(!doc.courses.find((course) => {
-    //   //       //   return course.id.toString() === foundCourse._id.toString();
-    //   //       // })) {
-    //   //       doc.courses.push({id: createdCourse._id, tarif: user.tarif});
-    //   //       doc.save();
-    //   //       // }
-    //   //       return doc._id;
-    //   //     }
-    //   //   })
-    //   // });
-
-    //   // Promise.all(studentsAdded)
-    //   // .then((value) => {
-    //   //   createdCourse.students = value;
-    //   //   createdCourse.save();
-
-    //   //   User.find({admin: false})
-    //   //   .then((users) => {
-    //   //     users.forEach((user) => {
-    //   //       transporter.sendMail({
-    //   //         from: '"Sasha Sova" <admin@sova-courses.site>',
-    //   //         to: user.email,
-    //   //         subject: `Новый курс: ${course.name}!`,
-    //   //         html: `
-    //   //             <h1>Появился новый курс ${course.name}!</h1>
-    //   //             <button>
-    //   //                 <a href="http://localhost:3001/courses/${createdCourse.id.toString()}/modules/${createdCourse.modules[0].id.toString()}/lessons/${createdCourse.modules[0].lessons[0]._id.toString()}">Посмотреть</a>
-    //   //             </button>
-    //   //         `
-    //   //       })
-    //   //     })
-    //   //   })
-
-    //   //   res.status(201).send(createdCourse);      
-    //   // })
-
-    // })
-    // .catch((err) => {
-    //   next({codeStatus: 400, message: err.message})
-    // })
   })
   .catch((err) => {
     next({codeStatus: 400, message: err.message})
   })
 };
+
+
 
 const editCourse = (req, res) => {
   // console.log(req.files);
@@ -503,6 +404,48 @@ const editModuleCover = (req, res) => {
     return res.status(201).send({cover: req.file.path, message: "Обложка модуля успешно обновлена!"});
   })
 };
+
+const getModule = (req, res) => {
+  const {courseID, moduleID} = req.params;
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(!doc) {
+      throw new Error ("Модуль не найден");
+    } else {
+      const module = doc.modules.find((module) => {
+        return module._id.toString() === moduleID;
+      });
+      const moduleCoverCommand = new GetObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: module.cover.title,
+      });
+      return getSignedUrl(s3, moduleCoverCommand, {
+        expiresIn: 60
+      })
+      .then((url) => {
+        module.cover.path = url;
+        Promise.all(module.lessons.map((lesson) => {
+          const lessonCoverCommand = new GetObjectCommand({
+            Bucket: process.env.BUCKET_NAME,
+            Key:lesson.cover.title,
+          });
+          return getSignedUrl(s3, lessonCoverCommand, {
+            expiresIn: 60
+          })
+          .then((lessonUrl) => {
+            lesson.cover.path = lessonUrl;
+            return lesson;
+          })
+        }))
+        .then((data) => {
+          module.lessons = data;
+          res.status(201).send(module);
+        })
+      })
+    }
+  })
+  // Courses.find
+}
 
 const addModuleToCourse = (req, res) => {
   // console.log(req.body);
@@ -1210,7 +1153,6 @@ module.exports = {
   // redirectToCourse,
   getCourse,
   findCourse,
-
   createCourse,
   editCourseTitle,
   editCourseDesc,
@@ -1218,6 +1160,7 @@ module.exports = {
   editModuleTitle,
   editModuleCover,
   editCourse,
+  getModule,
   addModuleToCourse,
   getLesson,
   addStudentsToCourse,
