@@ -3,7 +3,7 @@ const { lessonModules } = require('../models/courseModel');
 const Message = require('../models/chatMessage');
 const Conversation = require('../models/Conversation');
 
-const getMessagesOfUser = ((req, res) => {
+const getMessagesOfUser = ((req, res, next) => {
   const _id = req.user;
   const {userId, courseID, moduleID, lessonID} = req.params;
   // console.log(courseID, moduleID, lessonID);
@@ -11,12 +11,14 @@ const getMessagesOfUser = ((req, res) => {
   // const foundUser = User.findById(_id);
   Conversation.findOne({members: {$all: [_id, userId]}, location: {course: courseID, module: moduleID, lesson: lessonID}}).populate('members')
   .then((foundConvo) => {
-    console.log(foundConvo);
     if(!foundConvo) {
-      // return;
-      return res.status(400).send({message: "Пока нет сообщений"});
+      throw new Error("Сообщений нет");
+    } else {
+      return res.status(200).send(foundConvo);
     }
-    return res.status(200).send(foundConvo);
+  })
+  .catch((err) => {
+    next({codeStatus: 400, message: err.message});
   })
 
   //hardcode, remove it futher
