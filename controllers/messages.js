@@ -74,116 +74,68 @@ const getMessagesOfUser = ((req, res, next) => {
 });
 
 const sendMessage = (req, res) => {
+  const { messageData } = req.body;
+  console.log(messageData);
   // console.log(req.files);
-  const { text, moduleID, user, to, location } = req.body;
-  const pasredLocation = JSON.parse(location);
+  // const { text, moduleID, user, to, location } = req.body;
+  // const pasredLocation = JSON.parse(location);
   // console.log(pasredLocation);
   // const { course, module, lesson } = JSON.parse(location);
 
   // console.log(text, moduleID, user, to);
   // console.log(req.files);
-  const filesToSend = req.files.map((file) => {
-    const updatedPath = file.path.replace('public', 'https://api.sova-courses.site');
-    // const updatedPath = file.path.replace('public', 'http://localhost:3000');
-    return {...file, path: updatedPath};
-  });
+  // const filesToSend = req.files.map((file) => {
+  //   const updatedPath = file.path.replace('public', 'https://api.sova-courses.site');
+  //   // const updatedPath = file.path.replace('public', 'http://localhost:3000');
+  //   return {...file, path: updatedPath};
+  // });
 
   // console.log(filesToSend);
 
-  Conversation.findOne({members: {$all: [user, to]}, location: {course: pasredLocation.course, module: pasredLocation.module, lesson: pasredLocation.lesson}})
-  .then((foundConvo) => {
-    console.log(foundConvo);
-    const newMessage = {user: user, to: to, text: text, files: filesToSend};
-    console.log(newMessage);
-    // const foundConvo = doc.pop();
-    // console.log(doc);
-    if(foundConvo) {
-      foundConvo.location = pasredLocation;
-      foundConvo.messages.push(newMessage);
-      const lastMessage = foundConvo.messages[foundConvo.messages.length - 1];
+  // Conversation.findOne({members: {$all: [user, to]}, location: {course: pasredLocation.course, module: pasredLocation.module, lesson: pasredLocation.lesson}})
+  // .then((foundConvo) => {
+  //   console.log(foundConvo);
+  //   // console.log(foundConvo);
+  //   // const newMessage = {user: user, to: to, text: text, files: filesToSend};
+  //   // console.log(newMessage);
+  //   // // const foundConvo = doc.pop();
+  //   // // console.log(doc);
+  //   // if(foundConvo) {
+  //   //   foundConvo.location = pasredLocation;
+  //   //   foundConvo.messages.push(newMessage);
+  //   //   const lastMessage = foundConvo.messages[foundConvo.messages.length - 1];
       
-      foundConvo.save();
+  //   //   foundConvo.save();
 
-      return res.status(201).send({convo: foundConvo, lastMessage: lastMessage });
+  //   //   return res.status(201).send({convo: foundConvo, lastMessage: lastMessage });
 
-      // return Message.create({text: text, user: user, to: to, module: moduleID, conversation: foundConvo, files: req.files})
-      // .then((message) =>{
-      //   if(!message) {
-      //     return; //process error
-      //   }
-      //   return res.status(201).send(message);
-      // });
-    }
-    return Conversation.create({members: [user, to], location: location})
-    .then((createdConvo) => {
-      createdConvo.location = pasredLocation;
-      // console.log(createdConvo);
-      createdConvo.messages.push(newMessage);
-      createdConvo.save();
-      return res.status(201).send({ convo: foundConvo, lastMessage: newMessage });
-      // if(!convo) {
-      //   return;
-      // }
-      // // console.log('convo exists');
-      // return Message.create({text: text, user: user, to: to, module: moduleID, conversation: convo, files: req.files})
-      // .then((message) =>{
-      //   if(!message) {
-      //     return; //process error
-      //   }
-      //   return res.status(201).send(message);
-      // });
-    })
-  })
-
-  // const { _id } = req.user;
-
-  // const foundUser = User.findById(_id).select('-password')
-  // .then((doc) => {
-  //   return doc;
-  // });
-  // console.log(message);
-  // const moduleToUpdate = lessonModules.findById(moduleId).populate({path: 'course'})
-  // .then((courseModule) => {
-  //   if(!courseModule) {
-  //     return //process error
-  //   }
-  //   // console.log(courseModule);
-  //   return Message.create({text: message, user: _id, module: moduleId, to: courseModule.course.author.toString()})
-  //   .then((message) => {
-  //     if(!message) {
-  //       return;
-  //     }
-  //     return res.status(201).send(message);
-  //   })
-  //   // return courseModule;
-  // })
-
-  // const createdMessage = Message.create({text: text, user: _id, module: moduleID, to: to })
-  // .then((message) => {
-  //   return message;
-  // });
-
-  // Promise.all([foundUser, createdMessage])
-  // .then(([doc, message]) => {
-
-  //   if(!message || !doc) {
-  //     return //process error;
-  //   }
-  //   message.user = doc;
-  //   return res.status(201).send(message);
-  // });
-
-  // Promise.all([moduleToUpdate, messageToSave])
-  // .then((values) => {
-  //   const [courseModule, message] = values;
-  //   console.log(courseModule.course);
-  //   courseModule.messages.push(message);
-  //   courseModule.save((err, updated) => {
-  //     if(err) {
-  //       return; //process error
-  //     }
-  //     return res.status(201).send(message);
-  //   });
+  //   //   // return Message.create({text: text, user: user, to: to, module: moduleID, conversation: foundConvo, files: req.files})
+  //   //   // .then((message) =>{
+  //   //   //   if(!message) {
+  //   //   //     return; //process error
+  //   //   //   }
+  //   //   //   return res.status(201).send(message);
+  //   //   // });
+  //   // }
+  //   // return Conversation.create({members: [user, to], location: location})
+  //   // .then((createdConvo) => {
+  //   //   createdConvo.location = pasredLocation;
+  //   //   // console.log(createdConvo);
+  //   //   createdConvo.messages.push(newMessage);
+  //   //   createdConvo.save();
+  //   //   return res.status(201).send({ convo: foundConvo, lastMessage: newMessage });
+  //   //   // if(!convo) {
+  //   //   //   return;
+  //   //   // }
+  //   //   // // console.log('convo exists');
+  //   //   // return Message.create({text: text, user: user, to: to, module: moduleID, conversation: convo, files: req.files})
+  //   //   // .then((message) =>{
+  //   //   //   if(!message) {
+  //   //   //     return; //process error
+  //   //   //   }
+  //   //   //   return res.status(201).send(message);
+  //   //   // });
+  //   // })
   // })
 };
 
