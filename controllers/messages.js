@@ -2,6 +2,21 @@ const User = require('../models/userModel');
 const { lessonModules } = require('../models/courseModel'); 
 const Message = require('../models/chatMessage');
 const Conversation = require('../models/Conversation');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
+const dotenv = require("dotenv");
+dotenv.config();
+
+//s3 initiation
+const s3 = new S3Client({
+  region: process.env.BUCKET_REGION,
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.SECRET_KEY,
+  },
+  endpoint: "https://storage.yandexcloud.net",
+});
 
 const getMessagesOfUser = ((req, res, next) => {
   const _id = req.user;
@@ -73,9 +88,14 @@ const getMessagesOfUser = ((req, res, next) => {
   // const userToFind = User.findById(_id)
 });
 
+
 const sendMessage = (req, res) => {
-  const { messageData } = req.body;
-  console.log(messageData);
+  // const { messageData } = req.body;
+  // const parsedMessageData = JSON.parse(messageData);
+  const {text, from, to, location} = req.body;
+  // console.log(location)
+  // const
+  // console.log(parsedMessageData);
   // console.log(req.files);
   // const { text, moduleID, user, to, location } = req.body;
   // const pasredLocation = JSON.parse(location);
@@ -92,31 +112,42 @@ const sendMessage = (req, res) => {
 
   // console.log(filesToSend);
 
-  // Conversation.findOne({members: {$all: [user, to]}, location: {course: pasredLocation.course, module: pasredLocation.module, lesson: pasredLocation.lesson}})
-  // .then((foundConvo) => {
-  //   console.log(foundConvo);
+
+
+  Conversation.findOne({members: {$all: [from, to]}, location: location})
+  .then((foundConvo) => {
+    const message = {user: from, to: to, text: text, files:[]};
+
+    // function uploadToS3(file) {
+    //   // const file = req.file;
+    //   const sendFileCommand = new PutObjectCommand({
+    //     Bucket: process.env.BUCKET_NAME,
+    //     Key: file.originalname,
+    //     Body: file.buffer,
+    //     ContentType: file.mimetype
+    //   });
+
+    //   return getSignedUrl(s3, sendFileCommand, {
+    //     expiresIn: 90
+    //   })
+    // }
+
+    // console.log(foundConvo);
   //   // console.log(foundConvo);
-  //   // const newMessage = {user: user, to: to, text: text, files: filesToSend};
+    // const newMessage = {user: from, to: to, text: text, files: filesToSend};
   //   // console.log(newMessage);
   //   // // const foundConvo = doc.pop();
   //   // // console.log(doc);
-  //   // if(foundConvo) {
-  //   //   foundConvo.location = pasredLocation;
-  //   //   foundConvo.messages.push(newMessage);
-  //   //   const lastMessage = foundConvo.messages[foundConvo.messages.length - 1];
-      
-  //   //   foundConvo.save();
-
-  //   //   return res.status(201).send({convo: foundConvo, lastMessage: lastMessage });
-
-  //   //   // return Message.create({text: text, user: user, to: to, module: moduleID, conversation: foundConvo, files: req.files})
-  //   //   // .then((message) =>{
-  //   //   //   if(!message) {
-  //   //   //     return; //process error
-  //   //   //   }
-  //   //   //   return res.status(201).send(message);
-  //   //   // });
-  //   // }
+    if(foundConvo) {
+      foundConvo.messages.push(message);
+      foundConvo.save();
+      return res.status(201).send(foundConvo.messages[foundConvo.messages.length - 1]);
+    } else {
+      Conversation.create({members: [from, to], messages:[message], location: location})
+      .then((newConvo) => {
+        return res.status(201).send(newConvo.messages[newConvo.messages.length - 1]);
+      })
+    }
   //   // return Conversation.create({members: [user, to], location: location})
   //   // .then((createdConvo) => {
   //   //   createdConvo.location = pasredLocation;
@@ -136,10 +167,51 @@ const sendMessage = (req, res) => {
   //   //   //   return res.status(201).send(message);
   //   //   // });
   //   // })
-  // })
+  })
+};
+
+const sendFileInMessage = (req, res) => {
+  const {messageData} = req.body;
+  const parsedMessageData = JSON.parse(messageData);
+  const { from, to, location } = parsedMessageData;
+
+  const file = req.file;
+  const message = {user: from, to: to, text: "", files:[{title: file.originalname, type: file.mimetype}]};
+  
+
+
+
+
+
+  Conversation.findOne({members: {$all: [from, to]}, location: location})
+  .then((foundConvo) => {
+    if(foundConvo) {
+      foundConvo.messages.push(message);
+      foundConvo.save();
+      return res.status(201).send(foundConvo.messages[foundConvo.messages.length - 1])
+    } else {
+      return Conversation.create({members: [from, to], location: location, messages: [message]})
+      .then((createdConvo) => {
+        return res.status(201).send(createdConvo.messages[createdConvo.messages.length - 1])
+      })
+    }
+  })  
+};
+
+const getMessageFile = (req, res) => {
+  const { messageID } = req.params;
+  Conversation.findOne({members: {$all: [from, to]}, location: location})
+  .then((foundConvo) => {
+    const messageToRead = foundConvo.messages.find((message) => {
+      return message._id.toString() === messageID;
+    });
+    console.log(messageToRead);
+  })
 };
 
 module.exports = {
   getMessagesOfUser,
   sendMessage,
+  sendFileInMessage,
+  getMessageFile
 }

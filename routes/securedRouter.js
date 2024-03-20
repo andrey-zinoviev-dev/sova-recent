@@ -2,7 +2,7 @@ const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
 const { requestCourses, getCourse, findCourse, createCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, getModule, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover } = require('../controllers/courses');
-const { sendMessage, getMessagesOfUser } = require('../controllers/messages');
+const { sendMessage, sendFileInMessage, getMessageFile, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 
 const multer = require('multer');
@@ -52,7 +52,9 @@ securedRouter.get('/courses/:courseID/modules/:moduleID/lessons/:lessonID', getL
 // securedRouter.get('/modules/:courseModuleId/messages', getMessagesOfUser);
 // securedRouter.get('/courses/:id/data', getCourse);
 securedRouter.get('/contact/:userId/courses/:courseID/modules/:moduleID/lessons/:lessonID/messages', getMessagesOfUser);
-securedRouter.post('/messages', upload.array("files"), sendMessage);
+securedRouter.post('/messages', upload.single("file"), sendMessage);
+securedRouter.post('/messages/files', upload.single("file"), sendFileInMessage);
+securedRouter.get('/messages/files/:messageID', getMessageFile);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
 securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
