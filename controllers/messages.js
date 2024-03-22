@@ -200,12 +200,35 @@ const sendFileInMessage = (req, res) => {
 
 const getMessageFile = (req, res) => {
   const { messageID } = req.params;
-  Conversation.findOne({members: {$all: [from, to]}, location: location})
+  const { from, to, location } = req.query;
+
+  Conversation.findOne({members: {$all: [from, to]}, location: JSON.parse(location)})
   .then((foundConvo) => {
+    // console.log(foundConvo);
     const messageToRead = foundConvo.messages.find((message) => {
       return message._id.toString() === messageID;
     });
-    console.log(messageToRead);
+
+    const getCommand = new GetObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: messageToRead.files[0].title,
+    });
+
+    getSignedUrl(s3, getCommand, {
+      expiresIn: 60
+    })
+    .then((data) => {
+      if(!data) {
+        return;
+      }
+      // console.log(messageToRead);
+      messageToRead.files = messageToRead.files.map((file) => {
+        return {...file, path: data};
+      });
+      // console.log(messageToRead);
+      res.status(201).send(messageToRead);
+    })
+    // console.log(messageToRead);
   })
 };
 
