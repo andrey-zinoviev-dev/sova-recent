@@ -1148,8 +1148,22 @@ const lessonNotification = (req, res) => {
   })
 };
 
-const sendEmails = (req, res) => {
-  console.log(req.body);
+const sendEmails = (req, res, next) => {
+  const { courseId } = req.params;
+  const { tarifs } = req.body;
+  // Courses.findById(courseId)
+  // .then((doc) => {
+  //   if(!doc) {
+  //     throw new Error("Курс уже существует");
+  //   }
+  //   const messageRecepients = [];
+  //   tarifs.forEach((tarif) => {
+
+  //   })
+  // })
+  // .catch((err) => {
+  //   next({codeStatus: 400, message: err.message})
+  // })
 }
 
 module.exports = {
