@@ -1148,6 +1148,10 @@ const lessonNotification = (req, res) => {
   })
 };
 
+const sendEmails = (req, res) => {
+  console.log(req.body);
+}
+
 module.exports = {
   requestCourses,
   // redirectToCourse,
@@ -1170,5 +1174,6 @@ module.exports = {
   editLessonFromCourse,
   editLessonContentFromCourse,
   addLessonToCourse,
-  lessonNotification
+  lessonNotification,
+  sendEmails,
 }

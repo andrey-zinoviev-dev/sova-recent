@@ -119,6 +119,11 @@ io.on('connection', (socket) => {
         socket.to(to).emit('private message', data);
     });
 
+    socket.on("send homework", ({to, sendHomework}) => {
+        // console.log(to._id);
+        socket.to(to._id).emit("sent homework", {...to, sendHomework: sendHomework});
+    })
+
     socket.on('disconnect', (reason) => {
         // console.log(socket);
         // console.log('on disconnect');
