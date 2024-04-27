@@ -1149,8 +1149,23 @@ const lessonNotification = (req, res) => {
 };
 
 const sendEmails = (req, res, next) => {
-  const { courseId } = req.params;
-  const { tarifs } = req.body;
+  // const { courseId } = req.params;
+  const { message, users, courseName } = req.body;
+  users.forEach((user) => {
+    transporter.sendMail({
+      from: '"Sasha Sova" <admin@sova-courses.site>',
+      to: user.email,
+      subject: `Новости о курсе ${courseName}`,
+      html: `
+          <h1>Обновление на курсе ${courseName}</h1>
+          <div>
+            <p>${message}</p>
+          </div>
+
+      `
+    })
+  })
+  res.status(201).send({message: "Уведомление отправлено"});
   // Courses.findById(courseId)
   // .then((doc) => {
   //   if(!doc) {
