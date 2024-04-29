@@ -4,6 +4,7 @@ const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = re
 const { requestCourses, getCourse, findCourse, createCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, getModule, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover, sendEmails } = require('../controllers/courses');
 const { sendMessage, sendFileInMessage, getMessageFile, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
+const { getUploadUrl, fileUpload } = require("../controllers/upload");
 
 const multer = require('multer');
 
@@ -60,6 +61,9 @@ securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
 securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
 securedRouter.post('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
+
+securedRouter.post('/initiateUpload', getUploadUrl)
+securedRouter.post('/uploadFile', upload.single("file"), fileUpload)
 
 module.exports = {
   securedRouter,
