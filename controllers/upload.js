@@ -1,5 +1,7 @@
 const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { Upload } = require("@aws-sdk/lib-storage");
+
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -43,14 +45,14 @@ const getUploadUrl = (req, res, next) => {
   //   Expires: 120,
   // }
 
-  const url = s3Client.getSignedUrl('putObject', {
-    Bucket: process.env.BUCKET_NAME,
-    Key: `${req.body.name}`,
-    Expires: 120,
-    ContentType: req.body.type,
-  });
+  // const url = s3Client.getSignedUrl('putObject', {
+  //   Bucket: process.env.BUCKET_NAME,
+  //   Key: `${req.body.name}`,
+  //   Expires: 120,
+  //   ContentType: req.body.type,
+  // });
 
-  return res.status(201).send({url: url});
+  // return res.status(201).send({url: url});
 
   // console.log(url);
 
@@ -67,6 +69,13 @@ const getUploadUrl = (req, res, next) => {
   //   next({codeStatus: 500, message: err.message})
   //   //process error
   // })
+};
+
+const initiateUpload = (req, res, next) => {
+  const uploads = new Upload({
+    client: new S3Client({}),
+    params: {}
+  })
 };
 
 const fileUpload = (req, res) => {
