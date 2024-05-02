@@ -141,20 +141,93 @@ const findCourse = (req, res, next) => {
 const createCourse = (req, res, next) => {
   // console.log(req.body);
   const {courseData, author} = req.body;
-  console.log(courseData);
+  // console.log(courseData);
+  const { course, modules, tarifs, students } = courseData;
+  // const { course } = courseData;
   // const { _id } = JSON.parse(author);
   // console.log(_id);
   // const {course, modules, tarifs, students} = JSON.parse(courseData);
   
-  // Courses.findOne({name: course.name})
-  // .then((doc) => {
+  Courses.findOne({name: course.name})
+  .then((doc) => {
+    // console.log(doc);
   //   // modules.forEach((module) => {
   //   //   console.log(module.lessons.content);
   //   // })
   //   // console.log(doc);
-  //   if(doc) {
-  //     throw new Error("Курс уже существует");
-  //   } 
+    if(doc) {
+      throw new Error("Курс уже существует");
+    } 
+
+    return Courses.create({name: course.name, description: course.description, author: author._id, modules: modules.map((module) => {
+      return {...module, title: module.name, cover: module.cover, author: author}
+    }), cover: course.cover, tarifs: tarifs ? tarifs : [], students: []})
+    .then((createdCourse) => {
+      if(!createdCourse) {
+        throw new Error("Что-то при создании курса пошло не так, попробуйте еще раз");
+      }
+
+      return Promise.all((students.map((student) => {
+        return User.findOne({email: student.email})
+      .then((doc) => {
+        if(!doc) {
+          const generatedPassword = generatePassword(10, false);
+          return bcrypt.hash(generatedPassword, 10)
+          .then((hash) => {
+            return User.create({email: student.email, password: hash, name: student.name, admin: false, courses: [{id: createdCourse._id, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+              return studentsEl.admin === student.email && studentsEl.email; 
+            }) : student.admin ? [student.admin] : null, tarif: student.tarif}]})
+            .then((newUser) => {
+              transporter.sendMail({
+                from: '"Sasha Sova" <admin@sova-courses.site>',
+                to: student.email,
+                subject: 'Добро пожаловать на платформу Саши Совы!',
+                html: `
+                  <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
+                  <div>
+                    <p>Твой логин- ${student.email}</p>
+                    <p>Твой пароль- ${generatedPassword}</p>
+                  </div>
+                  <button>
+                    <a href="https://sova-courses.site">Присоединиться</a>
+                  </button>
+                  `})
+              return newUser._id;
+            })
+          })
+        } else {
+                // doc.courses = 
+                // if(!doc.courses.find((course) => {
+                //   return course.id.toString() === foundCourse._id.toString();
+                // })) {
+                doc.courses.push({id: createdCourse._id, tarif: student.tarif, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+                  return studentsEl.admin === student.email; 
+                }) : student.admin ? [student.admin] : null});
+                doc.save();
+                // }
+                return doc._id;
+              }
+            })
+      })))
+      .then((createdStudents) => {
+        // console.log(createdStudents);
+        createdCourse.students = createdStudents;
+        createdCourse.save();
+        return res.status(201).send({course: createdCourse});
+      })
+      .catch((err) => {
+
+      });
+
+      // return res.status(201).send({course: data});
+    })
+    .catch((err) => {
+      next({codeStatus: 500, message: err.message});
+    })
+
+   
+
+
 
   //   // const fileUploadCommands = req.files.map((file) => {
   //   //     const uploadCommand = new PutObjectCommand({
@@ -251,10 +324,10 @@ const createCourse = (req, res, next) => {
   //   //     next({codeStatus: 400, message: err.message})
   //   //   })
   //   // })
-  // })
-  // .catch((err) => {
-  //   next({codeStatus: 400, message: err.message})
-  // })
+  })
+  .catch((err) => {
+    next({codeStatus: 400, message: err.message})
+  })
 };
 
 
