@@ -175,7 +175,9 @@ const createCourse = (req, res, next) => {
           return bcrypt.hash(generatedPassword, 10)
           .then((hash) => {
             return User.create({email: student.email, password: hash, name: student.name, admin: false, courses: [{id: createdCourse._id, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
-              return studentsEl.admin === student.email && studentsEl.email; 
+              return studentsEl.admin === student.email; 
+            }).map((student) => {
+              return student.email;
             }) : student.admin ? [student.admin] : null, tarif: student.tarif}]})
             .then((newUser) => {
               transporter.sendMail({
