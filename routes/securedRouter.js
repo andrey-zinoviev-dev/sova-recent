@@ -62,8 +62,8 @@ securedRouter.get('/students', getAllStudents);
 securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
 securedRouter.post('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
 
-securedRouter.post('/initiateUpload', getUploadUrl)
-securedRouter.post('/uploadFile', upload.single("file"), fileUpload)
+// securedRouter.post('/initiateUpload', getUploadUrl)
+// securedRouter.post('/uploadFile', upload.single("file"), fileUpload)
 
 module.exports = {
   securedRouter,
