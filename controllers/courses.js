@@ -183,20 +183,20 @@ const createCourse = (req, res, next) => {
               return studentsEl.email === "anna.foxy.lady@gmail.com"; 
             }), tarif: student.tarif}]})
             .then((newUser) => {
-              // transporter.sendMail({
-              //   from: '"Sasha Sova" <admin@sova-courses.site>',
-              //   to: student.email,
-              //   subject: 'Добро пожаловать на платформу Саши Совы!',
-              //   html: `
-              //     <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
-              //     <div>
-              //       <p>Твой логин- ${student.email}</p>
-              //       <p>Твой пароль- ${generatedPassword}</p>
-              //     </div>
-              //     <button>
-              //       <a href="https://sova-courses.site">Присоединиться</a>
-              //     </button>
-              //     `})
+              transporter.sendMail({
+                from: '"Sasha Sova" <admin@sova-courses.site>',
+                to: student.email,
+                subject: 'Добро пожаловать на платформу Саши Совы!',
+                html: `
+                  <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
+                  <div>
+                    <p>Твой логин- ${student.email}</p>
+                    <p>Твой пароль- ${generatedPassword}</p>
+                  </div>
+                  <button>
+                    <a href="https://sova-courses.site">Присоединиться</a>
+                  </button>
+                  `})
               return newUser._id;
             })
           })
