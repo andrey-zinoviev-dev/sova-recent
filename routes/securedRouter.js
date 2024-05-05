@@ -29,7 +29,7 @@ securedRouter.get('/courses', redirectToLoggedInPage);
 securedRouter.get('/coursesList', requestCourses);
 securedRouter.get('/courses/:id', getCourse);
 securedRouter.get('/findCourse/:name', findCourse)
-securedRouter.post('/courses/add', upload.array('files'), createCourse);
+securedRouter.post('/courses/add', createCourse);
 securedRouter.post('/courses/:courseId/sendEmails', sendEmails)
 
 securedRouter.put('/courses/:id/', upload.array('moduleCover'), editCourse);
