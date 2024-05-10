@@ -171,6 +171,9 @@ const createCourse = (req, res, next) => {
       return Promise.all((students.map((student) => {
         return User.findOne({email: student.email})
       .then((doc) => {
+        console.log(students.filter((studentsEl) => {
+          return studentsEl.email === "anna.foxy.lady@gmail.com"; 
+        }))
         if(!doc) {
           const generatedPassword = generatePassword(10, false);
           return bcrypt.hash(generatedPassword, 10)
@@ -179,24 +182,26 @@ const createCourse = (req, res, next) => {
               return studentsEl.admin === student.email; 
             }).map((student) => {
               return student.email;
-            }) : student.admin ? [student.admin] : students.filter((studentsEl) => {
+            }) : student.admin !== "null" ? [student.admin] : students.filter((studentsEl) => {
               return studentsEl.email === "anna.foxy.lady@gmail.com"; 
+            }).map((student) => {
+              return student.email;
             }), tarif: student.tarif}]})
             .then((newUser) => {
-              transporter.sendMail({
-                from: '"Sasha Sova" <admin@sova-courses.site>',
-                to: student.email,
-                subject: 'Добро пожаловать на платформу Саши Совы!',
-                html: `
-                  <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
-                  <div>
-                    <p>Твой логин- ${student.email}</p>
-                    <p>Твой пароль- ${generatedPassword}</p>
-                  </div>
-                  <button>
-                    <a href="https://sova-courses.site">Присоединиться</a>
-                  </button>
-                  `})
+              // transporter.sendMail({
+              //   from: '"Sasha Sova" <admin@sova-courses.site>',
+              //   to: student.email,
+              //   subject: 'Добро пожаловать на платформу Саши Совы!',
+              //   html: `
+              //     <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
+              //     <div>
+              //       <p>Твой логин- ${student.email}</p>
+              //       <p>Твой пароль- ${generatedPassword}</p>
+              //     </div>
+              //     <button>
+              //       <a href="https://sova-courses.site">Присоединиться</a>
+              //     </button>
+              //     `})
               return newUser._id;
             })
           })
@@ -207,8 +212,10 @@ const createCourse = (req, res, next) => {
                 // })) {
                 doc.courses.push({id: createdCourse._id, tarif: student.tarif, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
                   return studentsEl.admin === student.email; 
-                }) : student.admin ? [student.admin] : students.filter((studentsEl) => {
+                }) : student.admin !== 'null' ? [student.admin] : students.filter((studentsEl) => {
                   return studentsEl.email === "anna.foxy.lady@gmail.com"; 
+                }).map((student) => {
+                  return student.email;
                 })});
                 doc.save();
                 // }
