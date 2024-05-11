@@ -141,42 +141,45 @@ const sendMessage = (req, res) => {
 };
 
 const sendFileInMessage = (req, res, next) => {
-  const {messageData} = req.body;
-  const parsedMessageData = JSON.parse(messageData);
-  const { from, to, location } = parsedMessageData;
+  const { files } = req.body;
+  Promise.all(files.map((file) => {
+    
+  }))
+  // const parsedMessageData = JSON.parse(messageData);
+  // const { from, to, location } = parsedMessageData;
 
-  const file = req.file;
-  const message = {user: from, to: to, text: "", files:[{title: file.originalname, type: file.mimetype}]};
+  // const file = req.file;
+  // const message = {user: from, to: to, text: "", files:[{title: file.originalname, type: file.mimetype}]};
   
 
 
-  const putCommand = new PutObjectCommand({
-    Bucket: process.env.BUCKET_NAME,
-    Key: req.file.originalname,
-    Body: req.file.buffer,
-    ContentType: req.file.mimetype
-  });
+  // const putCommand = new PutObjectCommand({
+  //   Bucket: process.env.BUCKET_NAME,
+  //   Key: req.file.originalname,
+  //   Body: req.file.buffer,
+  //   ContentType: req.file.mimetype
+  // });
 
-  s3.send(putCommand)
-  .then((data) => {
-    // console.log(data);
-      Conversation.findOne({members: {$all: [from, to]}, location: location})
-      .then((foundConvo) => {
-        if(foundConvo) {
-          foundConvo.messages.push(message);
-          foundConvo.save();
-          return res.status(201).send(foundConvo.messages[foundConvo.messages.length - 1])
-        } else {
-          return Conversation.create({members: [from, to], location: location, messages: [message]})
-          .then((createdConvo) => {
-            return res.status(201).send(createdConvo.messages[createdConvo.messages.length - 1])
-          })
-        }
-      })  
-  })
-  .catch((err) => {
-    // next({codeStatus: 500, message: "Что-то пошло не так, попробуйте другой файл"})
-  })
+  // s3.send(putCommand)
+  // .then((data) => {
+  //   // console.log(data);
+  //     Conversation.findOne({members: {$all: [from, to]}, location: location})
+  //     .then((foundConvo) => {
+  //       if(foundConvo) {
+  //         foundConvo.messages.push(message);
+  //         foundConvo.save();
+  //         return res.status(201).send(foundConvo.messages[foundConvo.messages.length - 1])
+  //       } else {
+  //         return Conversation.create({members: [from, to], location: location, messages: [message]})
+  //         .then((createdConvo) => {
+  //           return res.status(201).send(createdConvo.messages[createdConvo.messages.length - 1])
+  //         })
+  //       }
+  //     })  
+  // })
+  // .catch((err) => {
+  //   // next({codeStatus: 500, message: "Что-то пошло не так, попробуйте другой файл"})
+  // })
 
 
   // Conversation.findOne({members: {$all: [from, to]}, location: location})

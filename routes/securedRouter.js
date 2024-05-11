@@ -55,7 +55,7 @@ securedRouter.get('/courses/:courseID/modules/:moduleID/lessons/:lessonID', getL
 // securedRouter.get('/courses/:id/data', getCourse);
 securedRouter.get('/contact/:userId/courses/:courseID/modules/:moduleID/lessons/:lessonID/messages', getMessagesOfUser);
 securedRouter.post('/messages', upload.single("file"), sendMessage);
-securedRouter.post('/messages/files', upload.single("file"), sendFileInMessage);
+securedRouter.post('/messages/files', sendFileInMessage);
 securedRouter.get('/messages/files/:messageID', getMessageFile);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
