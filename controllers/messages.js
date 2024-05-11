@@ -29,24 +29,38 @@ const getMessagesOfUser = ((req, res, next) => {
     if(!foundConvo) {
       throw new Error("Сообщений нет");
     } else {
+      // console.log(foundConvo);
       // const filteredMessages = foundConvo.messages.filter((message) => {
       //   return message.files.length > 0;
       // });
       // console.log(filteredMessages);
       Promise.all(foundConvo.messages.map((message) => {
-        if(message.files.length > 0) {
-          const readCommand = new GetObjectCommand({
-            Bucket: process.env.BUCKET_NAME,
-            Key: message.files[0].title,
-          });
 
-          return getSignedUrl(s3, readCommand, {
-            expiresIn: 90
+        if(message.files.length > 0) {
+          Promise.all(message.files.map((file) => {
+            const readCommand = new GetObjectCommand({
+              Bucket: process.env.BUCKET_NAME,
+              Key: file,
+            });
+            return getSignedUrl(s3, readCommand, {
+              expiresIn: 120,
+            })
+          }))
+          .then((result) => {
+            return result;
           })
-          .then((url) => {
-            message.files[0].path = url;
-            return message;
-          })
+          // const readCommand = new GetObjectCommand({
+          //   Bucket: process.env.BUCKET_NAME,
+          //   Key: message.files[0],
+          // });
+
+          // return getSignedUrl(s3, readCommand, {
+          //   expiresIn: 90
+          // })
+          // .then((url) => {
+          //   message.files[0].path = url;
+          //   return message;
+          // })
         }
         else {
           return new Promise((resolve, reject) => {
@@ -57,11 +71,11 @@ const getMessagesOfUser = ((req, res, next) => {
           })
         }
       }))
-      .then((finalMessages) => {
-        // console.log(finalMessages);
-        return res.status(200).send(finalMessages);
+      // .then((finalMessages) => {
+      //   // console.log(finalMessages);
+      //   return res.status(200).send(finalMessages);
 
-      })
+      // })
       // return res.status(200).send(foundConvo);
     }
   })
@@ -141,10 +155,25 @@ const sendMessage = (req, res) => {
 };
 
 const sendFileInMessage = (req, res, next) => {
-  const { files } = req.body;
-  Promise.all(files.map((file) => {
+  // console.log(req.body);
+  const { filesToSend, from, to, location, caption } = req.body;
+  const message = {text: caption ? caption : "", user: from, to: to, files: filesToSend};
+
+  Conversation.findOne({members: {$all: [from, to]}, location: location})
+  .then((doc) => {
+    if(!doc) {
+      return Conversation.create({members: [from, to], location: location, messages: [message]})
+      .then((createdConversation) => {
+        return res.status(201).send(createdConversation);
+      })
+    }
+    doc.messages.push(message);
+    doc.save();
+    return res.status(201).send(message);
+  })
+  // Promise.all(files.map((file) => {
     
-  }))
+  // }))
   // const parsedMessageData = JSON.parse(messageData);
   // const { from, to, location } = parsedMessageData;
 
