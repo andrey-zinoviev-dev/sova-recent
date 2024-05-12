@@ -34,20 +34,27 @@ const getMessagesOfUser = ((req, res, next) => {
       //   return message.files.length > 0;
       // });
       // console.log(filteredMessages);
-      Promise.all(foundConvo.messages.map((message) => {
+      return Promise.all(foundConvo.messages.map((message) => {
 
         if(message.files.length > 0) {
-          Promise.all(message.files.map((file) => {
+          return Promise.all(message.files.map((file) => {
             const readCommand = new GetObjectCommand({
               Bucket: process.env.BUCKET_NAME,
-              Key: file,
+              Key: file.title,
             });
             return getSignedUrl(s3, readCommand, {
-              expiresIn: 120,
+              expiresIn: 3600,
+            })
+            .then((url) => {
+              file.path = url;
+              return file;
             })
           }))
           .then((result) => {
-            return result;
+            // console.log(result);
+            message.files = result;
+            // console.log(message);
+            return message;
           })
           // const readCommand = new GetObjectCommand({
           //   Bucket: process.env.BUCKET_NAME,
@@ -67,15 +74,16 @@ const getMessagesOfUser = ((req, res, next) => {
             resolve(message);
           })
           .then((data) => {
+            // console.log(data);
             return data;
           })
         }
       }))
-      // .then((finalMessages) => {
-      //   // console.log(finalMessages);
-      //   return res.status(200).send(finalMessages);
+      .then((finalMessages) => {
+        // console.log(finalMessages);
+        return res.status(200).send(finalMessages);
 
-      // })
+      })
       // return res.status(200).send(foundConvo);
     }
   })
@@ -161,6 +169,7 @@ const sendFileInMessage = (req, res, next) => {
 
   Conversation.findOne({members: {$all: [from, to]}, location: location})
   .then((doc) => {
+    console.log(doc);
     if(!doc) {
       return Conversation.create({members: [from, to], location: location, messages: [message]})
       .then((createdConversation) => {
