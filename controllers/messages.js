@@ -167,9 +167,12 @@ const sendFileInMessage = (req, res, next) => {
   const { filesToSend, from, to, location, caption } = req.body;
   const message = {text: caption ? caption : "", user: from, to: to, files: filesToSend};
 
+  // Promise.all((files))
+
   Conversation.findOne({members: {$all: [from, to]}, location: location})
   .then((doc) => {
-    console.log(doc);
+    // Promise.all(filesToSend)
+    // console.log(doc);
     if(!doc) {
       return Conversation.create({members: [from, to], location: location, messages: [message]})
       .then((createdConversation) => {
@@ -178,7 +181,22 @@ const sendFileInMessage = (req, res, next) => {
     }
     doc.messages.push(message);
     doc.save();
-    return res.status(201).send(message);
+    return Promise.all(message.files.map((file) => {
+      const readCommand = new GetObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: file.title,
+      })
+      return getSignedUrl(s3, readCommand, {
+        expiresIn: 3600,
+      })
+      .then((url) => {
+        return {...file, path: url};
+      })
+    }))
+    .then((files) => {
+      return res.status(201).send({...message, files: files});
+    })
+    // return res.status(201).send(message);
   })
   // Promise.all(files.map((file) => {
     

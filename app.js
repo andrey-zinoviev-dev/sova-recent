@@ -18,8 +18,8 @@ const User = require('./models/userModel');
 
 const { errorHandler } = require("./middlewares/errorHandler");
 
-mongoose.connect('mongodb://127.0.0.1:27017/sova')
-// mongoose.connect('mongodb://127.0.0.1:27017/test')
+// mongoose.connect('mongodb://127.0.0.1:27017/sova')
+mongoose.connect('mongodb://127.0.0.1:27017/test')
 .catch((err) => {
     console.log(err);
 });
@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
     socket.on("send homework", ({to, sendHomework}) => {
         // console.log(to._id);
         socket.to(to._id).emit("sent homework", {...to, sendHomework: sendHomework});
-    })
+    });
 
     socket.on('disconnect', (reason) => {
         // console.log(socket);
