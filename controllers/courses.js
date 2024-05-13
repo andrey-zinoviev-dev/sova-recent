@@ -343,7 +343,19 @@ const createCourse = (req, res, next) => {
   })
 };
 
-
+const deleteCourse = (req, res, next) => {
+    const { courseID } = req.params;
+    Courses.findByIdAndDelete(courseID)
+    .then((result) => {
+      if(!result) {
+        throw new Error("Курс не найден");
+      }
+      return res.status(200).send({courseId: result._id})
+    })
+    .catch((err) => {
+      next({codeStatus: 400, message: err.message})
+    })
+};
 
 const editCourse = (req, res) => {
   // console.log(req.files);
@@ -1274,6 +1286,7 @@ module.exports = {
   getCourse,
   findCourse,
   createCourse,
+  deleteCourse,
   editCourseTitle,
   editCourseDesc,
   editCourseCover,
