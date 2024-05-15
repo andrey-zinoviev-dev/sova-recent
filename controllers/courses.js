@@ -171,9 +171,6 @@ const createCourse = (req, res, next) => {
       return Promise.all((students.map((student) => {
         return User.findOne({email: student.email})
       .then((doc) => {
-        console.log(students.filter((studentsEl) => {
-          return studentsEl.email === "anna.foxy.lady@gmail.com"; 
-        }))
         if(!doc) {
           const generatedPassword = generatePassword(10, false);
           return bcrypt.hash(generatedPassword, 10)
@@ -182,11 +179,7 @@ const createCourse = (req, res, next) => {
               return studentsEl.admin === student.email; 
             }).map((student) => {
               return student.email;
-            }) : student.admin !== "null" ? [student.admin] : students.filter((studentsEl) => {
-              return studentsEl.email === "anna.foxy.lady@gmail.com"; 
-            }).map((student) => {
-              return student.email;
-            }), tarif: student.tarif}]})
+            }) : student.admin !== "null" ? [student.admin] : [], tarif: student.tarif}]})
             .then((newUser) => {
               transporter.sendMail({
                 from: '"Sasha Sova" <admin@sova-courses.site>',
@@ -215,11 +208,7 @@ const createCourse = (req, res, next) => {
                   return studentsEl.admin === student.email; 
                 }).map((student) => {
                   return student.email;
-                }) : student.admin !== 'null' ? [student.admin] : students.filter((studentsEl) => {
-                  return studentsEl.email === "anna.foxy.lady@gmail.com"; 
-                }).map((student) => {
-                  return student.email;
-                })});
+                }) : student.admin !== 'null' ? [student.admin] : []});
                 doc.save();
                 // }
                 return doc._id;
