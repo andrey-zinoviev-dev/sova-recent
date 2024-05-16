@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
-const { requestCourses, getCourse, findCourse, createCourse, deleteCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, getModule, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover, sendEmails } = require('../controllers/courses');
+const { requestCourses, getCourse, findCourse, createCourse, deleteCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, getModule, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover, sendEmails, editLessonTitle, editLessonCover } = require('../controllers/courses');
 const { sendMessage, sendFileInMessage, getMessageFile, getMessagesOfUser } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 const { getUploadUrl, fileUpload } = require("../controllers/upload");
@@ -37,13 +37,16 @@ securedRouter.put('/courses/:id/title', editCourseTitle);
 securedRouter.put('/courses/:id/desc', editCourseDesc);
 securedRouter.put('/courses/:id/cover', upload.single('courseCover'), editCourseCover);
 securedRouter.put('/courses/:id/addModule', upload.array('moduleCover'), addModuleToCourse);
-securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
+// securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
 securedRouter.put('/courses/:id/modules/:moduleId/editModule', upload.array('coverFile'), editModuleFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', upload.array('file'), editLessonContentFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('file'), addLessonToCourse);
 
 securedRouter.put('/courses/:courseID/modules/:moduleID/title', editModuleTitle);
-securedRouter.put('/courses/:courseID/modules/:moduleID/cover', upload.single('moduleCover'), editModuleCover);
+securedRouter.put('/courses/:courseID/modules/:moduleID/cover', editModuleCover);
+
+securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/title', editLessonTitle);
+securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', editLessonCover);
 
 securedRouter.delete('/courses/:courseID/delete', deleteCourse)
 

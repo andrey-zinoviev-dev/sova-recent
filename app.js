@@ -14,12 +14,12 @@ const { secureRoutes } = require('./middlewares/auth');
 
 const { securedRouter } = require('./routes/securedRouter');
 
-const User = require('./models/userModel');
+
 
 const { errorHandler } = require("./middlewares/errorHandler");
 
-// mongoose.connect('mongodb://127.0.0.1:27017/sova')
-mongoose.connect('mongodb://127.0.0.1:27017/test')
+mongoose.connect('mongodb://127.0.0.1:27017/sova')
+// mongoose.connect('mongodb://127.0.0.1:27017/test')
 .catch((err) => {
     console.log(err);
 });

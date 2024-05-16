@@ -420,7 +420,7 @@ const editCourseTitle = (req, res) => {
     }
     doc.name = name;
     doc.save();
-    return res.status(201).send({name: doc.name, message: "Название успешно обновлено!"});
+    return res.status(201).send({name: doc.name});
   })
 };
 
@@ -441,17 +441,36 @@ const editCourseDesc = (req, res) => {
 const editCourseCover = (req, res) => {
   // console.log(req.file);
   const { id } = req.params;
+  const { title } = req.body;
   Courses.findById(id)
   .then((doc) => {
     if(!doc) {
       return;
     }
+
+    doc.cover = {title: title};
+    doc.save();
+
+    return res.status(201).send({coverPath: doc.cover, message: "Обложка успешно обновлена!"});
+
+
+    // const readCommand = new GetObjectCommand({
+    //   Bucket: process.env.BUCKET_NAME,
+    //   Key: title,
+    // });
+
+    // return getSignedUrl(s3, readCommand, {
+    //   expiresIn: 90,
+    // })
+    // .then((url) => {
+    //   console.log(url);
+    // })
     // req.file.originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf-8');
     // console.log(req.file);
-    const newCoverPath = req.file.path.replace('public', 'https://api.sova-courses.site');
-    doc.cover = newCoverPath;
-    doc.save();
-    return res.status(201).send({coverPath: doc.cover, message: "Обложка успешно обновлена!"});
+    // const newCoverPath = req.file.path.replace('public', 'https://api.sova-courses.site');
+    // doc.cover = newCoverPath;
+    // doc.save();
+    // return res.status(201).send({coverPath: doc.cover, message: "Обложка успешно обновлена!"});
   })
 };
 
@@ -477,22 +496,23 @@ const editModuleTitle = (req, res) => {
 
 const editModuleCover = (req, res) => {
   const { courseID, moduleID } = req.params;
-  
+  const { title } = req.body;
   Courses.findById(courseID)
   .then((doc) => {
     if(!doc) {
       return;
     }
+
     // req.file.originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf-8');
-    req.file.path = req.file.path.replace('public', 'https://api.sova-courses.site');
-    // console.log(req.file);
+    // req.file.path = req.file.path.replace('public', 'https://api.sova-courses.site');
+    // // console.log(req.file);
     const updatedModules = doc.modules.map((module) => {
-      return module._id.toString() === moduleID ? {...module, cover: req.file.path} : module;
+      return module._id.toString() === moduleID ? {...module, cover: {title: title}} : module;
     });
 
     doc.modules = updatedModules;
     doc.save();
-    return res.status(201).send({cover: req.file.path, message: "Обложка модуля успешно обновлена!"});
+    return res.status(201).send({cover: {title: title}, message: "Обложка модуля успешно обновлена!"});
   })
 };
 
@@ -800,6 +820,48 @@ const editLessonFromCourse = (req, res) => {
     }
   })
 };
+
+const editLessonTitle = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  const { title } = req.body;
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+
+    // console.log(doc);
+    doc.modules.find((module) => {
+      return module._id.toString() === moduleID
+    }).lessons.find((lesson) => {
+      return lesson._id.toString() === lessonID;
+    }).title = title;
+    doc.save();
+    return res.status(201).send({title: title, message: "Обложка модуля успешно обновлена!"})
+  })
+};
+
+const editLessonCover = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  const { title } = req.body;
+
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+    // console.log(title);
+    const lessonToUpdate = doc.modules.find((module) => {
+      return module._id.toString() === moduleID
+    }).lessons.find((lesson) => {
+      return lesson._id.toString() === lessonID;
+    });
+
+    lessonToUpdate.cover = {title: title};
+    doc.save();
+    return res.status(201).send({title: title, message: "Обложка обновлена"});
+  })
+}
 
 const editLessonContentFromCourse = (req, res) => {
   const { courseID, moduleID, lessonID } = req.params;
@@ -1297,4 +1359,6 @@ module.exports = {
   addLessonToCourse,
   lessonNotification,
   sendEmails,
+  editLessonTitle,
+  editLessonCover,
 }
