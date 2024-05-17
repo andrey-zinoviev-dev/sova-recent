@@ -40,7 +40,7 @@ securedRouter.put('/courses/:id/addModule', upload.array('moduleCover'), addModu
 // securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/cover', upload.array('file'), editLessonFromCourse);
 securedRouter.put('/courses/:id/modules/:moduleId/editModule', upload.array('coverFile'), editModuleFromCourse);
 securedRouter.put('/courses/:courseID/modules/:moduleID/lessons/:lessonID/content', upload.array('file'), editLessonContentFromCourse);
-securedRouter.put('/courses/:courseID/modules/:moduleID', upload.array('file'), addLessonToCourse);
+securedRouter.put('/courses/:courseID/modules/:moduleID', addLessonToCourse);
 
 securedRouter.put('/courses/:courseID/modules/:moduleID/title', editModuleTitle);
 securedRouter.put('/courses/:courseID/modules/:moduleID/cover', editModuleCover);
