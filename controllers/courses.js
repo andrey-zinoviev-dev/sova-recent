@@ -191,7 +191,7 @@ const createCourse = (req, res, next) => {
                     <p>Твой логин- ${student.email}</p>
                     <p>Твой пароль- ${generatedPassword}</p>
                   </div>
-                  <button>
+                  <button style="font-size:20px">
                     <a href="https://sova-courses.site">Присоединиться</a>
                   </button>
                 `
@@ -558,75 +558,82 @@ const getModule = (req, res) => {
   // Courses.find
 }
 
-const addModuleToCourse = (req, res) => {
+const addModuleToCourse = (req, res, next) => {
   // console.log(req.body);
   const { id } = req.params;
-  const { moduleData } = req.body;
-  const parsedModuleData = JSON.parse(moduleData);
+  const { title, cover, lessons, author} = req.body;
+  // const { moduleData } = req.body;
+  // const parsedModuleData = JSON.parse(moduleData);
   // console.log(req.files);
   Courses.findById(id)
   .then((doc) => {
-    console.log(parsedModuleData);
-    // console.log(doc);
     if(!doc) {
-      return;
+      throw new Error("Курс для обновления не найден");
     }
-    const moduleCover = req.files.find((file) => {
-      return file.originalname === parsedModuleData.cover.title;
-    });
-    // parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
-    parsedModuleData.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
+    doc.modules.push({title: title, cover: cover, lessons: lessons, author: author});
+    doc.save();
+    return res.status(201).send({moduleAdded: true});
+    // console.log(parsedModuleData);
+    // // console.log(doc);
+    // if(!doc) {
+    //   return;
+    // }
+    // const moduleCover = req.files.find((file) => {
+    //   return file.originalname === parsedModuleData.cover.title;
+    // });
+    // // parsedModuleData.cover = moduleCover.path.replace('public', 'http://localhost:3000');
+    // parsedModuleData.cover = moduleCover.path.replace('public', 'https://api.sova-courses.site');
 
-    // // parsedModuleData.lessons.forEach((lesson) => {
-    // //   console.log(lesson.content);
-    // // })
+    // // // parsedModuleData.lessons.forEach((lesson) => {
+    // // //   console.log(lesson.content);
+    // // // })
 
-    const updatedLessons = parsedModuleData.lessons.map((lesson) => {
-      const lessonCover = req.files.find((file) => {
-        return file.originalname === lesson.cover.title;
-      });
-      // console.log(lessonCover);
-      const updatedLessonContent = lesson.content.content.map((lessonContent) => {
-        if(lessonContent.type === 'image' || lessonContent.type === 'video') {
-          const lessonFile = req.files.find((lessonFileToSearch) => {
-            return lessonFileToSearch.originalname === lessonContent.attrs.title;
-          });
-          lessonContent.attrs.src = lessonFile.path.replace('public', 'https://api.sova-courses.site');
-          // lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
-          return lessonContent
-        }
-        return lessonContent;
-      });
-      // console.log(updatedLessonContent);
-      // lesson.content.content = updatedLessonContent;
+    // const updatedLessons = parsedModuleData.lessons.map((lesson) => {
+    //   const lessonCover = req.files.find((file) => {
+    //     return file.originalname === lesson.cover.title;
+    //   });
+    //   // console.log(lessonCover);
+    //   const updatedLessonContent = lesson.content.content.map((lessonContent) => {
+    //     if(lessonContent.type === 'image' || lessonContent.type === 'video') {
+    //       const lessonFile = req.files.find((lessonFileToSearch) => {
+    //         return lessonFileToSearch.originalname === lessonContent.attrs.title;
+    //       });
+    //       lessonContent.attrs.src = lessonFile.path.replace('public', 'https://api.sova-courses.site');
+    //       // lessonContent.attrs.src = lessonFile.path.replace('public', 'http://localhost:3000');
+    //       return lessonContent
+    //     }
+    //     return lessonContent;
+    //   });
+    //   // console.log(updatedLessonContent);
+    //   // lesson.content.content = updatedLessonContent;
       
-    //   // if(lesson)
-    //   // const updated
-    //   // if(lesson.content.content.some((elContent) => {
-    //   //   return elContent.type === 'image' || elContent.type ==='video';
-    //   // })) {
-    //   //   const updatedLessonContent = lesson.content.content.map((contentEl) => {
-    //   //     if(contentEl.type === 'image' || contentEl.type === 'video') {
-    //   //       const contentElementFile = req.files.find((file) => {
-    //   //         return file.originalname === contentEl.attrs.title;
-    //   //       });
-    //   //       contentEl.attrs.src = contentElementFile.path.replace('public', 'http://localhost:3000');
-    //   //     };
-    //   //     return contentEl;
-    //   //   });
-    //   //   // lesson.content.cotnent = updatedLessonContent;
-    //   // } 
+    // //   // if(lesson)
+    // //   // const updated
+    // //   // if(lesson.content.content.some((elContent) => {
+    // //   //   return elContent.type === 'image' || elContent.type ==='video';
+    // //   // })) {
+    // //   //   const updatedLessonContent = lesson.content.content.map((contentEl) => {
+    // //   //     if(contentEl.type === 'image' || contentEl.type === 'video') {
+    // //   //       const contentElementFile = req.files.find((file) => {
+    // //   //         return file.originalname === contentEl.attrs.title;
+    // //   //       });
+    // //   //       contentEl.attrs.src = contentElementFile.path.replace('public', 'http://localhost:3000');
+    // //   //     };
+    // //   //     return contentEl;
+    // //   //   });
+    // //   //   // lesson.content.cotnent = updatedLessonContent;
+    // //   // } 
 
-      return {...lesson, cover: lessonCover.path.replace('public', 'https://api.sova-courses.site'), content: {...lesson.content, content: updatedLessonContent}};
-      // return {...lesson, cover: lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
-    });
-
-    parsedModuleData.lessons = updatedLessons;
+    //   return {...lesson, cover: lessonCover.path.replace('public', 'https://api.sova-courses.site'), content: {...lesson.content, content: updatedLessonContent}};
+    //   // return {...lesson, cover: lessonCover.path.replace('public', 'http://localhost:3000'), content: {...lesson.content, content: updatedLessonContent}};
+    // });
 
     // parsedModuleData.lessons = updatedLessons;
-    doc.modules = [...doc.modules, parsedModuleData];
-    doc.save();
-    res.status(201).send(doc);
+
+    // // parsedModuleData.lessons = updatedLessons;
+    // doc.modules = [...doc.modules, parsedModuleData];
+    // doc.save();
+    // res.status(201).send(doc);
   })
 
 }
@@ -865,11 +872,15 @@ const editLessonCover = (req, res) => {
 
 const editLessonContentFromCourse = (req, res) => {
   const { courseID, moduleID, lessonID } = req.params;
-  const { lessonData } = req.body;
+  console.log(req.body);
+  // const { title, cover, content } = req.body;
   // console.log(lessonData);
   Courses.findById(courseID).populate({path: 'modules', populate: { path: 'students'} }).populate({path: 'author'})
   .then((doc) => {
-    const parsedLessonData = JSON.parse(lessonData);
+    if(!doc) {
+      throw new Error("Урока в курсе не найдено");
+    }
+    // const parsedLessonData = JSON.parse(lessonData);
 
     const lessonToUpdate = doc.modules.find((module) => {
       return module._id.toString() === moduleID;
@@ -877,51 +888,51 @@ const editLessonContentFromCourse = (req, res) => {
       return lesson._id.toString() === lessonID;
     });
 
-    if(parsedLessonData.title !== lessonToUpdate.title) {
-      lessonToUpdate.title = parsedLessonData.title;
-    }
-
-    if(parsedLessonData.cover.title) {
-      const coverFile = req.files.find((file) => {
-        return file.originalname === parsedLessonData.cover.title;
-      });
-      // console.log(coverFile);
-      lessonToUpdate.cover = coverFile.path.replace('public', 'https://api.sova-courses.site');
-      // lessonToUpdate.cover = coverFile.path.replace('public', 'http://localhost:3000');
-    }
-
-    if(parsedLessonData.content.content.length !== lessonToUpdate.content.content.length) {
-      const newLessonContent = parsedLessonData.content.content.map((contentEl) => {
-        if(contentEl.type === 'image' || contentEl.type === 'video') {
-          const contentFile = req.files.find((file) => {
-            return file.originalname === contentEl.attrs.title;
-          });
-          // return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'http://localhost:3000') : contentEl.attrs.src}};
-          return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'https://api.sova-courses.site') : contentEl.attrs.src}};
-        };
-
-        return contentEl;
-        
-      });
-      // console.log(newLessonContent);
-      lessonToUpdate.content = {...lessonToUpdate.content, content: newLessonContent};
-    }
+    lessonToUpdate.content = req.body;
     doc.save();
-    return res.status(201).send(doc.modules.find((module) => {
-      return module._id.toString() === moduleID;
-    }));
+    return res.status(201).send({updateContent: true});
+
+    // if(parsedLessonData.title !== lessonToUpdate.title) {
+    //   lessonToUpdate.title = parsedLessonData.title;
+    // }
+
+    // if(parsedLessonData.cover.title) {
+    //   const coverFile = req.files.find((file) => {
+    //     return file.originalname === parsedLessonData.cover.title;
+    //   });
+    //   // console.log(coverFile);
+    //   lessonToUpdate.cover = coverFile.path.replace('public', 'https://api.sova-courses.site');
+    //   // lessonToUpdate.cover = coverFile.path.replace('public', 'http://localhost:3000');
+    // }
+
+    // if(parsedLessonData.content.content.length !== lessonToUpdate.content.content.length) {
+    //   const newLessonContent = parsedLessonData.content.content.map((contentEl) => {
+    //     if(contentEl.type === 'image' || contentEl.type === 'video') {
+    //       const contentFile = req.files.find((file) => {
+    //         return file.originalname === contentEl.attrs.title;
+    //       });
+    //       // return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'http://localhost:3000') : contentEl.attrs.src}};
+    //       return {...contentEl, attrs: {...contentEl.attrs, src: contentFile ? contentFile.path.replace('public', 'https://api.sova-courses.site') : contentEl.attrs.src}};
+    //     };
+
+    //     return contentEl;
+        
+    //   });
+    //   // console.log(newLessonContent);
+    //   lessonToUpdate.content = {...lessonToUpdate.content, content: newLessonContent};
+    // }
+    // doc.save();
+    // return res.status(201).send(doc.modules.find((module) => {
+    //   return module._id.toString() === moduleID;
+    // }));
   })
 };
 
 const addLessonToCourse = (req, res) => {
   const { courseID, moduleID } = req.params;
-
-  // console.log(req.body);
-  // const parsedLessonData = JSON.parse(req.body.lessonData);
-  // console.log(req.files);
+  
   Courses.findById(courseID).populate({path: 'modules', populate: { path: 'students'} }).populate({path: 'author'})
   .then((doc) => {
-    // console.log(doc);
     const moduleToUpdate = doc.modules.find((module) => {
       return module._id.toString() === moduleID;
     });
@@ -929,43 +940,6 @@ const addLessonToCourse = (req, res) => {
     moduleToUpdate.lessons.push(req.body);
     doc.save();
     return res.status(201).send({addedLesson: true});
-
-    // const lessonCoverFile = req.files.find((file) => {
-    //   return file.originalname === parsedLessonData.cover.title;
-    // });
-
-    // const updatedContent = parsedLessonData.content.content.map((element) => {
-    //   return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
-    //         return file.originalname.includes(element.attrs.title);
-    //   }).path.replace('public', 'https://api.sova-courses.site')}} : element;
-    //   // return element.type === 'image' || element.type === 'video' ? {...element, attrs: {...element.attrs, src: req.files.find((file) => {
-    //   //   return file.originalname.includes(element.attrs.title);
-    //   // }).path.replace('public', 'http://localhost:3000')}} : element;
-
-    // });
-
-    // moduleToUpdate.lessons = [...moduleToUpdate.lessons, {title: parsedLessonData.title, cover: lessonCoverFile.path.replace('public', 'https://api.sova-courses.site'), content: {...parsedLessonData.content, content: updatedContent}}];
-    // // moduleToUpdate.lessons = [...moduleToUpdate.lessons, {title: parsedLessonData.title, cover: lessonCoverFile.path.replace('public', 'http://localhost:3000'), content: {...parsedLessonData.content, content: updatedContent}}];
-
-    // doc.save();
-    // return res.status(201).send(moduleToUpdate);
-    // // // console.log(updatedContent);
-
-    // // if(cover.title) {
-    // //   const fileToInsert = req.files.find((file) => {
-    // //     return file.originalname === cover.title;
-    // //   });
-
-    // //   // console.log(fileToInsert);
-    // // //   // console.log(updatedContent);
-    // //   const updatedModules = doc.modules.map((module) => {
-    // //     return module._id.toString() === moduleID ? {...module, lessons: [...module.lessons, {title: title, cover: fileToInsert.path.replace('public', 'https://api.sova-courses.site'), content: {...content, content: updatedContent}}]} : module;
-    // //   });
-      
-    // //   doc.modules = updatedModules;
-    // //   doc.save();
-    // //   return res.status(201).send(doc);
-    // // }
   })
 }
 
@@ -978,7 +952,7 @@ const deleteModuleFromCourse = (req, res) => {
     });
     doc.modules = filteredModules;
     doc.save();
-    res.status(201).send(doc);
+    res.status(201).send({moduleID: moduleID});
   })
 };
 
@@ -993,9 +967,7 @@ const deleteLessonFromCourse = (req, res) => {
     });
     doc.modules = updatedModules;
     doc.save();
-    res.status(201).send(doc.modules.find((module) => {
-      return module._id.toString() === moduleID;
-    }));
+    res.status(201).send({lessonID: lessonID});
   })
 }
 
@@ -1017,37 +989,48 @@ const getLesson = (req, res, next) => {
       return lesson._id.toString() === lessonID;
     });
 
-    const updatedArray = lesson.content.content.map((el) => {
-      if(el.type === 'image' || el.type === 'video') {
-        const readCommand = new GetObjectCommand({
-          Bucket: process.env.BUCKET_NAME,
-          Key: el.attrs.title,
-        });
-        return getSignedUrl(s3, readCommand, { expiresIn: 60 })
-        .then((url) => {
-          // console.log(url);
-          el.attrs.src = url;
-          return el;
-        })
-        .catch((err) => {
-          throw new Error("Не найдены файлы урока");
-        })
-      } 
-      else {
-        return new Promise(function(resolve, reject) {
-          resolve(el);
-        })
-        .then((data) => {
-          return data;
-        })
-      }
-
+    const readCoverCommand = new GetObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: lesson.cover.title,
     });
 
-    Promise.all(updatedArray)
-    .then((data) => {
-      lesson.content.content = data;
-      res.status(200).send({students: course.students, author: course.author, module, lesson}); 
+    return getSignedUrl(s3, readCoverCommand, {
+      expiresIn: 90
+    })
+    .then((coverUrl) => {
+      lesson.cover.path = coverUrl;
+      const updatedArray = lesson.content.content.map((el) => {
+        if(el.type === 'image' || el.type === 'video') {
+          const readCommand = new GetObjectCommand({
+            Bucket: process.env.BUCKET_NAME,
+            Key: el.attrs.title,
+          });
+          return getSignedUrl(s3, readCommand, { expiresIn: 60 })
+          .then((url) => {
+            // console.log(url);
+            el.attrs.src = url;
+            return el;
+          })
+          .catch((err) => {
+            throw new Error("Не найдены файлы урока");
+          })
+        } 
+        else {
+          return new Promise(function(resolve, reject) {
+            resolve(el);
+          })
+          .then((data) => {
+            return data;
+          })
+        }
+  
+      });
+  
+      Promise.all(updatedArray)
+      .then((data) => {
+        lesson.content.content = data;
+        res.status(200).send({students: course.students, author: course.author, module, lesson}); 
+      })
     })
     .catch((err) => {
       next({codeStatus: 400, message: err.message})
@@ -1340,6 +1323,61 @@ const sendEmails = (req, res, next) => {
   // })
 }
 
+const sendHomeworkEmail = (req, res) => {
+  const { courseID, moduleID, lessonID } = req.params;
+  const { admin, receiver, homework } = req.body;
+
+  Courses.findById(courseID)
+  .then((doc) => {
+    if(!doc) {
+      return;
+    }
+
+    const lesson = doc.modules.find((module) => {
+      return module._id.toString() === moduleID;
+    }).lessons.find((lesson) => {
+      return lesson._id.toString();
+    });
+
+    console.log(lesson);
+    if(admin) {
+      transporter.sendMail({
+        from: `"Sasha Sova" <admin@sova-courses.site>`,
+        to: receiver,
+        subject: `Задание урока ${lesson.title}`,
+        html: `
+          <h1>Твой куратор проверил твое задание!</h1>
+          <p>Посмотри результат</p>
+          <button style="font-size:20px">
+            <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
+          </button>
+        `
+      })
+      .then((result) => {
+        return res.status(201).send({emailSent: true});
+      })
+    } else {
+      transporter.sendMail({
+        from: `"Sasha Sova" <admin@sova-courses.site>`,
+        to: receiver,
+        subject: `Задание урока ${lesson.title}`,
+        html: `
+          <h1>Твой ученик отправил задание на проверку!</h1>
+          <p>Посмотри его</p>
+          <button style="font-size:20px">
+            <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
+          </button>
+        `
+      })
+      .then((result) => {
+        return res.status(201).send({emailSent: true});
+      })
+    }
+  })
+
+
+}
+
 module.exports = {
   requestCourses,
   // redirectToCourse,
@@ -1367,4 +1405,5 @@ module.exports = {
   sendEmails,
   editLessonTitle,
   editLessonCover,
+  sendHomeworkEmail
 }

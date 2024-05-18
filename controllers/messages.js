@@ -303,9 +303,11 @@ const getMessageFile = (req, res) => {
   })
 };
 
+
+
 module.exports = {
   getMessagesOfUser,
   sendMessage,
   sendFileInMessage,
-  getMessageFile
+  getMessageFile,
 }
