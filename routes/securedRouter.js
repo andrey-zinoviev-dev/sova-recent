@@ -64,7 +64,9 @@ securedRouter.post('/messages/files', sendFileInMessage);
 securedRouter.get('/messages/files/:messageID', getMessageFile);
 securedRouter.get('/convos/:userId', getConversations);
 securedRouter.get('/students', getAllStudents);
-securedRouter.put('/courses/:courseID/students', upload.array('usersFile'), addStudentsToCourse);
+
+securedRouter.put('/courses/:courseID/students', addStudentsToCourse);
+
 securedRouter.post('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
 
 securedRouter.post('/homeworkEmail/:courseID/:moduleID/:lessonID', sendHomeworkEmail)
