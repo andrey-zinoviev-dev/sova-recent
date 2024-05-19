@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .email {
+      background-color: #100f13;
+      color: white;
+      width: 100%;
+      height: 100%;
+    }
+    .container {
+      max-width: 1024px;
+      margin: 0 auto;
+    }
+    /* a {
+      color: white;
+    } */
+  </style>
+  <title><% if(admin) { %>
+    Проверка задания
+    <%} else { %>
+      Задание на проверку
+    <% } %>
+  </title>
+</head>
+<body>
+  <main class="email">
+    <section >
+      <div class="container">
+
+      </div>
+        <% if(admin) { %>
+            <h1>Твой куратор проверил твое задание!</h1>
+            <p>Посмотри результат</p>
+            <button style="font-size:20px">
+              <a href="<%= link %>">Открыть урок</a>
+            </button>
+        <%} else { %>
+            <h1>Твой ученик отправил задание на проверку!</h1>
+            <p>Посмотри его</p>
+            <button style="font-size:20px">
+              <a href="<%= link %>">Открыть урок</a>
+            </button>
+        <%} %>
+        <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/IBcUkTXAwbw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+    </section>
+</main>
+</body>
+</html>

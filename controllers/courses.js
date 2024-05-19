@@ -2,12 +2,14 @@
 // const fs = require("fs");
 const { Courses, lessonModules } = require('../models/courseModel');
 const bcrypt = require('bcrypt');
-const { getMessagesOfUser } = require('./messages');
+// const { getMessagesOfUser } = require('./messages');
 const User = require('../models/userModel');
-const CSVToJSON = require('csvtojson');
+// const CSVToJSON = require('csvtojson');
 const nodemailer = require('nodemailer');
+const ejs = require("ejs");
+const path = require("path");
 
-const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const transporter = nodemailer.createTransport({
@@ -18,7 +20,8 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: 'admin@sova-courses.site',
         pass: "testpassword",
-    }
+    },
+    
 });
 
 const dotenv = require("dotenv");
@@ -186,7 +189,7 @@ const createCourse = (req, res, next) => {
                 to: student.email,
                 subject: 'Добро пожаловать на платформу Саши Совы!',
                 html: `
-                  <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
+                  <h1> Саша Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
                   <div>
                     <p>Твой логин- ${student.email}</p>
                     <p>Твой пароль- ${generatedPassword}</p>
@@ -1342,41 +1345,46 @@ const sendHomeworkEmail = (req, res) => {
     }).lessons.find((lesson) => {
       return lesson._id.toString();
     });
+    // console.log(path.join(__dirname, '../views/homework.ejs'));
 
-    console.log(lesson);
     if(admin) {
-      transporter.sendMail({
-        from: `"Sasha Sova" <admin@sova-courses.site>`,
-        to: receiver,
-        subject: `Задание урока ${lesson.title}`,
-        html: `
-          <h1>Твой куратор проверил твое задание!</h1>
-          <p>Посмотри результат</p>
-          <button style="font-size:20px">
-            <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
-          </button>
-        `
-      })
-      .then((result) => {
-        return res.status(201).send({emailSent: true});
-      })
-    } else {
-      transporter.sendMail({
-        from: `"Sasha Sova" <admin@sova-courses.site>`,
-        to: receiver,
-        subject: `Задание урока ${lesson.title}`,
-        html: `
-          <h1>Твой ученик отправил задание на проверку!</h1>
-          <p>Посмотри его</p>
-          <button style="font-size:20px">
-            <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
-          </button>
-        `
-      })
-      .then((result) => {
-        return res.status(201).send({emailSent: true});
-      })
-    }
+          transporter.sendMail({
+            from: `"Sasha Sova" <admin@sova-courses.site>`,
+            // to: receiver,
+            to: "sttrog_810@mail.ru",
+            subject: `Задание урока ${lesson.title}`,
+           
+            html: `
+              <h1>Твой куратор проверил твое задание!</h1>
+              <p>Посмотри результат</p>
+              <button style="font-size:20px">
+                <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
+              </button>
+            `
+          })
+          .then((result) => {
+            return res.status(201).send({emailSent: true});
+          })
+        } else {
+          transporter.sendMail({
+            from: `"Sasha Sova" <admin@sova-courses.site>`,
+            // to: receiver,
+            to: "sttrog_810@mail.ru",
+            subject: `Задание урока ${lesson.title}`,
+          
+            html: `
+              <h1>Твой ученик отправил задание на проверку!</h1>
+              <p>Посмотри его</p>
+              <button style="font-size:20px">
+                <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
+              </button>
+            `
+          })
+          .then((result) => {
+            return res.status(201).send({emailSent: true});
+          })
+        }
+    
   })
 
 

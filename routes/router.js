@@ -8,7 +8,7 @@ const router = express();
 router.post('/login', login);
 // router.post('/register', register);
 router.post('/email', chechUserByEmail);
-router.put('/newPassword', changeUserPassword)
+router.put('/newPassword', changeUserPassword);
 
 module.exports = {
     router,
