@@ -1004,7 +1004,7 @@ const getLesson = (req, res, next) => {
             Bucket: process.env.BUCKET_NAME,
             Key: el.attrs.title,
           });
-          return getSignedUrl(s3, readCommand, { expiresIn: 60 })
+          return getSignedUrl(s3, readCommand, { expiresIn: 3600 })
           .then((url) => {
             // console.log(url);
             el.attrs.src = url;
