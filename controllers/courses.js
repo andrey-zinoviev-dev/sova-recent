@@ -1328,7 +1328,7 @@ const sendEmails = (req, res, next) => {
 
 const sendHomeworkEmail = (req, res) => {
   const { courseID, moduleID, lessonID } = req.params;
-  const { admin, receiver, homework } = req.body;
+  const { admin, receiver, sender, homework } = req.body;
 
   Courses.findById(courseID)
   .then((doc) => {
@@ -1343,7 +1343,7 @@ const sendHomeworkEmail = (req, res) => {
     });
     // console.log(path.join(__dirname, '../views/homework.ejs'));
 
-    ejs.renderFile(path.join(__dirname, "../views/homework.ejs"), {admin: admin, link: `https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}`}, (err, data) => {
+    ejs.renderFile(path.join(__dirname, "../views/homework.ejs"), {admin: admin, link: `https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}?contactId=${sender}`}, (err, data) => {
       if(admin) {
         transporter.sendMail({
           from: `"Sasha Sova" <admin@sova-courses.site>`,
