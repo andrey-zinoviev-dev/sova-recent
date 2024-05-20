@@ -171,6 +171,7 @@ const createCourse = (req, res, next) => {
         throw new Error("Что-то при создании курса пошло не так, попробуйте еще раз");
       }
 
+
       return Promise.all((students.map((student) => {
         return User.findOne({email: student.email})
       .then((doc) => {
@@ -184,21 +185,16 @@ const createCourse = (req, res, next) => {
               return student.email;
             }) : student.admin !== "null" ? [student.admin] : [], tarif: student.tarif}]})
             .then((newUser) => {
-              transporter.sendMail({
-                from: '"Sasha Sova" <admin@sova-courses.site>',
-                to: student.email,
-                subject: 'Добро пожаловать на платформу Саши Совы!',
-                html: `
-                  <h1> Саша Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
-                  <div>
-                    <p>Твой логин- ${student.email}</p>
-                    <p>Твой пароль- ${generatedPassword}</p>
-                  </div>
-                  <button style="font-size:20px">
-                    <a href="https://sova-courses.site">Присоединиться</a>
-                  </button>
-                `
+              ejs.renderFile(path.join(__dirname,"../views/welcome.ejs"), {course: course.name, email: newUser.email, password: generatedPassword}, (err, data) => {
+                transporter.sendMail({
+                  from: '"Sasha Sova" <admin@sova-courses.site>',
+                  to: student.email,
+                  subject: 'Добро пожаловать на платформу Саши Совы!',
+                  html: data,
+                })
               })
+
+
               return newUser._id;
             })
           })
@@ -1347,43 +1343,31 @@ const sendHomeworkEmail = (req, res) => {
     });
     // console.log(path.join(__dirname, '../views/homework.ejs'));
 
-    if(admin) {
-          transporter.sendMail({
-            from: `"Sasha Sova" <admin@sova-courses.site>`,
-            // to: receiver,
-            to: "sttrog_810@mail.ru",
-            subject: `Задание урока ${lesson.title}`,
-           
-            html: `
-              <h1>Твой куратор проверил твое задание!</h1>
-              <p>Посмотри результат</p>
-              <button style="font-size:20px">
-                <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
-              </button>
-            `
-          })
-          .then((result) => {
-            return res.status(201).send({emailSent: true});
-          })
-        } else {
-          transporter.sendMail({
-            from: `"Sasha Sova" <admin@sova-courses.site>`,
-            // to: receiver,
-            to: "sttrog_810@mail.ru",
-            subject: `Задание урока ${lesson.title}`,
-          
-            html: `
-              <h1>Твой ученик отправил задание на проверку!</h1>
-              <p>Посмотри его</p>
-              <button style="font-size:20px">
-                <a href=https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}>Открыть урок</a>
-              </button>
-            `
-          })
-          .then((result) => {
-            return res.status(201).send({emailSent: true});
-          })
-        }
+    ejs.renderFile(path.join(__dirname, "../views/homework.ejs"), {admin: admin, link: `https://sova-courses.site/courses/${courseID}/modules/${moduleID}/lessons/${lessonID}`}, (err, data) => {
+      if(admin) {
+        transporter.sendMail({
+          from: `"Sasha Sova" <admin@sova-courses.site>`,
+          to: receiver,
+          subject: `Задание урока ${lesson.title}`,
+          html: data,
+        })
+        .then((result) => {
+          return res.status(201).send({emailSent: true});
+        })
+      } else {
+        transporter.sendMail({
+          from: `"Sasha Sova" <admin@sova-courses.site>`,
+          to: receiver,
+          subject: `Задание урока ${lesson.title}`,
+          html: data,
+        })
+        .then((result) => {
+          return res.status(201).send({emailSent: true});
+        })
+      }
+    })
+
+    
     
   })
 
