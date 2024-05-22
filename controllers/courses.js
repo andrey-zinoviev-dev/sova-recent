@@ -1294,36 +1294,22 @@ const lessonNotification = (req, res) => {
 };
 
 const sendEmails = (req, res, next) => {
-  // const { courseId } = req.params;
   const { message, users, courseName } = req.body;
-  users.forEach((user) => {
-    transporter.sendMail({
-      from: '"Sasha Sova" <admin@sova-courses.site>',
-      to: user.email,
-      subject: `Новости о курсе ${courseName}`,
-      html: `
-          <h1>Обновление на курсе ${courseName}</h1>
-          <div>
-            <p>${message}</p>
-          </div>
 
-      `
+  ejs.renderFile(path.join(__dirname, "../views/newsletter.ejs"), {message: message}, (err, data) => {
+
+    return Promise.all(users.map((user) => {
+      return transporter.sendMail({
+        from: '"Sasha Sova" <admin@sova-courses.site>',
+        to: user.email,
+        subject: `Новости о курсе ${courseName}`,
+        html: data,
+      })
+    }))
+    .then(() => {
+      return res.status(201).send({message: "Уведомление отправлено"});
     })
   })
-  res.status(201).send({message: "Уведомление отправлено"});
-  // Courses.findById(courseId)
-  // .then((doc) => {
-  //   if(!doc) {
-  //     throw new Error("Курс уже существует");
-  //   }
-  //   const messageRecepients = [];
-  //   tarifs.forEach((tarif) => {
-
-  //   })
-  // })
-  // .catch((err) => {
-  //   next({codeStatus: 400, message: err.message})
-  // })
 }
 
 const sendHomeworkEmail = (req, res) => {
