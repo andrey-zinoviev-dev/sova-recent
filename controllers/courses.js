@@ -1098,10 +1098,141 @@ const getLesson = (req, res, next) => {
 const addStudentsToCourse = (req, res) => {
   const { courseID } = req.params;
   const { students } = req.body;
-
+  // console.log(courseID);
   Courses.findById(courseID).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"})
   .then((foundCourse) => {
-    console.log(students);
+    // console.log(students);
+    Promise.all(students.map((student) => {
+      return User.findOne({email: student.email})
+      .then((user) => {
+        if(!user) {
+          console.log("create new user and add to existing course");
+          const generatedPassword = generatePassword(10, false);
+          return bcrypt.hash(generatedPassword, 10)
+          .then((hash) => {
+            // console.log(hash);
+            return User.create({email: student.email, password: hash, name: student.name, admin: false, courses: [{id: foundCourse._id, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+              return studentsEl.admin === student.email; 
+            }).map((student) => {
+              return student.email;
+            }) : student.admin !== "null" ? [student.admin] : [], tarif: student.tarif}]})
+            .then((doc) => {
+              ejs.renderFile(path.join(__dirname,"../views/welcome.ejs"), {course: foundCourse.name, email: doc.email, password: generatedPassword}, (err, data) => {
+                transporter.sendMail({
+                  from: '"Sasha Sova" <admin@sova-courses.site>',
+                  to: student.email,
+                  subject: 'Добро пожаловать на платформу Саши Совы!',
+                  html: data,
+                })
+              })
+              return doc._id;
+            })
+            // return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: foundCourse._id, tarif: user.tarif}]})
+          })
+        }
+        else {
+          // console.log(user);
+          if(student.tarif === 'admin') {
+            // console.log(user);
+            const courseToUpdate = user.courses.find((course) => {
+              return course.id.toString() === courseID;
+            });
+            
+            if(courseToUpdate) {           
+              user.courses = user.courses.map((course) => {
+                return course.id.toString() === courseID ? {...course, contacts: [...course.contacts, ...students.filter((studentsEl) => {
+                  return studentsEl.admin === student.email; 
+                }).map((student) => {
+                  return student.email;
+                })]} : course;
+              }); 
+
+              user.save();
+              return null;
+            } else {
+              user.courses = [...user.courses, {id: foundCourse._id, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+                  return studentsEl.admin === student.email; 
+                }).map((student) => {
+                  return student.email;
+                })
+                :
+                student.admin !== "null" ? [student.admin] : [], tarif: student.tarif
+              }];
+              user.save();
+              return user._id;
+            }
+
+          } else {
+            user.courses = [...user.courses, {id: foundCourse._id, contacts: student.admin !== "null" ? [student.admin] : [], tarif: student.tarif}];
+            user.save();
+            return user._id;
+          }
+          // const userCourse = user.courses.find((course) => {
+          //   return course.id.toString() === courseID;
+          // });
+
+          // if(!userCourse) {
+          //   // console.log("add existing user to new course");
+          //     user.courses = [...user.courses, {id: foundCourse._id, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+          //       return studentsEl.admin === student.email; 
+          //     }).map((student) => {
+          //       return student.email;
+          //     })
+          //     :
+          //     student.admin !== "null" ? [student.admin] : [], tarif: student.tarif
+          //   }];
+          //   user.save();
+          //   return user._id;
+          // } 
+
+          // // doc.save()
+          // else {
+          //   if(student.tarif === 'admin') {
+
+          //     console.log(userCourse.contacts);
+              
+              
+          //     // const finalStudents = students.filter((studentsEl) => {
+          //     //   return studentsEl.admin === student.email && !userCourse.contacts.find((originalContact) => {
+          //     //     return originalContact === studentsEl.email;
+          //     //   }); 
+          //     // }).map((student) => {
+          //     //   return student.email;
+          //     // });
+          //     // console.log(finalStudents);
+          //     user.courses = user.courses.map((course) => {
+          //       return course.id.toString() === courseID ? {...course, contacts: [...course.contacts, ...students.filter((studentsEl) => {
+          //         return studentsEl.admin === student.email && !userCourse.contacts.find((contact) => {
+          //           return contact === studentsEl.email;
+          //         }); 
+          //       }).map((student) => {
+          //         return student.email;
+          //       })]} : course;
+          //     });
+          //     user.save();
+          //     return user._id;
+          //   }
+          // }
+          // :
+          // console.log
+        }
+      })
+    }))
+    .then((data) => {
+      
+      // console.log(foundCourse.students, data);
+      // console.log(students);
+      const finalStudents = data.filter((finalStudent) => {
+        return finalStudent && !foundCourse.students.find((student) => {
+          return student.toString() === finalStudent.toString();
+        })
+      });
+
+      foundCourse.students = [...foundCourse.students, ...finalStudents];
+      // console.log(foundCourse.students);
+      foundCourse.save();
+      return res.status(201).send({students: foundCourse.students.length});
+    })
     // console.log(foundCourse);
     // CSVToJSON().fromFile(req.files.pop().path)
     // .then((data) => {
