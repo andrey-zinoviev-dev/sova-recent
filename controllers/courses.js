@@ -998,8 +998,9 @@ const getLesson = (req, res, next) => {
     })
     .then((coverUrl) => {
       lesson.cover.path = coverUrl;
+      // console.log(lesson.content.content);
       const updatedArray = lesson.content.content.map((el) => {
-        if(el.type === 'image' || el.type === 'video') {
+        if(el.type === 'image' || el.type === 'video' || el.type === 'audio') {
           const readCommand = new GetObjectCommand({
             Bucket: process.env.BUCKET_NAME,
             Key: el.attrs.title,
@@ -1027,6 +1028,7 @@ const getLesson = (req, res, next) => {
   
       Promise.all(updatedArray)
       .then((data) => {
+        // console.log(data);
         lesson.content.content = data;
         res.status(200).send({students: course.students, author: course.author, module, lesson}); 
       })
