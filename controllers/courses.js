@@ -41,7 +41,9 @@ const s3 = new S3Client({
 
 const requestCourses = (req, res, next) => {
   // console.log(req.user);
-  Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+  // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+  
+  Courses.find({}).populate({path: 'author'}).populate({path: 'students'})
   .then((docs) => {
     // console.log(docs);
     if(!docs) {
@@ -49,6 +51,8 @@ const requestCourses = (req, res, next) => {
         message: "Курсы не найдены"
       });
     }
+
+    // console.log(docs);
     const coversToRead = docs.map((doc) => {
       const readCommand = new GetObjectCommand({
         Bucket: process.env.BUCKET_NAME,
@@ -64,13 +68,15 @@ const requestCourses = (req, res, next) => {
     });
     Promise.all(coversToRead)
     .then((covers) => {
+      console.log(docs);
       // console.log(covers);
       return res.status(200).send(docs);
     })
     .catch((err) => {
+      // console.log(err);
       next({codeStatus: 401, message: err.message})
     })
-    // console.log(docs);
+    console.log(docs);
     
   });
 };
@@ -144,15 +150,16 @@ const findCourse = (req, res, next) => {
 const createCourse = (req, res, next) => {
   // console.log(req.body);
   const {courseData, author} = req.body;
-  // console.log(courseData);
-  const { course, modules, tarifs, students } = courseData;
+  console.log(courseData);
+  console.log(author);
+  // const { course, modules, tarifs, students } = courseData;
   // console.log(students);
   // const { course } = courseData;
   // const { _id } = JSON.parse(author);
   // console.log(_id);
   // const {course, modules, tarifs, students} = JSON.parse(courseData);
   
-  Courses.findOne({name: course.name})
+  Courses.findOne({name: courseData.name})
   .then((doc) => {
     // console.log(doc);
   //   // modules.forEach((module) => {
@@ -163,29 +170,26 @@ const createCourse = (req, res, next) => {
       throw new Error("Курс уже существует");
     } 
 
-    return Courses.create({name: course.name, description: course.description, author: author._id, modules: modules.map((module) => {
-      return {...module, title: module.name, cover: module.cover, author: author}
-    }), cover: course.cover, tarifs: tarifs ? tarifs : [], students: []})
+    return Courses.create({name: courseData.name, description: courseData.description, author: author._id, modules: [], cover: courseData.cover, tarifs: courseData.tarifs ? courseData.tarifs : [], students: []})
     .then((createdCourse) => {
       if(!createdCourse) {
         throw new Error("Что-то при создании курса пошло не так, попробуйте еще раз");
       }
 
-
-      return Promise.all((students.map((student) => {
+      return Promise.all((courseData.students.map((student) => {
         return User.findOne({email: student.email})
       .then((doc) => {
         if(!doc) {
           const generatedPassword = generatePassword(10, false);
           return bcrypt.hash(generatedPassword, 10)
           .then((hash) => {
-            return User.create({email: student.email, password: hash, name: student.name, admin: false, courses: [{id: createdCourse._id, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+            return User.create({email: student.email, password: hash, name: student.name, admin: false, courses: [{id: createdCourse._id, contacts: student.tarif === "admin" ? courseData.students.filter((studentsEl) => {
               return studentsEl.admin === student.email; 
             }).map((student) => {
               return student.email;
             }) : student.admin !== "null" ? [student.admin] : [], tarif: student.tarif}]})
             .then((newUser) => {
-              ejs.renderFile(path.join(__dirname,"../views/welcome.ejs"), {course: course.name, email: newUser.email, password: generatedPassword}, (err, data) => {
+              ejs.renderFile(path.join(__dirname,"../views/welcome.ejs"), {course: courseData.name, email: newUser.email, password: generatedPassword}, (err, data) => {
                 transporter.sendMail({
                   from: '"Sasha Sova" <admin@sova-courses.site>',
                   to: student.email,
@@ -199,11 +203,7 @@ const createCourse = (req, res, next) => {
             })
           })
         } else {
-                // doc.courses = 
-                // if(!doc.courses.find((course) => {
-                //   return course.id.toString() === foundCourse._id.toString();
-                // })) {
-                doc.courses.push({id: createdCourse._id, tarif: student.tarif, contacts: student.tarif === "admin" ? students.filter((studentsEl) => {
+                doc.courses.push({id: createdCourse._id, tarif: student.tarif, contacts: student.tarif === "admin" ? courseData.students.filter((studentsEl) => {
                   return studentsEl.admin === student.email; 
                 }).map((student) => {
                   return student.email;
@@ -217,120 +217,18 @@ const createCourse = (req, res, next) => {
       .then((createdStudents) => {
         createdCourse.students = createdStudents;
         createdCourse.save();
-        return res.status(201).send({course: createdCourse});
+        return res.status(201).send({courseCreated: true});
       })
       .catch((err) => {
 
       });
-
-      // return res.status(201).send({course: data});
     })
     .catch((err) => {
       next({codeStatus: 500, message: err.message});
     })
-
-   
-
-
-
-  //   // const fileUploadCommands = req.files.map((file) => {
-  //   //     const uploadCommand = new PutObjectCommand({
-  //   //           Bucket: process.env.BUCKET_NAME,
-  //   //           Key: file.originalname,
-  //   //           Body: file.buffer,
-  //   //           ContentType: file.mimetype
-  //   //     });
-        
-  //   //     return s3.send(uploadCommand)
-  //   //         // .then((sentFile) => {
-  //   //         //   console.log(sentFile);
-  //   //         // })
-  //   //   })
-    
-
-
-
-  //   // Promise.all(fileUploadCommands)
-  //   // .then((data) => {
-  //   //   Courses.create({name: course.name, description: course.description, author: _id, modules: modules.map((module) => {
-  //   //     return {...module, title: module.name, cover: module.cover, author: JSON.parse(author)}
-  //   //   }), cover: course.cover, tarifs: tarifs, students: []})
-  //   //   .then((createdCourse) => {
-  //   //     // return res.status(201).send(createdCourse); 
-  //   //     //create users
-  //   //     const studentsAdded = students.map((user) => {
-  //   //       return User.findOne({email: user.email})
-  //   //       .then((doc) => {
-  //   //         if(!doc) {
-  //   //           const generatedPassword = generatePassword(10, false);
-  //   //           return bcrypt.hash(generatedPassword, 10)
-  //   //           .then((hash) => {
-  //   //             return User.create({email: user.email, password: hash, name: user.name, admin: false, courses: [{id: createdCourse._id, tarif: user.tarif}]})
-  //   //             .then((newUser) => {
-  //   //               transporter.sendMail({
-  //   //                 from: '"Sasha Sova" <admin@sova-courses.site>',
-  //   //                 to: user.email,
-  //   //                 subject: 'Добро пожаловать на платформу Саши Совы!',
-  //   //                 html: `
-  //   //                     <h1>Сова тебя приветствует на курсе ${createdCourse.name}!</h1>
-  //   //                     <div>
-  //   //                         <p>Твой логин- ${user.email}</p>
-  //   //                         <p>Твой пароль- ${generatedPassword}</p>
-  //   //                     </div>
-  //   //                     <button>
-  //   //                         <a href="https://sova-courses.site">Присоединиться</a>
-  //   //                     </button>
-  //   //                 `
-  //   //               })
-  //   //               return newUser._id;
-  //   //             })
-  //   //           })
-  //   //         } else {
-  //   //           // doc.courses = 
-  //   //           // if(!doc.courses.find((course) => {
-  //   //           //   return course.id.toString() === foundCourse._id.toString();
-  //   //           // })) {
-  //   //           doc.courses.push({id: createdCourse._id, tarif: user.tarif});
-  //   //           doc.save();
-  //   //           // }
-  //   //           return doc._id;
-  //   //         }
-  //   //       })
-  //   //     });
-
-  //   //     Promise.all(studentsAdded)
-  //   //     .then((value) => {
-  //   //       createdCourse.students = value;
-  //   //       createdCourse.save();
-
-  //   //       User.find({admin: false})
-  //   //       .then((users) => {
-  //   //         users.forEach((user) => {
-  //   //           transporter.sendMail({
-  //   //             from: '"Sasha Sova" <admin@sova-courses.site>',
-  //   //             to: user.email,
-  //   //             subject: `Новый курс: ${course.name}!`,
-  //   //             html: `
-  //   //                 <h1>Появился новый курс ${course.name}!</h1>
-  //   //                 <button>
-  //   //                     <a href="http://localhost:3001/courses/${createdCourse.id.toString()}/modules/${createdCourse.modules[0].id.toString()}/lessons/${createdCourse.modules[0].lessons[0]._id.toString()}">Посмотреть</a>
-  //   //                 </button>
-  //   //             `
-  //   //           })
-  //   //         })
-  //   //       })
-
-  //   //       res.status(201).send(createdCourse);      
-  //   //     })
-
-  //   //   })
-  //   //   .catch((err) => {
-  //   //     next({codeStatus: 400, message: err.message})
-  //   //   })
-  //   // })
   })
   .catch((err) => {
-    next({codeStatus: 400, message: err.message})
+    // next({codeStatus: 400, message: err.message})
   })
 };
 
