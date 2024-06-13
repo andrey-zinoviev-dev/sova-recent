@@ -49,6 +49,10 @@ const courseSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  hidden: {
+    type: Boolean,
+    default: true,
+  },
   modules: [
     new mongoose.Schema({
       title: String,

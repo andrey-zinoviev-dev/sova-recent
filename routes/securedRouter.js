@@ -69,7 +69,9 @@ securedRouter.put('/courses/:courseID/students', addStudentsToCourse);
 
 securedRouter.post('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notification', lessonNotification);
 
-securedRouter.post('/homeworkEmail/:courseID/:moduleID/:lessonID', sendHomeworkEmail)
+securedRouter.post('/homeworkEmail/:courseID/:moduleID/:lessonID', sendHomeworkEmail);
+
+
 
 // securedRouter.post('/initiateUpload', getUploadUrl)
 // securedRouter.post('/uploadFile', upload.single("file"), fileUpload)

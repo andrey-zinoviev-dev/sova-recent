@@ -371,6 +371,10 @@ const editCourseCover = (req, res) => {
   })
 };
 
+const editCourseHidden = (req, res) => {
+  
+}
+
 const editModuleTitle = (req, res) => {
   
   const { courseID, moduleID } = req.params;
