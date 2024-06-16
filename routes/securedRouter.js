@@ -1,7 +1,7 @@
 const express = require('express');
 const securedRouter = express();
 const { showCurrentUser, redirectToLoggedInPage, getAllStudents, register } = require('../controllers/user');
-const { requestCourses, getCourse, findCourse, createCourse, deleteCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, getModule, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover, sendEmails, editLessonTitle, editLessonCover, sendHomeworkEmail } = require('../controllers/courses');
+const { requestCourses, getCourse, findCourse, createCourse, deleteCourse, editCourseTitle, editCourseDesc, editCourseCover, editCourse, getModule, addModuleToCourse, deleteModuleFromCourse, deleteLessonFromCourse, editModuleFromCourse, editLessonFromCourse, editLessonContentFromCourse, getLesson, addStudentsToCourse, addLessonToCourse, lessonNotification, editModuleTitle, editModuleCover, sendEmails, editLessonTitle, editLessonCover, sendHomeworkEmail, editCourseHidden } = require('../controllers/courses');
 const { sendMessage, sendFileInMessage, getMessageFile, getMessagesOfUser, } = require('../controllers/messages');
 const { getConversations } = require('../controllers/conversations');
 const { getUploadUrl, fileUpload } = require("../controllers/upload");
@@ -71,7 +71,7 @@ securedRouter.post('/courses/:courseID/modules/:moduleID/lessons/:lessonID/notif
 
 securedRouter.post('/homeworkEmail/:courseID/:moduleID/:lessonID', sendHomeworkEmail);
 
-
+securedRouter.put("/courses/:courseID/render", editCourseHidden)
 
 // securedRouter.post('/initiateUpload', getUploadUrl)
 // securedRouter.post('/uploadFile', upload.single("file"), fileUpload)

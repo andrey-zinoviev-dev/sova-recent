@@ -59,6 +59,7 @@ const courseSchema = new mongoose.Schema({
       cover: Object,
       // lessons: Array,
       author: Object,
+      available: Boolean,
       // description: String,
       // layout: Object,
     
@@ -69,6 +70,7 @@ const courseSchema = new mongoose.Schema({
           title: String,
           cover: Object,
           content: Object,
+          available: Boolean,
           // module: Object,
           // module:  {
           //   type: mongoose.Schema.Types.ObjectId, ref: 'module',

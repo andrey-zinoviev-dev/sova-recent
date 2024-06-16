@@ -372,7 +372,38 @@ const editCourseCover = (req, res) => {
 };
 
 const editCourseHidden = (req, res) => {
-  
+  const { courseID } = req.params;
+  const { hidden, moduleID, lessonID } = req.body;
+
+  Courses.findById(courseID).then((doc) => {
+    if(!doc) {
+      throw new Error("Курс не найден");
+    }
+    if(moduleID) {
+      const updatedModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleID ? {...module, available: !hidden} : module;
+      });
+      doc.modules = updatedModules;
+      doc.save();
+      return res.status(201).send({moduleID: moduleID, available: !hidden});
+    }
+    else if (lessonID) {
+      const updatedModules = doc.modules.map((module) => {
+        return module._id.toString() === moduleID ? {...module, lessons: module.lessons.map((lesson) => {
+          return lesson._id.toString() === lessonID ? {...lesson, available: !hidden} : lesson;
+        })} : module;;
+      });
+      doc.modules = updatedModules;
+      doc.save();
+      return res.status(201).send({lessonID: lessonID, hidden: !hidden});
+    } else {
+      doc.hidden = !hidden;
+      doc.save();
+      return res.status(201).send({hidden: doc.hidden});
+    }
+
+  })
+
 }
 
 const editModuleTitle = (req, res) => {
@@ -1409,6 +1440,7 @@ module.exports = {
   editModuleCover,
   editCourse,
   getModule,
+  editCourseHidden,
   addModuleToCourse,
   getLesson,
   addStudentsToCourse,
