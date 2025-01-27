@@ -17,10 +17,14 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    courses: {
-        type: Array,
-        default: [],
-    }
+    courses: [{
+        _id: String,
+        tarif: {
+            name: String,
+            start: String,
+            expire: String,
+        }
+    }],
     // online: {
     //     type: Boolean, 
     //     default: false,

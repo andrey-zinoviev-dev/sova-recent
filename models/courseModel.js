@@ -35,16 +35,23 @@ const courseSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  length: {
-    type: Number,
-  },
-  students: [{
-    // id: String,
-    // name: String,
-    // email: String,
-    // tarif: String,
-    type: mongoose.Schema.Types.ObjectId, ref: "User",
-  }],
+  // length: {
+  //   type: Number,
+  // },
+  // students: [{
+  //   _id: mongoose.Schema.Types.ObjectId, ref: "User",
+  //   tarif: {
+  //     title: String,
+  //     starts: String,
+  //     expires: String,
+  //   }
+  //   // tarif: String,
+  //   // id: String,
+  //   // name: String,
+  //   // email: String,
+  //   // tarif: String,
+  //   // type: mongoose.Schema.Types.ObjectId, ref: "User",
+  // }],
   available: {
     type: Boolean,
     default: true,
@@ -53,41 +60,41 @@ const courseSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  modules: [
-    new mongoose.Schema({
-      title: String,
-      cover: Object,
-      // lessons: Array,
-      author: Object,
-      available: Boolean,
-      // description: String,
-      // layout: Object,
+  // modules: [
+  //   new mongoose.Schema({
+  //     title: String,
+  //     cover: Object,
+  //     // lessons: Array,
+  //     author: Object,
+  //     available: Boolean,
+  //     // description: String,
+  //     // layout: Object,
     
-      // images: [String],
-      // videos: [String],
-      lessons: [
-        new mongoose.Schema({
-          title: String,
-          cover: Object,
-          content: Object,
-          available: Boolean,
-          // module: Object,
-          // module:  {
-          //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
-          // }
-        }),
-      ],
-      // messages: [{
-      //   type: mongoose.Schema.Types.ObjectId, ref: 'Message'
-      // }],
-      course: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'courses',
-      },
-      // students: [
-      //   {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-      // ],
-    }),
-  ],
+  //     // images: [String],
+  //     // videos: [String],
+  //     lessons: [
+  //       new mongoose.Schema({
+  //         title: String,
+  //         cover: Object,
+  //         content: Object,
+  //         available: Boolean,
+  //         // module: Object,
+  //         // module:  {
+  //         //   type: mongoose.Schema.Types.ObjectId, ref: 'module',
+  //         // }
+  //       }),
+  //     ],
+  //     // messages: [{
+  //     //   type: mongoose.Schema.Types.ObjectId, ref: 'Message'
+  //     // }],
+  //     course: {
+  //       type: mongoose.Schema.Types.ObjectId, ref: 'courses',
+  //     },
+  //     // students: [
+  //     //   {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  //     // ],
+  //   }),
+  // ],
   // modules: [{type: mongoose.Schema.Types.ObjectId, ref: 'module'}],
   author: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',

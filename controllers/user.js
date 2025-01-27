@@ -39,182 +39,201 @@ transporter.verify((err, success) => {
 
 const login = (req, res, next) => {
     const {email, password} = req.body;
+
+    // throw new Error("Что-то случилось, проверь сервер")
     
     User.findOne({email: email})
     .then((doc) => {
-        // console.log(doc);
+    //     // console.log(doc);
         if(!doc) {
             throw new Error("Пользователь с такой почтой не найден");
             // return res.status(400).send({
             //     message: "Проверьте почту или пароль",
             // });
         }
-        return bcrypt.compare(password, doc.password)
-        .then((matched) => {
-            // console.log(matched);
-            if(!matched) {
-                // return res.status(400).send({
-                //     message: 'Проверьте почту или пароль',
-                // });
-                throw new Error("Проверьте почту или пароль");
-            }
-            const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
-            //FOR TEST PURPOSES TOKEN GOES TO LOCALSTORAGE, REVERT TO COOKE LATER
-            res.status(200).send({token});
+        return res.status(200).send({})
+    //     return bcrypt.compare(password, doc.password)
+    //     .then((matched) => {
+    //         // console.log(matched);
+    //         if(!matched) {
+    //             // return res.status(400).send({
+    //             //     message: 'Проверьте почту или пароль',
+    //             // });
+    //             throw new Error("Проверьте почту или пароль");
+    //         }
+    //         const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
+    //         //FOR TEST PURPOSES TOKEN GOES TO LOCALSTORAGE, REVERT TO COOKE LATER
+    //         res.status(200).send({token});
 
-            //UNCOMMENT LATER FOR COOKIE AUTH, NOT IN LOCALSTORAGE
-            // return res.cookie('token', token, {httpOnly: true}).status(200).send({
-            //     message: "Успешный вход",
-            // });
-        })
-        // .catch((err) => {
-        //     next({codeStatus: 401, message: err});
-        // })
+    //         //UNCOMMENT LATER FOR COOKIE AUTH, NOT IN LOCALSTORAGE
+    //         // return res.cookie('token', token, {httpOnly: true}).status(200).send({
+    //         //     message: "Успешный вход",
+    //         // });
+    //     })
+    //     // .catch((err) => {
+    //     //     next({codeStatus: 401, message: err});
+    //     // })
     })
     .catch((err) => {
         next({codeStatus: 400, message: err.message});
     })
 };
 
-const register = (req, res) => {
-    const newPasses = [];
-    // console.log(req.files.pop());
-    CSVToJSON().fromFile(req.files.pop().path)
-    .then((users) => {
-        // console.log(users);
-        const modifiedUsers = users.map((user) => {
-            const generatedPassword = generatePassword(10, false);
-            newPasses.push({name: user.name, email: user.email, password: generatedPassword, phone: user.phone, tarif: user.tarif});
-            // return bcrypt.hash(generatedPassword, 10)
-            // .then((hash) => {
 
-            //     // return User.create({email: user.email, password: hash, name: user.name})
-            // })
-            // return {name: user.name, email: user.email, password: generatedPassword, phone: user.phone}
-            // bcrypt.hash(generatedPassword, )
-            return bcrypt.hash(generatedPassword, 10)
-            .then((hash) => {
-                return User.create({email: user.email, password: hash, name: user.name});
-            })
-        });
-
-        // modifiedUsers.forEach((user) => {
-        //     User.create({email: user.email, name: user.name, password: user.password})
-        // })
-        // const usersWithHashedPasses = modifiedUsers.map((userHashed) => {
-        //     return bcrypt.hash(userHashed.password, 10)
-        //     .then((hashedPassword) => {
-        //         return {name: userHashed.name, email: userHashed.email, password: hashedPassword, phone: userHashed.phone};
-        //     })
-        // });
-
-        // Promise.all(usersWithHashedPasses)
-        // .then((finalUsers) => {
-        //     console.log(newPasses);
-        //     finalUsers.forEach((finalUser) => {
-        //         return User.create({email: finalUser.email, name: finalUser.name, password: finalUser.password})
-        //     });
-        //     // return User.create({})
-        // })
-        
-        Promise.all(modifiedUsers)
-        .then((data) => {
-            if(!data) {
-                return;
-            }
-            newPasses.forEach((user) => {
-                transporter.sendMail({
-                    from: 'admin@sova-courses.site',
-                    to: user.email,
-                    subject: 'Добро пожаловать на платформу Саши Совы',
-                    html: `
-                        <h1>Сова тебя приветствует!</h1>
-                        <p>Твой тариф: ${user.tarif}</p>.
-                        <div>
-                            <p>Твой логин- ${user.email}</p>
-                            <p>Твой пароль- ${user.password}</p>
-                        </div>
-                        <button>
-                            <a href="https://sova-courses.site">Присоединиться</a>
-                        </button>
-                    `
-                })
-            });
-            // console.log(newPasses);
-            return res.status(201).send(data);
+const register = (req, res, next) => {
+    const { email, password } = req.body;
+    // console.log("check reg data here")
+    User.findOne({email: email})
+    .then((doc) => {
+        if(doc) {
+            throw new Error("Такой пользователь существует")
+        }
+        return User.create(req.body)
+        .then((createdUser) => {
+            return res.status(201).send(JSON.stringify(createdUser));
         })
-        .catch((err) => {
-            if(err.code === 11000) {
-                res.status(400).send({message: "Кто-то из пользователей уже есть"})
-                // throw new Error('Кто-то из пользователей уже есть на платформе')
-            }
-        })
-       
     })
-    // const { email, password, name, courses } = req.body;
-    // console.log(courses);
-    // return User.findOne({email: email})
-    // .then((doc) => {
-    //     if(doc) {
-    //         return res.status(400).send({message: 'Пользователь существует'});
-    //     }
-    //     return bcrypt.hash(password, 10)
-    //     .then((hash) => {
-    //         return User.create({ email: email, password: hash, name: name, courses: courses})
-    //         .then((doc) => {
-    //             if(!doc) {
-    //                 return;
-    //             }
-    //             console.log(doc);
-    //             const coursesIds = courses.map((course) => {
-    //                 return course._id;
-    //             })
-    //             Courses.updateMany({_id: {$in: coursesIds} }, {
-    //                 $addToSet: {
-    //                     students: doc._id.toString(),
-    //                 }
-    //             })
-    //             .then((docs) => {
-    //                 if(!docs) {
-    //                     return;
-    //                 }
-    //                 const updatedCourses = Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
-    //                 .then((returnedCourses) => {
-    //                     return returnedCourses;
-    //                     // if(!docs) {
-    //                     //     return;
-    //                     // }
-    //                     // res.status(201).send(docs);
-    //                 })
-    //                 const updatedUsers = User.find({admin: false})
-    //                 .then((users) => {
-    //                     return users;
-    //                 })
-    //                 Promise.all([updatedCourses, updatedUsers])
-    //                 .then((values) => {
-    //                     console.log(values);
-    //                     const [returnedCourses, users] = values;
-    //                     if(!returnedCourses || !users) {
-    //                         return
-    //                     }
-    //                     res.status(201).send({courses: returnedCourses, students: users});
-    //                 })
-    //             })
-    //             // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
-    //             // .then((docs) => {
-    //             //     if(!docs) {
-    //             //         return;
-    //             //     }
-    //             //     console.log(docs);
-    //             //     // res.status(201).send(docs);
-    //             // })
+    .catch((err) => {
+        next({codeStatus: 400, message: err.message})
+    })
+    // const newPasses = [];
+    // // console.log(req.files.pop());
+    // CSVToJSON().fromFile(req.files.pop().path)
+    // .then((users) => {
+    //     // console.log(users);
+    //     const modifiedUsers = users.map((user) => {
+    //         const generatedPassword = generatePassword(10, false);
+    //         newPasses.push({name: user.name, email: user.email, password: generatedPassword, phone: user.phone, tarif: user.tarif});
+    //         // return bcrypt.hash(generatedPassword, 10)
+    //         // .then((hash) => {
 
-    //             // const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
-    //             // return res.status(201).send({token});
-    //         }); 
+    //         //     // return User.create({email: user.email, password: hash, name: user.name})
+    //         // })
+    //         // return {name: user.name, email: user.email, password: generatedPassword, phone: user.phone}
+    //         // bcrypt.hash(generatedPassword, )
+    //         return bcrypt.hash(generatedPassword, 10)
+    //         .then((hash) => {
+    //             return User.create({email: user.email, password: hash, name: user.name});
+    //         })
+    //     });
+
+    //     // modifiedUsers.forEach((user) => {
+    //     //     User.create({email: user.email, name: user.name, password: user.password})
+    //     // })
+    //     // const usersWithHashedPasses = modifiedUsers.map((userHashed) => {
+    //     //     return bcrypt.hash(userHashed.password, 10)
+    //     //     .then((hashedPassword) => {
+    //     //         return {name: userHashed.name, email: userHashed.email, password: hashedPassword, phone: userHashed.phone};
+    //     //     })
+    //     // });
+
+    //     // Promise.all(usersWithHashedPasses)
+    //     // .then((finalUsers) => {
+    //     //     console.log(newPasses);
+    //     //     finalUsers.forEach((finalUser) => {
+    //     //         return User.create({email: finalUser.email, name: finalUser.name, password: finalUser.password})
+    //     //     });
+    //     //     // return User.create({})
+    //     // })
+        
+    //     Promise.all(modifiedUsers)
+    //     .then((data) => {
+    //         if(!data) {
+    //             return;
+    //         }
+    //         newPasses.forEach((user) => {
+    //             transporter.sendMail({
+    //                 from: 'admin@sova-courses.site',
+    //                 to: user.email,
+    //                 subject: 'Добро пожаловать на платформу Саши Совы',
+    //                 html: `
+    //                     <h1>Сова тебя приветствует!</h1>
+    //                     <p>Твой тариф: ${user.tarif}</p>.
+    //                     <div>
+    //                         <p>Твой логин- ${user.email}</p>
+    //                         <p>Твой пароль- ${user.password}</p>
+    //                     </div>
+    //                     <button>
+    //                         <a href="https://sova-courses.site">Присоединиться</a>
+    //                     </button>
+    //                 `
+    //             })
+    //         });
+    //         // console.log(newPasses);
+    //         return res.status(201).send(data);
     //     })
-
+    //     .catch((err) => {
+    //         if(err.code === 11000) {
+    //             res.status(400).send({message: "Кто-то из пользователей уже есть"})
+    //             // throw new Error('Кто-то из пользователей уже есть на платформе')
+    //         }
+    //     })
+       
     // })
+    // // const { email, password, name, courses } = req.body;
+    // // console.log(courses);
+    // // return User.findOne({email: email})
+    // // .then((doc) => {
+    // //     if(doc) {
+    // //         return res.status(400).send({message: 'Пользователь существует'});
+    // //     }
+    // //     return bcrypt.hash(password, 10)
+    // //     .then((hash) => {
+    // //         return User.create({ email: email, password: hash, name: name, courses: courses})
+    // //         .then((doc) => {
+    // //             if(!doc) {
+    // //                 return;
+    // //             }
+    // //             console.log(doc);
+    // //             const coursesIds = courses.map((course) => {
+    // //                 return course._id;
+    // //             })
+    // //             Courses.updateMany({_id: {$in: coursesIds} }, {
+    // //                 $addToSet: {
+    // //                     students: doc._id.toString(),
+    // //                 }
+    // //             })
+    // //             .then((docs) => {
+    // //                 if(!docs) {
+    // //                     return;
+    // //                 }
+    // //                 const updatedCourses = Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+    // //                 .then((returnedCourses) => {
+    // //                     return returnedCourses;
+    // //                     // if(!docs) {
+    // //                     //     return;
+    // //                     // }
+    // //                     // res.status(201).send(docs);
+    // //                 })
+    // //                 const updatedUsers = User.find({admin: false})
+    // //                 .then((users) => {
+    // //                     return users;
+    // //                 })
+    // //                 Promise.all([updatedCourses, updatedUsers])
+    // //                 .then((values) => {
+    // //                     console.log(values);
+    // //                     const [returnedCourses, users] = values;
+    // //                     if(!returnedCourses || !users) {
+    // //                         return
+    // //                     }
+    // //                     res.status(201).send({courses: returnedCourses, students: users});
+    // //                 })
+    // //             })
+    // //             // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
+    // //             // .then((docs) => {
+    // //             //     if(!docs) {
+    // //             //         return;
+    // //             //     }
+    // //             //     console.log(docs);
+    // //             //     // res.status(201).send(docs);
+    // //             // })
+
+    // //             // const token = jwt.sign({ _id: doc._id}, 'Alekska_nityk')
+    // //             // return res.status(201).send({token});
+    // //         }); 
+    // //     })
+
+    // // })
 };
 
 const showCurrentUser = (req, res) => {

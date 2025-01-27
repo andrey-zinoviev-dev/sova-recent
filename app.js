@@ -18,8 +18,8 @@ const { securedRouter } = require('./routes/securedRouter');
 
 const { errorHandler } = require("./middlewares/errorHandler");
 // 
-// mongoose.connect('mongodb://127.0.0.1:27017/sova')
-mongoose.connect('mongodb://127.0.0.1:27017/test')
+mongoose.connect('mongodb://127.0.0.1:27017/sova')
+// mongoose.connect('mongodb://127.0.0.1:27017/test')
 .catch((err) => {
     console.log(err);
 });
@@ -35,7 +35,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         // origin: false, 
-        origin: ['http://localhost:3001', 'http://localhost:3002', 'https://sova-courses.site', 'https://www.sova-courses.site'],
+        origin: ['http://localhost:3001', " http://localhost:5173", 'http://localhost:3002', 'https://sova-courses.site', 'https://www.sova-courses.site'],
         credentials: true,
     }
 });
@@ -235,7 +235,7 @@ io.on('connection', (socket) => {
 
 //cors setup
 app.use(cors({
-    origin: ['http://127.0.0.1:5501', 'http://localhost:3001', 'http://localhost:3002', 'https://sova-courses.site', 'https://www.sova-courses.site'],
+    origin: ['http://127.0.0.1:5501', "http://localhost:5173", 'http://localhost:3001', 'http://localhost:3002', 'https://sova-courses.site', 'https://www.sova-courses.site'],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
 }))
