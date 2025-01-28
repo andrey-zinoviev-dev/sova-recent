@@ -14,7 +14,7 @@ const { secureRoutes } = require('./middlewares/auth');
 
 const { securedRouter } = require('./routes/securedRouter');
 
-
+const dotEnv = require("dotenv").config();
 
 const { errorHandler } = require("./middlewares/errorHandler");
 // 

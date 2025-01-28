@@ -22,7 +22,7 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "csvtojson": "^2.0.10",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "ejs": "^3.1.8",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.4.0",

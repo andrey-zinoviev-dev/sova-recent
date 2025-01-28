@@ -51,7 +51,17 @@ const login = (req, res, next) => {
             //     message: "Проверьте почту или пароль",
             // });
         }
-        return res.status(200).send({})
+        const hashedPassword = bcrypt.compareSync(password, doc.password);
+
+        if(!hashedPassword) {
+            throw new Error("Проверьте пароль");
+        }
+        const token = jwt.sign({_id: doc._id}, process.env.JWT);
+
+        // console.log(doc);
+
+        return res.cookie("token", token, {httpOnly: true}).status(200).send({loggedIn: true})
+        // return res.status(200).send({})
     //     return bcrypt.compare(password, doc.password)
     //     .then((matched) => {
     //         // console.log(matched);
@@ -81,14 +91,16 @@ const login = (req, res, next) => {
 
 
 const register = (req, res, next) => {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
     // console.log("check reg data here")
     User.findOne({email: email})
     .then((doc) => {
         if(doc) {
             throw new Error("Такой пользователь существует")
         }
-        return User.create(req.body)
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        
+        return User.create({email: email, password: hashedPassword, name: name})
         .then((createdUser) => {
             return res.status(201).send(JSON.stringify(createdUser));
         })
