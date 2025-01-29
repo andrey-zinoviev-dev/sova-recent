@@ -22,13 +22,13 @@ const transporter = nodemailer.createTransport({
     }
 })
 
-transporter.verify((err, success) => {
-    if(err) {
-        console.log(err);
-    } else {
-        console.log('connected to smtp');
-    }
-})
+// transporter.verify((err, success) => {
+//     if(err) {
+//         console.log(err);
+//     } else {
+//         console.log('connected to smtp');
+//     }
+// })
 
 // transporter.sendMail({
 //     from: 'admin@sovacourses.site',
@@ -56,11 +56,16 @@ const login = (req, res, next) => {
         if(!hashedPassword) {
             throw new Error("Проверьте пароль");
         }
-        const token = jwt.sign({_id: doc._id}, process.env.JWT);
+        const token = jwt.sign({_id: doc._id}, process.env.JWT, {
+            // expiresIn: "1m"
+        });
+
+        const refreshToken = jwt.sign({_id: doc._id}, process.env.JWT);
 
         // console.log(doc);
+        // return res.cookie("token", token, {httpOnly: true}).status(200).send({loggedIn: true});
 
-        return res.cookie("token", token, {httpOnly: true}).status(200).send({loggedIn: true})
+        return res.cookie("token", token, {httpOnly: true}).cookie("refreshToken", refreshToken, {httpOnly: true}).status(200).send({loggedIn: true})
         // return res.status(200).send({})
     //     return bcrypt.compare(password, doc.password)
     //     .then((matched) => {
@@ -248,6 +253,26 @@ const register = (req, res, next) => {
     // // })
 };
 
+const refreshUserToken = (req, res, next) => {
+    const refreshToken = req.cookies["refreshToken"];
+    if(!refreshToken) {
+        throw new Error("Необходима авторизация");
+    }
+
+    try {
+        const payload = jwt.verify(refreshToken, process.env.JWT);
+        const accessToken = jwt.sign({_id: payload._id}, process.env.JWT, {
+            expiresIn: "1m"
+        });
+
+        return res.cookie("token", accessToken).status(201).send({loggedIn: true})
+    }
+
+    catch (err) {
+        next({codeStatus: 401, message: err.message})
+    }
+};
+
 const showCurrentUser = (req, res) => {
     const { _id } = req.user;
     // console.log(_id);
@@ -333,6 +358,7 @@ const updateuser = (req, res) => {
 module.exports = {
     login,
     register,
+    refreshUserToken,
     showCurrentUser,
     redirectToLoggedInPage,
     getAllStudents,
