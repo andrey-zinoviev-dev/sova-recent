@@ -13,10 +13,11 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
     },
-    admin: {
-        type: Boolean,
-        default: false,
-    },
+    // admin: {
+    //     type: Boolean,
+    //     default: false,
+    // },
+    roles: [String],
     courses: [{
         _id: String,
         tarif: {

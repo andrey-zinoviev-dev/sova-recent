@@ -43,40 +43,43 @@ const requestCourses = (req, res, next) => {
   // console.log(req.user);
   // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
   
-  Courses.find({}).populate({path: 'author'}).populate({path: 'students'})
+  // Courses.find({}).populate({path: 'author'}).populate({path: 'students'})
+  Courses.find({})
   .then((docs) => {
     // console.log(docs);
     if(!docs) {
-      return res.status(401).send({
+      return res.status(400).send({
         message: "Курсы не найдены"
       });
     }
 
+    return res.status(200).send(docs);
+
     // console.log(docs);
-    const coversToRead = docs.map((doc) => {
-      const readCommand = new GetObjectCommand({
-        Bucket: process.env.BUCKET_NAME,
-        Key: doc.cover.title,
-      });
-      return getSignedUrl(s3, readCommand, {expiresIn: 60})
-      .then((url) => {
-        return doc.cover.path = url;
-      })
-      .catch((err) => {
-        throw new Error ("не найдены файлы");
-      })
-    });
-    Promise.all(coversToRead)
-    .then((covers) => {
-      console.log(docs);
-      // console.log(covers);
-      return res.status(200).send(docs);
-    })
-    .catch((err) => {
-      // console.log(err);
-      next({codeStatus: 401, message: err.message})
-    })
-    console.log(docs);
+    // const coversToRead = docs.map((doc) => {
+    //   const readCommand = new GetObjectCommand({
+    //     Bucket: process.env.BUCKET_NAME,
+    //     Key: doc.cover.title,
+    //   });
+    //   return getSignedUrl(s3, readCommand, {expiresIn: 60})
+    //   .then((url) => {
+    //     return doc.cover.path = url;
+    //   })
+    //   .catch((err) => {
+    //     throw new Error ("не найдены файлы");
+    //   })
+    // });
+    // Promise.all(coversToRead)
+    // .then((covers) => {
+    //   console.log(docs);
+    //   // console.log(covers);
+    //   return res.status(200).send(docs);
+    // })
+    // .catch((err) => {
+    //   // console.log(err);
+    //   next({codeStatus: 401, message: err.message})
+    // })
+    // console.log(docs);
     
   });
 };

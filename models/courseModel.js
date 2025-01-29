@@ -29,7 +29,7 @@ const lessonModel = require('./lessonsModel');
 // });
 
 const courseSchema = new mongoose.Schema({
-  name: {
+  title: {
     type: String,
   },
   description: {
@@ -52,14 +52,14 @@ const courseSchema = new mongoose.Schema({
   //   // tarif: String,
   //   // type: mongoose.Schema.Types.ObjectId, ref: "User",
   // }],
-  available: {
-    type: Boolean,
-    default: true,
-  },
-  hidden: {
-    type: Boolean,
-    default: true,
-  },
+  // available: {
+  //   type: Boolean,
+  //   default: true,
+  // },
+  // hidden: {
+  //   type: Boolean,
+  //   default: true,
+  // },
   // modules: [
   //   new mongoose.Schema({
   //     title: String,
@@ -99,7 +99,7 @@ const courseSchema = new mongoose.Schema({
   author: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
   },
-  cover: Object,
+  // cover: Object,
   tarifs: {
     type: Array,
     required: true,
