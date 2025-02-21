@@ -18,23 +18,28 @@ const userSchema = new mongoose.Schema({
     //     default: false,
     // },
     roles: [String],
-    courses: [{
+    courses: [
+        {
+            course: { type: mongoose.Schema.Types.ObjectId, ref: "courses" },
+        }
+    //     {
 
-        // course: { type: mongoose.Schema.Types.ObjectId, ref: "courses" },
-        // title: String,
+    //     // course: { type: mongoose.Schema.Types.ObjectId, ref: "courses" },
+    //     // title: String,
         
-        // courseData: { type: mongoose.Schema.Types.ObjectId, ref: "courses"},
-        // // title: 
-        // tarif: {
-        //     name: String,
-        //     start: String,
-        //     expire: String,
-        // }
+    //     // courseData: { type: mongoose.Schema.Types.ObjectId, ref: "courses"},
+    //     // // title: 
+    //     // tarif: {
+    //     //     name: String,
+    //     //     start: String,
+    //     //     expire: String,
+    //     // }
 
-        type: mongoose.Schema.Types.ObjectId, ref: 'courses',
+    //     type: mongoose.Schema.Types.ObjectId, ref: 'courses',
 
 
-    }],
+    // }
+    ],
     // online: {
     //     type: Boolean, 
     //     default: false,
