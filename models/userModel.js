@@ -19,16 +19,21 @@ const userSchema = new mongoose.Schema({
     // },
     roles: [String],
     courses: [{
-        course: { type: mongoose.Schema.Types.ObjectId, ref: "courses" },
+
+        // course: { type: mongoose.Schema.Types.ObjectId, ref: "courses" },
         // title: String,
         
         // courseData: { type: mongoose.Schema.Types.ObjectId, ref: "courses"},
         // // title: 
-        tarif: {
-            name: String,
-            start: String,
-            expire: String,
-        }
+        // tarif: {
+        //     name: String,
+        //     start: String,
+        //     expire: String,
+        // }
+
+        type: mongoose.Schema.Types.ObjectId, ref: 'courses',
+
+
     }],
     // online: {
     //     type: Boolean, 
