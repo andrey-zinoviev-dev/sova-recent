@@ -44,7 +44,7 @@ const requestCourses = (req, res, next) => {
   // Courses.find({}).populate({path: 'modules', populate: {path: "lessons"}}).populate({path: "author"}).populate({path: 'students'})
   
   // Courses.find({}).populate({path: 'author'}).populate({path: 'students'})
-  Courses.find({})
+  Courses.find({}).populate({path: "author"})
   .then((docs) => {
     // console.log(docs);
     if(!docs) {

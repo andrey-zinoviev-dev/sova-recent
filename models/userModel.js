@@ -19,7 +19,11 @@ const userSchema = new mongoose.Schema({
     // },
     roles: [String],
     courses: [{
-        _id: String,
+        course: { type: mongoose.Schema.Types.ObjectId, ref: "courses" },
+        // title: String,
+        
+        // courseData: { type: mongoose.Schema.Types.ObjectId, ref: "courses"},
+        // // title: 
         tarif: {
             name: String,
             start: String,

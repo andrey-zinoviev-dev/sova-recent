@@ -281,7 +281,7 @@ const showCurrentUser = (req, res) => {
             message: "Пользователь не найден",
         });
     }
-    User.findById(_id).select('-password').populate('courses')
+    User.findById(_id).select('-password').populate({path: "courses", populate: {path: "course", select: ["title", "description", "modules", "lessons", "author"]}})
     .then((doc) => {
         // console.log(doc);
         return res.status(200).send(doc);
