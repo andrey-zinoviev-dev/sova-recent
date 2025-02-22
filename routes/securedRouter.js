@@ -26,7 +26,7 @@ securedRouter.post('/register', upload.array('csv'), register)
 
 securedRouter.get('/currentUser', showCurrentUser);
 securedRouter.get('/courses', redirectToLoggedInPage);
-securedRouter.get('/coursesList', requestCourses);
+// securedRouter.get('/coursesList', requestCourses);
 securedRouter.get('/courses/:id', getCourse);
 securedRouter.get('/findCourse/:name', findCourse)
 securedRouter.post('/courses/add', createCourse);
